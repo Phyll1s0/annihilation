@@ -11,7 +11,7 @@ DIRECTIONS = {"up": (0, -1), "right": (1, 0), "down": (0, 1), "left": (-1, 0)}
 
 def initial(level):
     layout = "".join(level["layout"])
-    board = tuple(-1 if c == "#" else {"A": 1, "B": 2}.get(c, 0) for c in layout)
+    board = tuple(-1 if c == "#" else ord(c) - 64 if c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" else 0 for c in layout)
     pieces = [1 if c == "w" else -1 if c == "b" else 0 for c in layout]
     for cell, color in level.get("tokens", []):
         pieces[cell] = color
@@ -21,7 +21,7 @@ def initial(level):
 def validate(level):
     rows = level["layout"]
     assert rows and rows[0] and all(len(row) == len(rows[0]) for row in rows)
-    assert all(c in "#.wbAB" for row in rows for c in row)
+    assert all(c in "#.wbABCDEFGHIJKLMNOPQRSTUVWXYZ" for row in rows for c in row)
     assert len({int(t[0]) for t in level.get("tokens", [])}) == len(level.get("tokens", []))
     for cell, color in level.get("tokens", []):
         assert isinstance(cell, int) and 0 <= cell < len("".join(rows))
@@ -29,7 +29,7 @@ def validate(level):
     board, pieces = initial(level)
     assert sum(pieces) == 0 and any(pieces), "Equal, nonzero black/white counts required"
     assert all(board[i] >= 0 for i, c in enumerate(pieces) if c)
-    assert all(board.count(group) in (0, 2) for group in (1, 2))
+    assert all(board.count(group) in (0, 2) for group in range(1, 27))
 
 
 def move(state, width, source, direction):

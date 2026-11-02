@@ -448,5 +448,413 @@
       "method": "exhaustive_bfs",
       "visited": 8547
     }
+  },
+  {
+    "id": "13",
+    "title": "两段路",
+    "chapter": "留与失",
+    "description": "先决定留下哪一段路，再决定谁向谁靠近。",
+    "layout": [
+      "w..bw..b"
+    ],
+    "concept": "分区配对",
+    "optimal_moves": 6,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 4,
+        "direction": "right"
+      },
+      {
+        "source": 5,
+        "direction": "right"
+      },
+      {
+        "source": 6,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 202
+    }
+  },
+  {
+    "id": "14",
+    "title": "三次相遇",
+    "chapter": "留与失",
+    "description": "三对黑白，共用一处窄口。别让最后一对无路可走。",
+    "layout": [
+      "w.b.w",
+      "##.##",
+      "b.w.b"
+    ],
+    "concept": "公共通路与消融顺序",
+    "optimal_moves": 10,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "down"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 10,
+        "direction": "right"
+      },
+      {
+        "source": 12,
+        "direction": "right"
+      },
+      {
+        "source": 7,
+        "direction": "down"
+      },
+      {
+        "source": 11,
+        "direction": "right"
+      },
+      {
+        "source": 13,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 6551
+    }
+  },
+  {
+    "id": "15",
+    "title": "借一步",
+    "chapter": "留与失",
+    "description": "同色挡在前面时，不妨先为彼此借出一个位置。",
+    "layout": [
+      "ww..",
+      "...b",
+      "#b##"
+    ],
+    "concept": "同色借位",
+    "optimal_moves": 6,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "down"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "down"
+      },
+      {
+        "source": 4,
+        "direction": "right"
+      },
+      {
+        "source": 5,
+        "direction": "down"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 630
+    }
+  },
+  {
+    "id": "16",
+    "title": "桥两端",
+    "chapter": "留与失",
+    "description": "不是每一块地板都适合用来告别。",
+    "layout": [
+      "w...b",
+      "##.##",
+      "b...w"
+    ],
+    "concept": "保留唯一连接",
+    "optimal_moves": 8,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 10,
+        "direction": "right"
+      },
+      {
+        "source": 11,
+        "direction": "right"
+      },
+      {
+        "source": 12,
+        "direction": "right"
+      },
+      {
+        "source": 13,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 721
+    }
+  },
+  {
+    "id": "17",
+    "title": "先过门",
+    "chapter": "往复",
+    "description": "另一端还有棋子在等。先疏通出口，再安排下一次传送。",
+    "layout": [
+      "wwA#A.b",
+      "...###b"
+    ],
+    "concept": "出口疏通与桥头保护",
+    "optimal_moves": 10,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "down"
+      },
+      {
+        "source": 6,
+        "direction": "left"
+      },
+      {
+        "source": 5,
+        "direction": "left"
+      },
+      {
+        "source": 2,
+        "direction": "down"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 4,
+        "direction": "right"
+      },
+      {
+        "source": 5,
+        "direction": "right"
+      },
+      {
+        "source": 6,
+        "direction": "down"
+      },
+      {
+        "source": 7,
+        "direction": "right"
+      },
+      {
+        "source": 8,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 834
+    }
+  },
+  {
+    "id": "18",
+    "title": "留一扇门",
+    "chapter": "往复",
+    "description": "让一扇门消失，再走过另一扇门留下的地板。",
+    "layout": [
+      "#w##",
+      "wA.b",
+      "###A"
+    ],
+    "concept": "传送门退化后的路线",
+    "optimal_moves": 4,
+    "solution": [
+      {
+        "source": 1,
+        "direction": "down"
+      },
+      {
+        "source": 4,
+        "direction": "right"
+      },
+      {
+        "source": 5,
+        "direction": "right"
+      },
+      {
+        "source": 6,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 29
+    },
+    "tokens": [
+      [
+        11,
+        -1
+      ]
+    ]
+  },
+  {
+    "id": "19",
+    "title": "双向来信",
+    "chapter": "往复",
+    "description": "两组传送门连接不同的路。让相遇发生在对的地方。",
+    "layout": [
+      "wA#B.b",
+      ".##.##",
+      "bB#A.w"
+    ],
+    "concept": "跨区调度",
+    "optimal_moves": 10,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 5,
+        "direction": "left"
+      },
+      {
+        "source": 4,
+        "direction": "left"
+      },
+      {
+        "source": 12,
+        "direction": "up"
+      },
+      {
+        "source": 6,
+        "direction": "up"
+      },
+      {
+        "source": 15,
+        "direction": "up"
+      },
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 9,
+        "direction": "up"
+      },
+      {
+        "source": 15,
+        "direction": "right"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 1210
+    }
+  },
+  {
+    "id": "20",
+    "title": "让出出口",
+    "chapter": "往复",
+    "description": "有时需要先移动目的地的棋子，旅程才真正开始。",
+    "layout": [
+      "wA#A.bb",
+      "###...."
+    ],
+    "concept": "同色出口阻挡与绕行",
+    "tokens": [
+      [
+        3,
+        1
+      ]
+    ],
+    "optimal_moves": 8,
+    "solution": [
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "down"
+      },
+      {
+        "source": 4,
+        "direction": "right"
+      },
+      {
+        "source": 6,
+        "direction": "down"
+      },
+      {
+        "source": 10,
+        "direction": "right"
+      },
+      {
+        "source": 11,
+        "direction": "right"
+      },
+      {
+        "source": 12,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 781
+    }
   }
 ]

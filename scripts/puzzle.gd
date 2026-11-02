@@ -14,7 +14,8 @@ static func from_level(level: Dictionary) -> Dictionary:
 	var pieces: Array[int] = []
 	for row in rows:
 		for glyph in str(row):
-			board.append(-1 if glyph == "#" else (1 if glyph == "A" else (2 if glyph == "B" else 0)))
+			var portal: int = glyph.unicode_at(0) - 64 if glyph in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" else 0
+			board.append(-1 if glyph == "#" else portal)
 			pieces.append(1 if glyph == "w" else (-1 if glyph == "b" else 0))
 	for token in level.get("tokens", []):
 		pieces[int(token[0])] = int(token[1])

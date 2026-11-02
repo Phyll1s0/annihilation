@@ -19,6 +19,10 @@ var elapsed := 0.0
 var clock := 0.0
 var unit := 80.0
 var origin := Vector2.ZERO
+var reduce_motion := false
+var show_hints := true
+var padding := Vector2(88, 80)
+var maximum_unit := 94.0
 
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -31,6 +35,10 @@ func present(next: Dictionary, selection: int) -> void:
 	queue_redraw()
 
 func animate(result: Dictionary, before: Dictionary) -> void:
+	if reduce_motion:
+		motion = {}
+		queue_redraw()
+		return
 	motion = result
 	previous = before
 	elapsed = 0.0
@@ -49,13 +57,13 @@ func _process(delta: float) -> void:
 		if elapsed >= 0.34:
 			motion = {}
 			animation_finished.emit()
-	if selected >= 0 or animating():
+	if (selected >= 0 and not reduce_motion) or animating():
 		queue_redraw()
 
 func _layout_board() -> void:
 	if state.is_empty():
 		return
-	unit = minf(94.0, minf((size.x - 88.0) / state.width, (size.y - 80.0) / state.height))
+	unit = minf(maximum_unit, minf((size.x - padding.x) / state.width, (size.y - padding.y) / state.height))
 	origin = (size - Vector2(state.width, state.height) * unit) / 2.0
 
 func center_of(index: int) -> Vector2:
@@ -88,17 +96,19 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
-	var rect := Rect2(center_of(index) - Vector2.ONE * (unit - 8) / 2.0, Vector2.ONE * (unit - 8))
+	var tile_size := unit - minf(8, unit * 0.12)
+	var rect := Rect2(center_of(index) - Vector2.ONE * tile_size / 2.0, Vector2.ONE * tile_size)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color("e6e6dc") if portal == 0 else Color("dadcd2")
 	style.bg_color.a = opacity
 	style.border_color = Color(LINE, opacity)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(10)
+	style.set_corner_radius_all(int(minf(10, unit * 0.14)))
 	draw_style_box(style, rect)
 	if portal > 0:
-		var tag := "A" if portal == 1 else "B"
-		draw_string(font, rect.position + Vector2(8, 17), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(INK, opacity * 0.60))
+		var tag := String.chr(64 + portal)
+		var tag_size := clampi(int(unit * 0.16), 8, 12)
+		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(INK, opacity * 0.60))
 		draw_arc(center_of(index), unit * 0.31, 0, TAU, 48, Color(INK, opacity * 0.22), 1.0, true)
 		draw_arc(center_of(index), unit * 0.26, 0, TAU, 48, Color(INK, opacity * 0.12), 1.0, true)
 
@@ -111,7 +121,7 @@ func _piece(point: Vector2, color: int, radius: float, opacity: float = 1.0, act
 	draw_circle(point - Vector2(radius * 0.25, radius * 0.30), radius * 0.14,
 		Color(PAPER if color == -1 else INK, opacity * 0.35), true, -1, true)
 	if active:
-		var pulse := 1.0 + sin(clock * 3.0) * 0.025
+		var pulse := 1.0 if reduce_motion else 1.0 + sin(clock * 3.0) * 0.025
 		draw_arc(point, (radius + 7) * pulse, 0, TAU, 64, Color(INK, 0.65), 1.4, true)
 
 func _draw() -> void:
@@ -126,7 +136,7 @@ func _draw() -> void:
 			_tile(i, state.board[i])
 	if animating() and motion.merged:
 		_tile(motion.target, previous.board[motion.target], 1.0 - t)
-	if selected >= 0 and not animating():
+	if show_hints and selected >= 0 and not animating():
 		for direction in Puzzle.DIRECTIONS:
 			var result := Puzzle.move(state, selected, direction)
 			if not result.is_empty():

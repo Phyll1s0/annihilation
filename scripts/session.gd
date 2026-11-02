@@ -27,7 +27,8 @@ func play(direction: String) -> Dictionary:
 	var result := Puzzle.move(state, selected, direction)
 	if result.is_empty():
 		return {}
-	history.append({"state": state, "selected": selected, "steps": steps})
+	history.append({"state": state, "selected": selected, "steps": steps,
+		"action": {"source": selected, "direction": direction}})
 	state = result.state
 	steps += 1
 	selected = -1 if result.merged else int(result.target)
@@ -44,6 +45,30 @@ func undo() -> bool:
 
 func cleared() -> bool:
 	return Puzzle.won(state) and (not hard_mode or steps == int(level.optimal_moves))
+
+func actions() -> Array:
+	var result: Array = []
+	for entry in history:
+		result.append(entry.action.duplicate())
+	return result
+
+func restore(definition: Dictionary, hard: bool, saved_actions: Array) -> bool:
+	start(definition, hard)
+	if saved_actions.size() > 10000:
+		return false
+	for action in saved_actions:
+		if not action is Dictionary or not action.get("direction") is String:
+			restart()
+			return false
+		var source = action.get("source")
+		if not (source is int or source is float) or not is_finite(source) or source != floor(source) or source < 0 or source >= state.pieces.size():
+			restart()
+			return false
+		selected = int(source)
+		if play(action.direction).is_empty():
+			restart()
+			return false
+	return true
 
 func cycle_selection(backwards: bool = false) -> void:
 	var selectable: Array[int] = []

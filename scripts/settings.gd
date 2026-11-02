@@ -1,0 +1,28 @@
+class_name GraySettings
+extends RefCounted
+
+var path: String
+var reduce_motion := false
+var show_hints := true
+var fullscreen := false
+var hard_mode := false
+
+func _init(config_path: String = "user://settings.cfg") -> void:
+	path = config_path
+	var config := ConfigFile.new()
+	if config.load(path) != OK:
+		return
+	for property in ["reduce_motion", "show_hints", "fullscreen", "hard_mode"]:
+		var value = config.get_value("preferences", property, get(property))
+		if value is bool:
+			set(property, value)
+
+func save() -> Error:
+	var config := ConfigFile.new()
+	for property in ["reduce_motion", "show_hints", "fullscreen", "hard_mode"]:
+		config.set_value("preferences", property, get(property))
+	return config.save(path)
+
+func apply_window() -> void:
+	if DisplayServer.get_name() != "headless":
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)

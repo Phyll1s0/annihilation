@@ -2,9 +2,11 @@
 
 黑与白，相遇之后。
 
-用 **Godot 4 + GDScript** 独立实现的回合制网格解谜游戏。保留 Neutronic 的移动、异色消融、地板消失和传送门规则，采用黑白视觉与原创关卡。暂定中文名「灰」，英文名 **GRAY**。
+用 **Godot 4 + GDScript** 重写作者自己的 Neutronic。沿用移动、异色消融、地板消失和传送门规则，重新组织游戏流程、架构、黑白视觉与关卡。暂定中文名「灰」，英文名 **GRAY**。
 
-![GRAY 游戏界面](docs/images/gray.png)
+![GRAY 首页](docs/images/home.png)
+
+当前为 **0.2 框架版**：首页 → 章节选关 → 游戏 → 暂停／设置／继续，包含 6 个章节、20 个原创关卡。
 
 ## 开始游戏
 
@@ -17,7 +19,10 @@ godot --path .
 - 点选棋子，再点相邻格；也可以用方向键或 WASD 移动。
 - Tab / Shift Tab 切换棋子，Esc 取消选择。
 - Z 撤销，R 重开。无效移动不计步，选择棋子不计步。
-- 12 个原创关卡全部开放，每关可切换简单和困难模式。切换模式会重开当前关卡。
+- 20 个原创关卡全部开放，每关可切换简单和困难模式。切换模式会重开当前关卡。
+- 未完成的对局自动保存，重新启动后可从首页继续，撤销历史也会恢复。
+- Esc 先取消棋子选择，再打开暂停菜单；F11 切换全屏。
+- 设置支持显示可走邻格、减少动态效果和全屏，偏好会自动保存。
 
 ## 玩法
 
@@ -32,22 +37,20 @@ godot --path .
 
 困难模式超步后可以继续探索、撤销或重开；清空棋盘会保留简单通关记录，但不会获得困难标记。简单模式即使走出最优解，也需要切换到困难模式完成一次，才会获得困难标记。撤销会恢复地板、传送门、棋子、选择和步数。
 
-进度保存在 Godot 的 `user://progress.json`，采用独立的简单／困难标记和跨模式个人最佳。没有账号或联网依赖。
+进度保存在 Godot 的 `user://progress.json`，设置保存在 `user://settings.cfg`。简单／困难标记独立，个人最佳跨模式共享。存档包含关卡内容哈希；改变布局、棋子、传送门或最优步数后，旧记录不会错误地套用到新关卡。首版 12 关的旧存档支持迁移。
 
 ## 实现与验证
 
-规则层、会话层、渲染层和存档层分离。关卡保存在 `data/levels.json`；每关附带最优步数、合法解和 BFS 搜索记录。Python 与 GDScript 两套独立求解器会交叉验证最优步数，搜索超限不会生成「最优」结论。
+应用导航、独立页面、规则层、会话层、渲染层和存档层分离。关卡保存在 `data/levels.json`；每关附带最优步数、合法解和 BFS 搜索记录。Python 与 GDScript 两套独立求解器会交叉验证最优步数，搜索超限不会生成「最优」结论。
 
 ```bash
-python3 tools/certify_levels.py
-godot --headless --path . --editor --import --quit
-godot --headless --path . --script tests/run_tests.gd
-godot --path . --script tests/ui_smoke.gd
+python3 tools/check.py
+python3 tools/check.py --visual
 ```
 
-最后一项测试会实际发送鼠标和键盘输入，验证通关、困难超步、动画中撤销及存档，并在 `builds/` 生成 1280×820、960×680 截图。测试使用独立存档，不影响游戏进度。
+检查包含关卡认证、规则、存档迁移、版本失效、断点恢复、偏好保存，以及实际鼠标和键盘操作。`--visual` 会打开原生窗口，在 `builds/` 生成首页、选关、设置和游戏的截图。测试使用独立存档，不影响游戏进度。检查入口也会识别 Godot 日志中的脚本异常，防止引擎退出码为 0 时漏报。
 
-修改或增加关卡后，运行 `python3 tools/certify_levels.py --write` 重新认证，再运行 Godot 测试。当前关卡最优解为 **1～12 步**，属于首版教学与机制验证内容，后续还需要扩充长线关卡。
+修改或增加关卡后，运行 `python3 tools/certify_levels.py --write` 重新认证，再运行检查。当前最优解为 **1～12 步**。后八关重点训练通路保留、同色借位、传送门退化与出口疏通；正式难度曲线还需试玩调整。
 
 ## 导出
 
@@ -66,4 +69,4 @@ godot --headless --path . --export-release Web builds/web/index.html
 - [原项目分析和 Godot 实现方案](docs/design.md)
 - [关卡编写与最优步数认证](docs/levels.md)
 
-本项目的代码、关卡和矢量资源均独立编写。玩法研究参考 [Neutronic](https://github.com/RayZh-hs/neutronic)，未复制其源码、关卡数据或美术资源。仓库保留原有 MIT License。
+原作 [Neutronic](https://github.com/RayZh-hs/neutronic) 同样由本项目作者开发，成熟的规则、交互和关卡思路可以继续复用。当前主线采用重新设计的关卡与矢量界面，仓库保留原有 MIT License。

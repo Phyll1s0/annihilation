@@ -2,6 +2,7 @@ extends SceneTree
 ## Runs real Control input and renders screenshots. Uses an isolated save file.
 
 const Progress = preload("res://scripts/progress.gd")
+const Settings = preload("res://scripts/settings.gd")
 var ui
 var failures := 0
 var save_path := "user://ui_test_%d.json" % OS.get_process_id()
@@ -49,8 +50,9 @@ func _run() -> void:
 	var ignore := FileAccess.open("res://builds/.gdignore", FileAccess.WRITE)
 	ignore.close()
 	root.size = Vector2i(1280, 820)
-	ui = load("res://scenes/main.tscn").instantiate()
+	ui = load("res://scenes/game_screen.tscn").instantiate()
 	ui.progress = Progress.new(save_path)
+	ui.settings = Settings.new(save_path + ".cfg")
 	root.add_child(ui)
 	await settle()
 	check(ui.title_label.text == "初见", "First level loads")
@@ -109,5 +111,6 @@ func _run() -> void:
 	check(ui.board.size.y >= 220 and ui.board.get_global_rect().end.y < 680, "Board fits the minimum window height")
 	await capture("gray-960")
 	DirAccess.remove_absolute(save_path)
+	DirAccess.remove_absolute(save_path + ".cfg")
 	print("GRAY UI smoke: %d failures; screenshots in builds/" % failures)
 	quit(1 if failures else 0)
