@@ -6,7 +6,7 @@ NULL uses black-and-white pieces against a pure black background (#000000), with
 - scripts/ui/void_background.gd draws vector stars, slowly drifting trails, and an occasional meteor over solid black. Details fade during play. Reduced motion freezes the trails and disables meteors.
 - icon.svg and toggle-*.svg are project-specific vector assets.
 - Settings toggles use DPITexture resources, rasterized from their SVG source at the current UI size. Interface icons retain their full source resolution and use mipmaps when reduced.
-- The NULL wordmark uses [Oxanium ExtraLight](https://github.com/sevmeyer/oxanium), with its SIL Open Font License in fonts/oxanium-OFL.txt. It scales at the current display resolution.
+- The NULL wordmark uses Poppins ExtraLight and scales at the current display resolution.
 - Poppins-ExtraLight.ttf and Poppins-Regular.ttf come from the Google Fonts repository. The bundled OFL license is retained in source and export packages. Chinese text uses system font fallbacks.
 - General interface icons use Ionicons 7.1.0, with grayscale tinting applied by Godot. Their license is included in icons/LICENSE.txt.
 
