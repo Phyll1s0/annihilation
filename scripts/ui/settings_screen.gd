@@ -11,12 +11,24 @@ var general_button: Button
 var controls_button: Button
 var language_selector: OptionButton
 var status_message := "Settings are saved automatically."
+var frame: MarginContainer
+var back_button: Button
+var toggle_on: DPITexture
+var toggle_off: DPITexture
+var language_arrow: DPITexture
+var language_arrow_scale := 1.0
+var ui_scale := 1.0
 
 func _ready() -> void:
 	settings.apply_language()
 	_setup_theme()
-	_back_button(func(): navigation_requested.emit("back"))
+	toggle_on = preload("res://assets/icons/toggle-on.svg").duplicate()
+	toggle_off = preload("res://assets/icons/toggle-off.svg").duplicate()
+	theme.set_icon("checked", "CheckButton", toggle_on)
+	theme.set_icon("unchecked", "CheckButton", toggle_off)
+	back_button = _back_button(func(): navigation_requested.emit("back"))
 	var margin := _margin(self, 82)
+	frame = margin
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 128)
 	margin.add_theme_constant_override("margin_right", 128)
@@ -64,6 +76,11 @@ func _ready() -> void:
 	language_selector.add_item("简体中文")
 	language_selector.item_selected.connect(_set_language)
 	language_row.add_child(language_selector)
+	var arrow = language_selector.get_theme_icon("arrow")
+	if arrow is DPITexture:
+		language_arrow = arrow.duplicate()
+		language_arrow_scale = language_arrow.base_scale
+		language_selector.add_theme_icon_override("arrow", language_arrow)
 	for entry in [["show_hints", "Show legal moves", "Show reachable tiles when a particle is selected."],
 		["reduce_motion", "Reduced motion", "Freeze the sky and show moves without animation."],
 		["fullscreen", "Fullscreen", "Press F11 to toggle fullscreen."]]:
@@ -109,6 +126,68 @@ func _ready() -> void:
 	page.add_child(status)
 	_tab(false)
 	refresh()
+	_remember_layout(self)
+	frame.minimum_size_changed.connect(_fit_frame)
+	resized.connect(_layout_settings)
+	_layout_settings()
+
+func _remember_layout(node: Node) -> void:
+	if node is Control:
+		node.set_meta("base_minimum", node.custom_minimum_size)
+	if node is Label or node is Button:
+		node.set_meta("base_font_size", node.get_theme_font_size("font_size"))
+		var font = node.get_theme_font("font")
+		if font is FontVariation:
+			node.set_meta("base_tracking", font.spacing_glyph)
+	if node is BoxContainer:
+		node.set_meta("base_separation", node.get_theme_constant("separation"))
+	if node is MarginContainer:
+		var margins := {}
+		for edge in ["left", "top", "right", "bottom"]:
+			margins[edge] = node.get_theme_constant("margin_" + edge)
+		node.set_meta("base_margins", margins)
+	for child in node.get_children():
+		_remember_layout(child)
+
+func _apply_layout(node: Node) -> void:
+	if node.has_meta("base_minimum"):
+		node.custom_minimum_size = node.get_meta("base_minimum") * ui_scale
+	if node.has_meta("base_font_size"):
+		node.add_theme_font_size_override("font_size", roundi(node.get_meta("base_font_size") * ui_scale))
+	if node.has_meta("base_tracking"):
+		node.get_theme_font("font").spacing_glyph = roundi(node.get_meta("base_tracking") * ui_scale)
+	if node.has_meta("base_separation"):
+		node.add_theme_constant_override("separation", roundi(node.get_meta("base_separation") * ui_scale))
+	if node.has_meta("base_margins"):
+		var margins: Dictionary = node.get_meta("base_margins")
+		for edge in margins:
+			node.add_theme_constant_override("margin_" + edge, roundi(margins[edge] * ui_scale))
+	for child in node.get_children():
+		_apply_layout(child)
+
+func _layout_settings() -> void:
+	if frame == null:
+		return
+	ui_scale = maxf(1.0, minf(size.x / 1280.0, size.y / 820.0))
+	toggle_on.base_scale = ui_scale
+	toggle_off.base_scale = ui_scale
+	if language_arrow != null:
+		language_arrow.base_scale = language_arrow_scale * ui_scale
+	_apply_layout(self)
+	theme.default_font_size = roundi(15 * ui_scale)
+	back_button.position = Vector2(24, 24) * ui_scale
+	back_button.add_theme_constant_override("icon_max_width", roundi(32 * ui_scale))
+	back_button.size = back_button.custom_minimum_size
+	var popup := language_selector.get_popup()
+	popup.add_theme_font_override("font", regular)
+	popup.add_theme_font_size_override("font_size", roundi(15 * ui_scale))
+	popup.add_theme_constant_override("v_separation", roundi(8 * ui_scale))
+	popup.add_theme_stylebox_override("panel", _style(Color("080808"), LINE, roundi(3 * ui_scale)))
+	_fit_frame()
+
+func _fit_frame() -> void:
+	# Container minimums settle after fonts and vector icons have changed size.
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func _tab(show_controls: bool) -> void:
 	general.visible = not show_controls

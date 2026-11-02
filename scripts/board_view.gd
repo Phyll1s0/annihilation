@@ -102,7 +102,9 @@ func _gui_input(event: InputEvent) -> void:
 
 func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
 	var tile_size := unit - 2.0 * visual_scale
-	var rect := Rect2(center_of(index) - Vector2.ONE * tile_size / 2.0, Vector2.ONE * tile_size)
+	var top_left := (center_of(index) - Vector2.ONE * tile_size / 2.0).round()
+	var bottom_right := (center_of(index) + Vector2.ONE * tile_size / 2.0).round()
+	var rect := Rect2(top_left, bottom_right - top_left)
 	var style := StyleBoxFlat.new()
 	var portal_color := Color("b5bec7") if portal % 2 == 1 else Color("7b8a9b")
 	style.bg_color = Color(1, 1, 1, 0.035 * opacity) if portal == 0 else Color(portal_color, 0.09 * opacity)
@@ -110,6 +112,8 @@ func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
 	style.set_border_width_all(maxi(1, roundi(visual_scale)))
 	var corner := roundi((3.0 if portal == 0 else 10.0) * visual_scale)
 	style.set_corner_radius_all(corner)
+	style.corner_detail = clampi(ceili(corner / 2.0), 8, 32)
+	style.anti_aliasing_size = 1.0
 	if portal == 0:
 		var up: bool = index >= state.width and state.board[index - state.width] == 0
 		var down: bool = index + state.width < state.board.size() and state.board[index + state.width] == 0
@@ -129,10 +133,14 @@ func _piece(point: Vector2, color: int, radius: float, opacity: float = 1.0, act
 	if radius < 0.1:
 		return
 	draw_circle(point, radius, Color(INK if color == -1 else PAPER, opacity), true, -1, true)
-	draw_arc(point, radius, 0, TAU, 64, Color(PAPER, opacity * 0.85) if color == 1 else Color(Color("8d949b"), opacity), visual_scale, true)
+	draw_arc(point, radius, 0, TAU, _arc_segments(radius), Color(PAPER, opacity * 0.85) if color == 1 else Color(Color("8d949b"), opacity), visual_scale, true)
 	if active:
 		var pulse := 1.0 if reduce_motion else 1.0 + sin(clock * 3.0) * 0.025
-		draw_arc(point, (radius + unit * 0.07) * pulse, 0, TAU, 64, PRIMARY, 2.0 * visual_scale, true)
+		var ring := (radius + unit * 0.07) * pulse
+		draw_arc(point, ring, 0, TAU, _arc_segments(ring), PRIMARY, 2.0 * visual_scale, true)
+
+func _arc_segments(radius: float) -> int:
+	return clampi(ceili(TAU * radius / 3.0), 64, 512)
 
 func _draw() -> void:
 	if state.is_empty() or font == null:
@@ -156,7 +164,7 @@ func _draw() -> void:
 			continue
 		_piece(center_of(i), state.pieces[i], unit * 0.225, 1.0, i == selected)
 		if i == hover and i != selected and not animating():
-			draw_arc(center_of(i), unit * 0.31, 0, TAU, 48, Color(PAPER, 0.40), visual_scale, true)
+			draw_arc(center_of(i), unit * 0.31, 0, TAU, _arc_segments(unit * 0.31), Color(PAPER, 0.40), visual_scale, true)
 	if animating():
 		var point: Vector2
 		var scale := 1.0
@@ -176,4 +184,5 @@ func _draw() -> void:
 		if motion.merged and t > 0.55:
 			var fade := sin((t - 0.55) / 0.45 * PI)
 			draw_circle(center_of(motion.target), unit * 0.27 * fade, Color("92989f", fade), true, -1, true)
-			draw_arc(center_of(motion.target), unit * (0.25 + t * 0.3), 0, TAU, 64, Color(PAPER, (1 - t) * 0.45), visual_scale, true)
+			var ring := unit * (0.25 + t * 0.3)
+			draw_arc(center_of(motion.target), ring, 0, TAU, _arc_segments(ring), Color(PAPER, (1 - t) * 0.45), visual_scale, true)

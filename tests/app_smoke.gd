@@ -156,6 +156,21 @@ func _run() -> void:
 	await settle()
 	check(app.background.clock == frozen_clock, "The background stays still with reduced motion enabled")
 	await capture("settings-1280")
+	if DisplayServer.get_name() != "headless":
+		var settings_font: int = app.preferences.heading.get_theme_font_size("font_size")
+		var settings_height: float = app.preferences.size.y
+		key(KEY_F11)
+		await create_timer(0.8).timeout
+		await settle()
+		check(app.preferences.switches.fullscreen.button_pressed, "The settings switch reflects native fullscreen")
+		check(float(app.preferences.heading.get_theme_font_size("font_size")) / app.preferences.size.y >= settings_font / settings_height * 0.95, "The actual settings screen scales in native fullscreen")
+		check(root.get_texture().get_size() == Vector2(DisplayServer.window_get_size()), "Settings render at the window's actual pixel resolution")
+		await capture("settings-fullscreen")
+		click(app.preferences.switches.fullscreen)
+		await create_timer(0.8).timeout
+		root.size = Vector2i(1280, 820)
+		await settle()
+		check(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED and not app.settings.fullscreen, "The resized settings switch exits fullscreen by mouse")
 	var before_language := Puzzle.key(app.game.session.state)
 	var before_history: int = app.game.session.history.size()
 	app.preferences.language_selector.select(1)

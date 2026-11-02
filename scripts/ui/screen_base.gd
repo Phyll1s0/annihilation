@@ -138,6 +138,7 @@ func _icon_button(icon: String, hint: String, action: Callable, icon_size: int =
 	button.icon = load("res://assets/icons/" + icon + ".svg")
 	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	button.expand_icon = true
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	button.add_theme_constant_override("icon_max_width", icon_size)
 	button.tooltip_text = tr(hint)
 	button.set_meta("hint", hint)
