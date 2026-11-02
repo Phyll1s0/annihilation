@@ -112,15 +112,28 @@ See [design notes](docs/design.md) and [level authoring](docs/levels.md) for imp
 
 ## Export
 
-Install the export templates matching your Godot version. macOS and Web presets are included.
+Install the export templates matching your Godot version. macOS, Windows x64, and Web presets are included.
 
 ~~~bash
-mkdir -p builds/macos builds/web
+mkdir -p builds/macos builds/windows builds/web
 godot --headless --path . --export-release macOS builds/macos/NULL.zip
+godot --headless --path . --export-release "Windows Desktop" builds/windows/NULL.exe
 godot --headless --path . --export-release Web builds/web/index.html
 ~~~
 
-Serve the Web build over HTTP. Build outputs and editor caches are excluded from Git.
+Keep `NULL.exe` and `NULL.pck` together when distributing the Windows build. It is an unsigned portable build and still needs testing on a Windows device.
+
+Preview the Web build locally:
+
+~~~bash
+python3 tools/serve_web.py
+~~~
+
+Open `http://127.0.0.1:8787/` in a browser. Do not open `index.html` directly from the filesystem. Public hosting needs the complete Web export folder, with WebAssembly served as `application/wasm`; HTTPS is recommended. The current export uses a single thread and does not require cross-origin isolation headers.
+
+Desktop browsers are the current Web target. Phone menus, safe areas, and touch controls need further adaptation before a mobile release. A WeChat Mini Game needs a dedicated engine adapter and platform testing; the ordinary Web export is not a ready-to-submit Mini Game package.
+
+Build outputs and editor caches are excluded from Git.
 
 ## License
 
