@@ -73,8 +73,8 @@ msgstr "Restart"
 msgid "Deselect / pause"
 msgstr "Deselect / pause"
 
-msgid "Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked."
-msgstr "Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked."
+msgid "Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked.\nOn an arrow tile, a particle can leave only in the arrow direction."
+msgstr "Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked.\nOn an arrow tile, a particle can leave only in the arrow direction."
 
 msgid "Settings are saved automatically."
 msgstr "Settings are saved automatically."
@@ -578,3 +578,60 @@ msgstr "Could not verify the minimum."
 
 msgid "Undo · Ctrl/Cmd Z"
 msgstr "Undo · Ctrl/Cmd Z"
+
+msgid "Vector"
+msgstr "Vector"
+
+msgid "Redshift"
+msgstr "Redshift"
+
+msgid "Slipstream"
+msgstr "Slipstream"
+
+msgid "Circulation"
+msgstr "Circulation"
+
+msgid "Deflection"
+msgstr "Deflection"
+
+msgid "Catch Basin"
+msgstr "Catch Basin"
+
+msgid "Turnstile"
+msgstr "Turnstile"
+
+msgid "Point of No Return"
+msgstr "Point of No Return"
+
+msgid "A particle may rest on an arrow, but can leave only along it."
+msgstr "A particle may rest on an arrow, but can leave only along it."
+
+msgid "Choose the two meeting points before the orbit breaks."
+msgstr "Choose the two meeting points before the orbit breaks."
+
+msgid "The shortest route follows the current; a longer way remains."
+msgstr "The shortest route follows the current; a longer way remains."
+
+msgid "A field with no exit can still be the right place to meet."
+msgstr "A field with no exit can still be the right place to meet."
+
+msgid "One-way traffic changes how the three gates share their exits."
+msgstr "One-way traffic changes how the three gates share their exits."
+
+msgid "Four pairs need room to pass the current before the last gate closes."
+msgstr "Four pairs need room to pass the current before the last gate closes."
+
+msgid "One-way field"
+msgstr "One-way field"
+
+msgid "Leave this tile only upward."
+msgstr "Leave this tile only upward."
+
+msgid "Leave this tile only to the right."
+msgstr "Leave this tile only to the right."
+
+msgid "Leave this tile only downward."
+msgstr "Leave this tile only downward."
+
+msgid "Leave this tile only to the left."
+msgstr "Leave this tile only to the left."

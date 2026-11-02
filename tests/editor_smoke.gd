@@ -112,6 +112,14 @@ func _run() -> void:
 	check(editor.model.pieces[0] == 1, "The paint brush accepts pointer input")
 	click(editor.undo_button)
 	check(editor.model.pieces[0] == 0, "The editor undo button restores the draft")
+	click(editor.brushes.right)
+	click_cell(editor.board, 0)
+	check(editor.model.board[0] == 28 and editor.model.pieces[0] == 0, "The field brush accepts pointer input")
+	click(editor.brushes.white)
+	click_cell(editor.board, 0)
+	check(editor.model.board[0] == 28 and editor.model.pieces[0] == 1, "Particle painting preserves a field placed with the UI")
+	click(editor.undo_button)
+	click(editor.undo_button)
 	var press := InputEventMouseButton.new()
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.position = editor.board.global_position + editor.board.center_of(0)
@@ -194,7 +202,8 @@ func _run() -> void:
 			app.settings.language = language
 			app.settings.apply_language()
 			await settle()
-			for control in [editor.board, editor.play_button, editor.records_button, editor.title_input, editor.status]:
+			for control in [editor.board, editor.play_button, editor.records_button, editor.title_input, editor.status,
+				editor.brushes.up, editor.brushes.right, editor.brushes.down, editor.brushes.left]:
 				check(screen.encloses(control.get_global_rect()), "Authoring controls fit after resizing and translating")
 			editor._show_records()
 			await settle()

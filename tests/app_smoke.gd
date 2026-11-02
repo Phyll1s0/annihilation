@@ -247,11 +247,15 @@ func _run() -> void:
 			"Advanced level %s completes in hard mode through the live game" % app.levels[index].id)
 	app.game.next_button.pressed.emit()
 	check(app.screen == "campaign", "Final level returns to chapter selection")
-	app.campaign.chapter = app.campaign.chapter_names[-1]
+	app.campaign.chapter = "Constellation"
 	app.progress.records.clear()
 	app.campaign.refresh()
 	await settle()
-	check(app.campaign.cards.size() == 4, "The final chapter renders four constellation puzzles")
+	check(app.campaign.cards.size() == 4, "Constellation retains its four original puzzles")
+	app.campaign.chapter = app.campaign.chapter_names[-1]
+	app.campaign.refresh()
+	await settle()
+	check(app.campaign.chapter == "Redshift" and app.campaign.cards.size() == 3, "The final chapter renders three field and portal puzzles")
 	await capture("campaign-1280")
 	root.size = Vector2i(960, 680)
 	app.show_screen("home")

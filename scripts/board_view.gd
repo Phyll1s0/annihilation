@@ -90,6 +90,14 @@ func _cell_at(point: Vector2) -> int:
 		return -1
 	return y * state.width + x
 
+func _get_tooltip(at_position: Vector2) -> String:
+	if state.is_empty(): return ""
+	var cell := _cell_at(at_position)
+	if cell < 0: return ""
+	var direction := Puzzle.field_direction(state.board[cell])
+	return tr({"up": "Leave this tile only upward.", "right": "Leave this tile only to the right.",
+		"down": "Leave this tile only downward.", "left": "Leave this tile only to the left."}.get(direction, ""))
+
 func _gui_input(event: InputEvent) -> void:
 	if state.is_empty():
 		return
@@ -154,7 +162,8 @@ func _portal_color(group: int) -> Color:
 		return PORTAL_COLORS[group - 1]
 	return Color.from_hsv(fposmod(0.57 + (group - 1) * 0.61803398875, 1.0), 0.36, 0.88)
 
-func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
+func _tile(index: int, terrain: int, opacity: float = 1.0) -> void:
+	var portal := terrain if Puzzle.is_portal(terrain) else 0
 	var tile_size := unit - 2.0 * visual_scale
 	var top_left := (center_of(index) - Vector2.ONE * tile_size / 2.0).round()
 	var bottom_right := (center_of(index) + Vector2.ONE * tile_size / 2.0).round()
@@ -182,6 +191,18 @@ func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
 		var tag := String.chr(64 + portal)
 		var tag_size := maxi(8, roundi(unit * 0.16))
 		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2 * visual_scale), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(portal_color, opacity * 0.95))
+	var direction := Puzzle.field_direction(terrain)
+	if not direction.is_empty():
+		# The small corner arrow stays visible beneath either particle color.
+		var axis := Vector2(Puzzle.DIRECTIONS[direction])
+		var side := axis.orthogonal()
+		var arrow_center := rect.position + Vector2.ONE * unit * 0.17
+		var tip := arrow_center + axis * unit * 0.07
+		var tint := Color(PRIMARY, opacity * 0.85)
+		var stroke := maxf(1.0, unit * 0.018)
+		draw_line(arrow_center - axis * unit * 0.07, tip, tint, stroke, true)
+		draw_polyline(PackedVector2Array([tip - axis * unit * 0.045 + side * unit * 0.045, tip,
+			tip - axis * unit * 0.045 - side * unit * 0.045]), tint, stroke, true)
 
 func _piece(point: Vector2, color: int, radius: float, opacity: float = 1.0, active: bool = false) -> void:
 	if radius < 0.1:

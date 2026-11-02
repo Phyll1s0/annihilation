@@ -171,7 +171,7 @@ func _ready() -> void:
 		binding.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		binding.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		row.add_child(binding)
-	var rules := _label("Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked.", 12, MUTED)
+	var rules := _label("Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked.\nOn an arrow tile, a particle can leave only in the arrow direction.", 12, MUTED)
 	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	controls.add_child(rules)
 	developer = VBoxContainer.new()

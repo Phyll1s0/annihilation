@@ -6,6 +6,15 @@ const DIRECTIONS := {
 	"up": Vector2i(0, -1), "right": Vector2i(1, 0),
 	"down": Vector2i(0, 1), "left": Vector2i(-1, 0),
 }
+const FIELD_GLYPHS := "^>v<"
+const FIELD_DIRECTIONS := ["up", "right", "down", "left"]
+const FIELD_BASE := 27
+
+static func is_portal(tile: int) -> bool:
+	return tile >= 1 and tile <= 26
+
+static func field_direction(tile: int) -> String:
+	return FIELD_DIRECTIONS[tile - FIELD_BASE] if tile >= FIELD_BASE and tile < FIELD_BASE + 4 else ""
 
 static func from_level(level: Dictionary) -> Dictionary:
 	var rows: Array = level.layout
@@ -14,15 +23,17 @@ static func from_level(level: Dictionary) -> Dictionary:
 	var pieces: Array[int] = []
 	for row in rows:
 		for glyph in str(row):
-			var portal: int = glyph.unicode_at(0) - 64 if glyph in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" else 0
-			board.append(-1 if glyph == "#" else portal)
+			var tile: int = glyph.unicode_at(0) - 64 if glyph in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" else 0
+			if glyph in FIELD_GLYPHS:
+				tile = FIELD_BASE + FIELD_GLYPHS.find(glyph)
+			board.append(-1 if glyph == "#" else tile)
 			pieces.append(1 if glyph == "w" else (-1 if glyph == "b" else 0))
 	for token in level.get("tokens", []):
 		pieces[int(token[0])] = int(token[1])
 	return {"width": width, "height": rows.size(), "board": board, "pieces": pieces}
 
 static func other_portal(board: Array, index: int) -> int:
-	if board[index] <= 0:
+	if not is_portal(board[index]):
 		return -1
 	for i in board.size():
 		if i != index and board[i] == board[index]:
@@ -34,6 +45,9 @@ static func move(state: Dictionary, source: int, direction: String) -> Dictionar
 		return {}
 	var color: int = state.pieces[source]
 	if color == 0:
+		return {}
+	var required := field_direction(state.board[source])
+	if not required.is_empty() and direction != required:
 		return {}
 	var step: Vector2i = DIRECTIONS[direction]
 	var x: int = source % state.width + step.x

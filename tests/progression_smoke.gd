@@ -82,7 +82,7 @@ func _run() -> void:
 	check(app.campaign.cards.all(func(card):return card.disabled) and not app.campaign.detail.text.is_empty(), "Later chapters show disabled cards and the unlocking condition")
 	click(app.campaign.cards[0])
 	check(app.screen=="campaign", "Locked cards cannot start a game")
-	check(not app.start_level(3,false) and not app.start_level(-1,false) and not app.start_level(30,false), "Application-level guards reject locked and invalid level indices")
+	check(not app.start_level(3,false) and not app.start_level(-1,false) and not app.start_level(levels.size(),false), "Application-level guards reject locked and invalid level indices")
 	check(app.progress.resume.is_empty(), "Rejected navigation never overwrites a checkpoint")
 	await capture("chapter-locked-1280")
 	complete(2,false)

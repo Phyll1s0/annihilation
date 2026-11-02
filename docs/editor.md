@@ -19,6 +19,9 @@ The editor is designed for desktop windows, including fullscreen and high-resolu
 | White / Black | Place a particle, adding a floor if needed. |
 | Erase piece | Remove a particle while keeping the terrain. |
 | Portal | Place the selected A–Z portal group, keeping any particle. |
+| ↑ / → / ↓ / ← | Place a one-way field; keep any particle. Departure is allowed only in the indicated direction. |
+
+Particles can enter a field from any direction and remain there until moved. Fields do not slide particles automatically. **Floor** replaces a field with an ordinary tile; **Erase piece** keeps its direction. Undo, drafts, saved maps, and JSON sharing preserve directions.
 
 Each portal group has two ends. Remove an existing end before placing a third.
 Playable maps need equal, nonzero black and white counts, and complete portal pairs.
@@ -84,7 +87,7 @@ Example of a shareable level and completed walk:
 }
 ```
 
-Raw campaign-format level objects can also be imported. Particle positions on portals use the optional `tokens` array described in [level authoring](levels.md).
+Raw campaign-format level objects can also be imported. Particle positions on portals or fields use the optional `tokens` array described in [level authoring](levels.md).
 
 Custom content is stored under `user://editor/`: `draft.json` for the active draft, `levels/` for saved maps, `records.json` for player names and best walks, and `playtest.json` for test runs.
 Export JSON files to share them or keep them under version control.

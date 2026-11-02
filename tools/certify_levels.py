@@ -7,11 +7,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DIRECTIONS = {"up": (0, -1), "right": (1, 0), "down": (0, 1), "left": (-1, 0)}
+FIELDS = {glyph: 27 + index for index, glyph in enumerate("^>v<")}
+FIELD_DIRECTIONS = dict(zip(range(27, 31), DIRECTIONS))
 
 
 def initial(level):
     layout = "".join(level["layout"])
-    board = tuple(-1 if c == "#" else ord(c) - 64 if c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" else 0 for c in layout)
+    board = tuple(-1 if c == "#" else ord(c) - 64 if c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" else FIELDS.get(c, 0) for c in layout)
     pieces = [1 if c == "w" else -1 if c == "b" else 0 for c in layout]
     for cell, color in level.get("tokens", []):
         pieces[cell] = color
@@ -21,7 +23,7 @@ def initial(level):
 def validate(level):
     rows = level["layout"]
     assert rows and rows[0] and all(len(row) == len(rows[0]) for row in rows)
-    assert all(c in "#.wbABCDEFGHIJKLMNOPQRSTUVWXYZ" for row in rows for c in row)
+    assert all(c in "#.wbABCDEFGHIJKLMNOPQRSTUVWXYZ^>v<" for row in rows for c in row)
     assert len({int(t[0]) for t in level.get("tokens", [])}) == len(level.get("tokens", []))
     for cell, color in level.get("tokens", []):
         assert isinstance(cell, int) and 0 <= cell < len("".join(rows))
@@ -35,6 +37,8 @@ def validate(level):
 def move(state, width, source, direction):
     board, pieces = state
     color = pieces[source]
+    if board[source] in FIELD_DIRECTIONS and FIELD_DIRECTIONS[board[source]] != direction:
+        return None
     dx, dy = DIRECTIONS[direction]
     x, y = source % width + dx, source // width + dy
     if not color or not (0 <= x < width and 0 <= y < len(board) // width):
@@ -42,7 +46,7 @@ def move(state, width, source, direction):
     entry = y * width + x
     if board[entry] < 0 or pieces[entry] == color:
         return None
-    partner = next((i for i, t in enumerate(board) if board[entry] > 0 and t == board[entry] and i != entry), None)
+    partner = next((i for i, t in enumerate(board) if 1 <= board[entry] <= 26 and t == board[entry] and i != entry), None)
     if partner is not None and partner != source and pieces[partner] == color:
         return None
     target = entry if pieces[entry] or partner is None else partner
@@ -50,7 +54,7 @@ def move(state, width, source, direction):
     tokens[source] = 0
     if tokens[target] == -color:
         tokens[target] = 0
-        if floor[target] > 0:
+        if 1 <= floor[target] <= 26:
             for i, t in enumerate(floor):
                 if i != target and t == floor[target]:
                     floor[i] = 0

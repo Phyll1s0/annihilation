@@ -5,6 +5,7 @@ const Model = preload("res://scripts/editor_model.gd")
 const Library = preload("res://scripts/editor_library.gd")
 const Records = preload("res://scripts/custom_records.gd")
 const Board = preload("res://scripts/board_view.gd")
+const Puzzle = preload("res://scripts/puzzle.gd")
 var directory := "user://editor"
 var levels: Array = []
 var model
@@ -147,6 +148,20 @@ func _build_ui() -> void:
 	portal_count = _label("", 12, MUTED)
 	portal_count.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	portal_row.add_child(portal_count)
+	sidebar.add_child(_label("One-way field", 12, MUTED))
+	var fields := HBoxContainer.new()
+	fields.add_theme_constant_override("separation", 6)
+	sidebar.add_child(fields)
+	for direction in ["up", "right", "down", "left"]:
+		var brush_name: String = direction
+		var button := _button({"up": "↑", "right": "→", "down": "↓", "left": "←"}[direction],
+			func(): _brush(brush_name), Vector2(60, 36))
+		var hint: String = {"up": "Leave this tile only upward.", "right": "Leave this tile only to the right.",
+			"down": "Leave this tile only downward.", "left": "Leave this tile only to the left."}[direction]
+		button.set_meta("hint", hint)
+		button.tooltip_text = tr(hint)
+		fields.add_child(button)
+		brushes[direction] = button
 	var actions := HBoxContainer.new()
 	sidebar.add_child(actions)
 	play_button = _button("Playtest", _playtest, Vector2(122, 44))
@@ -249,7 +264,7 @@ func _sync() -> void:
 	portal_menu.add_theme_color_override("font_color", tint)
 	portal_count.add_theme_color_override("font_color", tint)
 	portal_count.text = tr("%d / 2 ends") % model.board.count(group)
-	statistics.text = tr("White %d · Black %d · Portal ends %d") % [model.pieces.count(1), model.pieces.count(-1), model.board.filter(func(tag): return tag > 0).size()]
+	statistics.text = tr("White %d · Black %d · Portal ends %d") % [model.pieces.count(1), model.pieces.count(-1), model.board.filter(func(tag): return Puzzle.is_portal(tag)).size()]
 	var best: int = records.best(model.definition())
 	best_label.text = tr("No records yet") if best == 0 else tr_n("Best known: %d move", "Best known: %d moves", best) % best
 

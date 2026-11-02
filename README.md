@@ -13,6 +13,8 @@ Select a particle and move it one tile up, down, left, or right.
 - When opposite colors meet, both particles disappear, along with the tile where they meet.
 - Clear every particle to finish the level.
 
+Arrow tiles are **one-way fields**. A particle may enter from any side and stop there, but can leave only in the arrow direction. Entering does not cause automatic movement. A collision removes the arrow tile like any other tile.
+
 Linked portals share a letter and color. Entering an empty portal teleports the particle to its partner and costs one move. A same-colored particle at the exit blocks the move. If a collision happens on a portal, that end disappears and its partner becomes a normal tile.
 
 ## Modes
@@ -26,8 +28,9 @@ Each campaign level supports both modes, with separate completion records and a 
 
 ## Features
 
-- 30 handcrafted levels across nine chapters. Finish every Easy level in a chapter to unlock the next; levels within an open chapter can be played in any order.
+- 36 handcrafted levels across eleven chapters. Finish every Easy level in a chapter to unlock the next; levels within an open chapter can be played in any order.
 - Advanced chapters after level 20, including dense maps with six portal groups and twelve particles.
+- Two later chapters introduce one-way fields, directed loops, waiting points, and portal traffic.
 - A level editor with drawing tools, undo/redo, automatic drafts, a personal library, and isolated playtesting.
 - Local custom-level leaderboards with personal bests and JSON sharing of maps and completed walks.
 - Campaign minimum move counts verified by independent Python and GDScript solvers.
@@ -62,7 +65,7 @@ Optional controls and a short rules reference are available under Settings → C
 Open **Settings → Developer**, enable **Developer mode**, and choose **Level editor**.
 Developer mode unlocks every campaign level and reveals **Create** and **Edit** in **My levels**. Turning it off restores normal chapter progression while keeping your genuine completion records and drafts.
 Start with a blank map or copy a campaign level, paint tiles and particles, then press **F5** to playtest.
-Maps support up to **12 × 12** tiles and portal groups **A–Z**.
+Maps support up to **12 × 12** tiles, portal groups **A–Z**, and four directional field brushes.
 
 Choose **Save** in the editor to add a map to **Start → My levels**. Imported maps also need to be saved to appear there.
 Use **Play** or **Leaderboard** beside a saved map, or **Edit** with Developer mode enabled; unfinished maps can be edited until they are ready to play.
@@ -93,8 +96,8 @@ python3 tools/check.py --visual
 ~~~
 
 The visual checks open native windows and save screenshots in `builds/`. Tests use isolated saves.
-Layout checks cover all 30 levels at thirteen viewport sizes, including ultrawide, portrait, and 5K layouts. They verify proportional board growth, pointer input, and undo after resizing a live puzzle.
-Navigation checks cover all nine chapters in both languages, resizing up to 5K and back, and leaving, pausing, restarting, and resuming a puzzle through the menus.
+Layout checks cover all 36 levels at thirteen viewport sizes, including ultrawide, portrait, and 5K layouts. They verify proportional board growth, pointer input, and undo after resizing a live puzzle.
+Navigation checks cover all eleven chapters in both languages, resizing up to 5K and back, and leaving, pausing, restarting, and resuming a puzzle through the menus.
 Editor checks cover pointer strokes, draft recovery, saved-original protection, import validation, replayed leaderboard scores, JSON score merging, custom playtests, and preserving the campaign checkpoint.
 Design audits search for solutions that bypass key puzzle ideas, checking that specified portal groups and collapsed portal tiles are necessary and that tempting early collisions really lead to dead ends.
 

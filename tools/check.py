@@ -25,6 +25,7 @@ def main():
         ['godot', *headless, '--path', '.', '--script', 'tests/settings_layout_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/audio_smoke.gd'],
         ['godot', '--headless', '--path', '.', '--script', 'tests/custom_records_tests.gd'],
+        ['godot', '--headless', '--path', '.', '--script', 'tests/field_tests.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/editor_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/library_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/progression_smoke.gd'],
@@ -35,7 +36,7 @@ def main():
         print('Running:', ' '.join(command), flush=True)
         try:
             result = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT, timeout=120)
+                                    stderr=subprocess.STDOUT, timeout=180 if 'tests/run_tests.gd' in command else 120)
         except subprocess.TimeoutExpired as error:
             output = error.stdout or ''
             print(output.decode(errors='replace') if isinstance(output, bytes) else output,

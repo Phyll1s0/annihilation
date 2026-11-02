@@ -11,7 +11,7 @@ def event(state, width, source, direction):
     dx, dy = DIRECTIONS[direction]
     entry = source + dx + dy * width
     partner = next((i for i, tag in enumerate(board)
-                    if board[entry] > 0 and tag == board[entry] and i != entry), None)
+                    if 1 <= board[entry] <= 26 and tag == board[entry] and i != entry), None)
     target = entry if pieces[entry] or partner is None else partner
     return entry, target, target != entry
 
@@ -44,6 +44,9 @@ def search(level, requirement, limit=250000):
                         continue
                 elif kind == 'mandatory_collapsed_tile':
                     if original_board[entry] == group and state[0][entry] == 0:
+                        continue
+                elif kind == 'mandatory_field_departure':
+                    if 27 <= state[0][source] <= 30:
                         continue
                 elif kind == 'opening_collision_fatal':
                     if state == start:

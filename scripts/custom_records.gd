@@ -34,7 +34,7 @@ static func fingerprint(level: Dictionary) -> String:
 	var groups := {}
 	var terrain: Array = []
 	for tag in state.board:
-		if tag > 0:
+		if Puzzle.is_portal(tag):
 			if not groups.has(tag): groups[tag] = groups.size() + 1
 			terrain.append(groups[tag])
 		else: terrain.append(tag)

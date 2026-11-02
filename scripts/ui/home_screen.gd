@@ -22,6 +22,7 @@ func _ready() -> void:
 	body.add_child(mark)
 	title = _title("NULL", 68, 12)
 	title_font = title.get_theme_font("font")
+	title_font.base_font = preload("res://assets/fonts/Michroma-Regular.ttf")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(title)
 	var button_center := CenterContainer.new()

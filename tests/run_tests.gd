@@ -114,7 +114,7 @@ func _test_progress() -> void:
 
 func _test_framework() -> void:
 	var catalog := Catalog.load_campaign()
-	check(catalog.errors.is_empty() and catalog.levels.size() == 30, "Catalog validates thirty certified levels")
+	check(catalog.errors.is_empty() and catalog.levels.size() == 36, "Catalog validates thirty-six certified levels")
 	var definition: Dictionary = catalog.levels[1].duplicate(true)
 	var hash_value := Catalog.fingerprint(definition)
 	definition.title = "A renamed title"

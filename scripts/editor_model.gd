@@ -60,6 +60,7 @@ func paint(cell: int, brush: String, group: int = 1) -> bool:
 		"white": tile = maxi(tile, 0); piece = 1
 		"black": tile = maxi(tile, 0); piece = -1
 		"clear": piece = 0
+		"up", "right", "down", "left": tile = Puzzle.FIELD_BASE + Puzzle.FIELD_DIRECTIONS.find(brush)
 		"portal":
 			if group < 1 or group > 26:
 				return false
@@ -154,7 +155,7 @@ func definition() -> Dictionary:
 		for x in width:
 			var cell := y * width + x
 			if board[cell] > 0:
-				row += String.chr(64 + board[cell])
+				row += String.chr(64 + board[cell]) if Puzzle.is_portal(board[cell]) else Puzzle.FIELD_GLYPHS[board[cell] - Puzzle.FIELD_BASE]
 				if pieces[cell] != 0:
 					tokens.append([cell, pieces[cell]])
 			else:
@@ -185,7 +186,7 @@ static func parse(value, new_identity: bool = true) -> Dictionary:
 		if not row is String or row.length() != columns:
 			return {"error": "All rows must have the same width."}
 		for glyph in row:
-			if not glyph in "#.wbABCDEFGHIJKLMNOPQRSTUVWXYZ":
+			if not glyph in "#.wbABCDEFGHIJKLMNOPQRSTUVWXYZ^>v<":
 				return {"error": "The map contains an unknown tile."}
 	var tokens = value.get("tokens", [])
 	if not tokens is Array: return {"error": "Invalid particle positions."}

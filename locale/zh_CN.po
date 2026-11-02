@@ -73,8 +73,8 @@ msgstr "重新开始"
 msgid "Deselect / pause"
 msgstr "取消选择 / 暂停"
 
-msgid "Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked."
-msgstr "让异色棋子相遇，清空棋盘。相遇处的地板会消失。\n同色棋子互相阻挡；相同字母的传送门成对连通。"
+msgid "Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked.\nOn an arrow tile, a particle can leave only in the arrow direction."
+msgstr "让异色棋子相遇，清空棋盘。相遇处的地板会消失。\n同色棋子互相阻挡；相同字母的传送门成对连通。\n棋子停在箭头格上时，只能沿箭头方向离开。"
 
 msgid "Settings are saved automatically."
 msgstr "设置会自动保存。"
@@ -686,3 +686,60 @@ msgstr "暂无已保存关卡。"
 
 msgid "Unlock every campaign level and enable level creation."
 msgstr "解锁所有主线关卡，并启用关卡创作。"
+
+msgid "Vector"
+msgstr "矢量"
+
+msgid "Redshift"
+msgstr "红移"
+
+msgid "Slipstream"
+msgstr "顺流"
+
+msgid "Circulation"
+msgstr "环流"
+
+msgid "Deflection"
+msgstr "偏折"
+
+msgid "Catch Basin"
+msgstr "汇流点"
+
+msgid "Turnstile"
+msgstr "单向闸"
+
+msgid "Point of No Return"
+msgstr "不归点"
+
+msgid "A particle may rest on an arrow, but can leave only along it."
+msgstr "棋子可以停在箭头格上，但只能沿箭头方向离开。"
+
+msgid "Choose the two meeting points before the orbit breaks."
+msgstr "在环路断开前，决定两次相遇的位置。"
+
+msgid "The shortest route follows the current; a longer way remains."
+msgstr "最短路线顺着流向，也可以选择更长的路。"
+
+msgid "A field with no exit can still be the right place to meet."
+msgstr "没有出口的单向场，也可以是正确的相遇地点。"
+
+msgid "One-way traffic changes how the three gates share their exits."
+msgstr "单向通路改变了三组传送门共用出口的方式。"
+
+msgid "Four pairs need room to pass the current before the last gate closes."
+msgstr "在最后一扇门关闭前，为四对棋子安排通过单向场的空间。"
+
+msgid "One-way field"
+msgstr "单向场"
+
+msgid "Leave this tile only upward."
+msgstr "只能向上离开这一格。"
+
+msgid "Leave this tile only to the right."
+msgstr "只能向右离开这一格。"
+
+msgid "Leave this tile only downward."
+msgstr "只能向下离开这一格。"
+
+msgid "Leave this tile only to the left."
+msgstr "只能向左离开这一格。"

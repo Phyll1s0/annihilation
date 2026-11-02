@@ -41,7 +41,7 @@ static func validate(level) -> String:
 		if not row is String or row.length() != width:
 			return prefix + "All layout rows must have the same width."
 		for glyph in row:
-			if not glyph in "#.wbABCDEFGHIJKLMNOPQRSTUVWXYZ":
+			if not glyph in "#.wbABCDEFGHIJKLMNOPQRSTUVWXYZ^>v<":
 				return prefix + "Unknown layout character."
 	var tokens = level.get("tokens", [])
 	if not tokens is Array:
