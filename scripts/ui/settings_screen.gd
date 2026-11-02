@@ -42,13 +42,13 @@ func _ready() -> void:
 	var page := VBoxContainer.new()
 	page.add_theme_constant_override("separation", 30)
 	inside.add_child(page)
-	heading = _title("Settings", 38, 1)
+	heading = _title("设置", 28, 1)
 	page.add_child(heading)
 	general = VBoxContainer.new()
 	general.add_theme_constant_override("separation", 26)
 	page.add_child(general)
 	for entry in [["show_hints", "显示可走邻格", "选中棋子时，显示可以进入的相邻格。"],
-		["reduce_motion", "减少动态效果", "关闭背景滚动，并立即显示行动结果。"],
+		["reduce_motion", "减少动态效果", "关闭界面过渡，并立即显示行动结果。"],
 		["fullscreen", "全屏显示", "F11 可以随时切换全屏。"]]:
 		var key: String = entry[0]
 		var row := HBoxContainer.new()
@@ -89,7 +89,7 @@ func _ready() -> void:
 func _tab(show_controls: bool) -> void:
 	general.visible = not show_controls
 	controls.visible = show_controls
-	heading.text = "Controls" if show_controls else "Settings"
+	heading.text = "操作" if show_controls else "设置"
 	_accent(general_button, not show_controls)
 	_accent(controls_button, show_controls)
 	var active := controls_button if show_controls else general_button

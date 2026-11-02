@@ -1,14 +1,13 @@
 extends Control
 
-const INK := Color("efefef")
-const MUTED := Color("8d9298")
-const PAPER := Color("1b1b1b")
-const LINE := Color(1, 1, 1, 0.22)
-const PRIMARY := Color("6af5b9")
+const INK := Color("e6e9ec")
+const MUTED := Color("89939e")
+const PAPER := Color("141619")
+const LINE := Color(1, 1, 1, 0.16)
+const PRIMARY := Color("dce1e5")
 
 var regular: Font
 var heavy: Font
-var tech: Font
 var entrance: Tween
 
 func _style(fill: Color, border: Color = LINE, radius: int = 3) -> StyleBoxFlat:
@@ -32,8 +31,6 @@ func _setup_theme() -> void:
 	regular.fallbacks = [fallback]
 	heavy = preload("res://assets/fonts/Poppins-ExtraLight.ttf").duplicate()
 	heavy.fallbacks = [light_fallback]
-	tech = preload("res://assets/fonts/Electrolize-Regular.ttf").duplicate()
-	tech.fallbacks = [fallback]
 	var ui := Theme.new()
 	ui.default_font = regular
 	ui.default_font_size = 15
@@ -57,7 +54,7 @@ func _setup_theme() -> void:
 	ui.set_stylebox("focus", "CheckButton", _style(Color(0, 0, 0, 0), Color(PRIMARY, 0.5)))
 	ui.set_icon("checked", "CheckButton", preload("res://assets/icons/toggle-on.svg"))
 	ui.set_icon("unchecked", "CheckButton", preload("res://assets/icons/toggle-off.svg"))
-	ui.set_stylebox("panel", "TooltipPanel", _style(Color("262626"), LINE))
+	ui.set_stylebox("panel", "TooltipPanel", _style(Color("1c2025"), LINE))
 	ui.set_color("font_color", "TooltipLabel", PRIMARY)
 	ui.set_font_size("font_size", "TooltipLabel", 12)
 	ui.set_constant("separation", "VBoxContainer", 12)
@@ -75,6 +72,7 @@ func _label(text: String, font_size: int = 15, color: Color = INK, bold: bool = 
 
 func _button(text: String, action: Callable, minimum: Vector2 = Vector2(0, 42)) -> Button:
 	var button := Button.new()
+	button.focus_mode = Control.FOCUS_ALL
 	button.text = text
 	button.custom_minimum_size = minimum
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND

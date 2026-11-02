@@ -8,7 +8,7 @@ const Puzzle = preload("res://scripts/puzzle.gd")
 const INK := Color("090a0c")
 const PAPER := Color("eef1f4")
 const LINE := Color(1, 1, 1, 0.25)
-const PRIMARY := Color("6af5b9")
+const PRIMARY := Color("dce1e5")
 
 var state: Dictionary = {}
 var selected := -1
@@ -100,7 +100,7 @@ func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
 	var tile_size := unit - 2.0
 	var rect := Rect2(center_of(index) - Vector2.ONE * tile_size / 2.0, Vector2.ONE * tile_size)
 	var style := StyleBoxFlat.new()
-	var portal_color := PRIMARY if portal % 2 == 1 else Color("9ca8f4")
+	var portal_color := Color("b5bec7") if portal % 2 == 1 else Color("7b8a9b")
 	style.bg_color = Color(0.282, 0.302, 0.322, 0.30 * opacity) if portal == 0 else Color(portal_color, 0.15 * opacity)
 	style.border_color = Color(1, 1, 1, 0.25 * opacity) if portal == 0 else Color(portal_color, 0.45 * opacity)
 	style.set_border_width_all(1)

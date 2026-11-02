@@ -10,7 +10,6 @@ var chapter_buttons: Array[Button] = []
 var chapter_names: Array[String] = []
 var cards: Array[Button] = []
 var grid: GridContainer
-var summary: Label
 var easy_button: Button
 var hard_button: Button
 var chapter_title: Label
@@ -45,7 +44,7 @@ func _ready() -> void:
 	header.alignment = BoxContainer.ALIGNMENT_CENTER
 	header.add_theme_constant_override("separation", 56)
 	body.add_child(header)
-	chapter_title = _title("", 48, 3)
+	chapter_title = _title("", 36, 1)
 	header.add_child(chapter_title)
 	var progress_box := VBoxContainer.new()
 	progress_box.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -57,10 +56,12 @@ func _ready() -> void:
 	modes.alignment = BoxContainer.ALIGNMENT_CENTER
 	modes.add_theme_constant_override("separation", 12)
 	body.add_child(modes)
-	easy_button = _button("简单 · 自由完成", func(): _mode(false), Vector2(155, 36))
-	hard_button = _button("困难 · 最少步数", func(): _mode(true), Vector2(155, 36))
+	easy_button = _button("简单", func(): _mode(false), Vector2(155, 36))
+	hard_button = _button("困难", func(): _mode(true), Vector2(155, 36))
 	easy_button.add_theme_font_size_override("font_size", 12)
 	hard_button.add_theme_font_size_override("font_size", 12)
+	easy_button.tooltip_text = "清空棋盘即可"
+	hard_button.tooltip_text = "以最少步数清空棋盘"
 	modes.add_child(easy_button)
 	modes.add_child(hard_button)
 	var grid_center := CenterContainer.new()
@@ -71,7 +72,8 @@ func _ready() -> void:
 	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 16)
 	grid_center.add_child(grid)
-	detail = _label("选择关卡开始", 13, MUTED)
+	detail = _label("", 13, MUTED)
+	detail.custom_minimum_size.y = 22
 	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(detail)
 	var pagination := HBoxContainer.new()
@@ -103,12 +105,6 @@ func _ready() -> void:
 	following_button.offset_top = -30
 	following_button.offset_bottom = 30
 	add_child(following_button)
-	summary = _label("", 11, MUTED)
-	summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	summary.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	summary.offset_top = -44
-	summary.offset_bottom = -22
-	add_child(summary)
 	refresh()
 
 func _progress_bar(title: String, color: Color, parent: Container) -> Dictionary:
@@ -155,7 +151,7 @@ func refresh() -> void:
 	_accent(hard_button, settings.hard_mode)
 	var chapter_index := chapter_names.find(chapter)
 	chapter_title.text = chapter
-	chapter_number.text = "CHAPTER   %02d / %02d" % [chapter_index + 1, chapter_names.size()]
+	chapter_number.text = "%02d / %02d" % [chapter_index + 1, chapter_names.size()]
 	previous_button.disabled = chapter_index == 0
 	following_button.disabled = chapter_index == chapter_names.size() - 1
 	for i in chapter_buttons.size():
@@ -192,5 +188,4 @@ func refresh() -> void:
 		var amount: int = easy_count if key == "easy" else hard_count
 		bars[key].counter.text = "%d / %d" % [amount, total]
 		bars[key].bar.value = float(amount) / total * 100
-	summary.text = "本章完成 %02d / %02d   ·   所有关卡开放" % [hard_count if settings.hard_mode else easy_count, total]
-	detail.text = "选择关卡开始"
+	detail.text = ""

@@ -85,7 +85,7 @@ func _build_ui() -> void:
 	panel.anchor_top = 0.10
 	panel.anchor_right = 0.90
 	panel.anchor_bottom = 0.90
-	panel.add_theme_stylebox_override("panel", _style(Color(0, 0, 0, 0.015), Color(1, 1, 1, 0.32), 0))
+	panel.add_theme_stylebox_override("panel", _style(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0))
 	add_child(panel)
 	var canvas := Control.new()
 	panel.add_child(canvas)
@@ -108,10 +108,10 @@ func _build_ui() -> void:
 	toolbar.offset_bottom = 50
 	canvas.add_child(toolbar)
 	count_label = _label("0", 30, PRIMARY)
-	count_label.add_theme_font_override("font", tech)
+	count_label.add_theme_font_override("font", regular)
 	toolbar.add_child(count_label)
 	goal_label = _label("", 16, INK)
-	goal_label.add_theme_font_override("font", tech)
+	goal_label.add_theme_font_override("font", regular)
 	goal_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	toolbar.add_child(goal_label)
 	undo_button = _icon_button("arrow-undo-outline", "撤销 · Z", _undo, 23, 32)
@@ -150,8 +150,8 @@ func _build_result(canvas: Control) -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 22)
 	result_panel.add_child(box)
-	result_title = _label("", 40, PRIMARY)
-	result_title.add_theme_font_override("font", tech)
+	result_title = _label("", 30, PRIMARY)
+	result_title.add_theme_font_override("font", regular)
 	result_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(result_title)
 	result_description = _label("", 16, INK)
@@ -225,7 +225,7 @@ func _sync() -> void:
 	chapter_label.text = "LEVEL  %02d   /   %s" % [current + 1, level.chapter]
 	title_label.text = level.title
 	description_label.text = level.description
-	count_label.text = "%02d" % session.steps
+	count_label.text = str(session.steps)
 	var record: Dictionary = progress.records.get(level.id, {})
 	var best := "—" if record.is_empty() else str(record.best)
 	goal_label.text = "/ %d" % level.optimal_moves if session.hard_mode else "步"
@@ -236,13 +236,13 @@ func _sync() -> void:
 	board.present(session.state, session.selected)
 	board.visible = not Puzzle.won(session.state) or board.animating()
 	var over: bool = session.hard_mode and session.steps > int(level.optimal_moves)
-	status_label.text = "已超过最优步数，可撤销或重来；也可以继续探索。" if over else "选中棋子后，小圆点表示可以走入的相邻格。"
+	status_label.text = "已超过最优步数，可撤销或重来；也可以继续探索。" if over else ""
 	if save_error:
 		status_label.text = "未能写入存档；当前会话仍保留对局和记录。"
 	var finished := Puzzle.won(session.state)
 	result_panel.visible = finished and not board.animating()
 	if finished:
-		result_title.text = ("PERFECT" if session.hard_mode else "COMPLETE") if session.cleared() else "TRY AGAIN"
+		result_title.text = ("最优解" if session.hard_mode else "完成") if session.cleared() else "再少几步"
 		if session.hard_mode:
 			result_description.text = "%d 步完成 / 最优 %d 步 · %s" % [session.steps, level.optimal_moves,
 				"困难通关" if session.cleared() else "困难尚未通关"]

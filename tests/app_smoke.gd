@@ -23,10 +23,12 @@ func settle() -> void:
 
 func key(code: Key) -> void:
 	var event := InputEventKey.new()
+	event.keycode = code
 	event.physical_keycode = code
 	event.pressed = true
 	Input.parse_input_event(event)
 	event = InputEventKey.new()
+	event.keycode = code
 	event.physical_keycode = code
 	Input.parse_input_event(event)
 
@@ -60,6 +62,26 @@ func _run() -> void:
 	await settle()
 	check(app.screen == "home" and app.home.visible and not app.game.visible, "Startup opens the home screen")
 	await capture("home-1280")
+	app.home.settings_button.grab_focus()
+	await settle()
+	key(KEY_ENTER)
+	await settle()
+	check(app.screen == "settings", "Enter activates focused settings instead of starting a level (route: %s)" % app.screen)
+	app._navigate("back")
+	await settle()
+	app.home.continue_button.grab_focus()
+	await settle()
+	key(KEY_ENTER)
+	await settle()
+	check(app.screen == "game" and app.game.current == 0, "Enter on the minimal title screen starts the first unfinished level directly")
+	app.game.session.selected = 0
+	key(KEY_RIGHT)
+	await create_timer(0.4).timeout
+	check(app.game.session.cleared(), "The direct-start level can be completed normally")
+	app.show_screen("home")
+	click(app.home.continue_button)
+	await settle()
+	check(app.screen == "game" and app.game.current == 1, "Start advances to the next unfinished level after a clear")
 	app._navigate("campaign")
 	await settle()
 	check(app.campaign.cards.size() == 3, "First chapter renders three original level cards")
@@ -93,7 +115,7 @@ func _run() -> void:
 	await settle()
 	check(not app.paused and app.game.session.steps == 1, "Resume preserves the current run")
 	app.show_screen("home")
-	check(app.home.resume_label.text.contains("已走 1 步"), "Home screen describes the unfinished run")
+	check(app.home.continue_button.text == "继续" and app.home.continue_button.tooltip_text.contains("已走 1 步"), "Continue retains run details in a tooltip instead of opening-screen text")
 	root.remove_child(app)
 	app.queue_free()
 	await settle()

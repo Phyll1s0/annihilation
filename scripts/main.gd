@@ -121,7 +121,7 @@ func _build_pause() -> void:
 	center.add_child(panel)
 	var box := VBoxContainer.new()
 	panel.add_child(box)
-	var heading := _title("PAUSED", 30, 4)
+	var heading := _title("暂停", 26, 1)
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(heading)
 	box.add_child(_button("继续游戏", resume_game))
