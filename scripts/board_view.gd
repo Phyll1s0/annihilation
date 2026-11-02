@@ -24,6 +24,7 @@ var reduce_motion := false
 var show_hints := true
 var padding := Vector2(40, 40)
 var maximum_unit := 112.0
+var visual_scale := 1.0
 
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -100,37 +101,38 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
-	var tile_size := unit - 2.0
+	var tile_size := unit - 2.0 * visual_scale
 	var rect := Rect2(center_of(index) - Vector2.ONE * tile_size / 2.0, Vector2.ONE * tile_size)
 	var style := StyleBoxFlat.new()
 	var portal_color := Color("b5bec7") if portal % 2 == 1 else Color("7b8a9b")
 	style.bg_color = Color(1, 1, 1, 0.035 * opacity) if portal == 0 else Color(portal_color, 0.09 * opacity)
 	style.border_color = Color(1, 1, 1, 0.25 * opacity) if portal == 0 else Color(portal_color, 0.45 * opacity)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(3 if portal == 0 else 10)
+	style.set_border_width_all(maxi(1, roundi(visual_scale)))
+	var corner := roundi((3.0 if portal == 0 else 10.0) * visual_scale)
+	style.set_corner_radius_all(corner)
 	if portal == 0:
 		var up: bool = index >= state.width and state.board[index - state.width] == 0
 		var down: bool = index + state.width < state.board.size() and state.board[index + state.width] == 0
 		var left: bool = index % state.width > 0 and state.board[index - 1] == 0
 		var right: bool = index % state.width < state.width - 1 and state.board[index + 1] == 0
-		style.corner_radius_top_left = 0 if up or left else 3
-		style.corner_radius_top_right = 0 if up or right else 3
-		style.corner_radius_bottom_left = 0 if down or left else 3
-		style.corner_radius_bottom_right = 0 if down or right else 3
+		style.corner_radius_top_left = 0 if up or left else corner
+		style.corner_radius_top_right = 0 if up or right else corner
+		style.corner_radius_bottom_left = 0 if down or left else corner
+		style.corner_radius_bottom_right = 0 if down or right else corner
 	draw_style_box(style, rect)
 	if portal > 0:
 		var tag := String.chr(64 + portal)
-		var tag_size := clampi(int(unit * 0.16), 8, 12)
-		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(portal_color, opacity * 0.75))
+		var tag_size := maxi(8, roundi(unit * 0.16))
+		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2 * visual_scale), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(portal_color, opacity * 0.75))
 
 func _piece(point: Vector2, color: int, radius: float, opacity: float = 1.0, active: bool = false) -> void:
 	if radius < 0.1:
 		return
 	draw_circle(point, radius, Color(INK if color == -1 else PAPER, opacity), true, -1, true)
-	draw_arc(point, radius, 0, TAU, 64, Color(PAPER, opacity * 0.85) if color == 1 else Color(Color("8d949b"), opacity), 1.0, true)
+	draw_arc(point, radius, 0, TAU, 64, Color(PAPER, opacity * 0.85) if color == 1 else Color(Color("8d949b"), opacity), visual_scale, true)
 	if active:
 		var pulse := 1.0 if reduce_motion else 1.0 + sin(clock * 3.0) * 0.025
-		draw_arc(point, (radius + unit * 0.07) * pulse, 0, TAU, 64, PRIMARY, 2.0, true)
+		draw_arc(point, (radius + unit * 0.07) * pulse, 0, TAU, 64, PRIMARY, 2.0 * visual_scale, true)
 
 func _draw() -> void:
 	if state.is_empty() or font == null:
@@ -154,7 +156,7 @@ func _draw() -> void:
 			continue
 		_piece(center_of(i), state.pieces[i], unit * 0.225, 1.0, i == selected)
 		if i == hover and i != selected and not animating():
-			draw_arc(center_of(i), unit * 0.31, 0, TAU, 48, Color(PAPER, 0.40), 1, true)
+			draw_arc(center_of(i), unit * 0.31, 0, TAU, 48, Color(PAPER, 0.40), visual_scale, true)
 	if animating():
 		var point: Vector2
 		var scale := 1.0
@@ -174,4 +176,4 @@ func _draw() -> void:
 		if motion.merged and t > 0.55:
 			var fade := sin((t - 0.55) / 0.45 * PI)
 			draw_circle(center_of(motion.target), unit * 0.27 * fade, Color("92989f", fade), true, -1, true)
-			draw_arc(center_of(motion.target), unit * (0.25 + t * 0.3), 0, TAU, 64, Color(PAPER, (1 - t) * 0.45), 1, true)
+			draw_arc(center_of(motion.target), unit * (0.25 + t * 0.3), 0, TAU, 64, Color(PAPER, (1 - t) * 0.45), visual_scale, true)

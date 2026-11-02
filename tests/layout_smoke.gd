@@ -3,9 +3,12 @@ extends SceneTree
 const Progress = preload("res://scripts/progress.gd")
 const Settings = preload("res://scripts/settings.gd")
 const Background = preload("res://scripts/ui/void_background.gd")
+const Puzzle = preload("res://scripts/puzzle.gd")
 const SIZES := [Vector2i(1280, 820), Vector2i(960, 680), Vector2i(1280, 720),
 	Vector2i(1024, 768), Vector2i(1920, 1080), Vector2i(2560, 1080),
-	Vector2i(960, 1280), Vector2i(640, 480), Vector2i(390, 844)]
+	Vector2i(960, 1280), Vector2i(640, 480), Vector2i(390, 844),
+	Vector2i(2560, 1640), Vector2i(2940, 1846), Vector2i(3840, 2160),
+	Vector2i(5120, 2880), Vector2i(1280, 820)]
 var failures := 0
 var layouts := 0
 var received := [-1]
@@ -40,20 +43,34 @@ func _run() -> void:
 	viewport.add_child(ui)
 	ui.board.cell_pressed.connect(func(index: int): received[0] = index)
 	await settle()
+	var reference_units: Dictionary = {}
+	var reference_counter: int = ui.count_label.get_theme_font_size("font_size")
+	var reference_back_size: Vector2 = ui.back_button.size
 	for dimensions in SIZES:
 		viewport.size = dimensions
 		await settle()
 		var screen := Rect2(Vector2.ZERO, Vector2(dimensions))
+		if dimensions == SIZES[0]:
+			check(ui.back_button.size.distance_to(reference_back_size) < 1.0, "Returning to a smaller window restores the control hit targets")
 		for level_index in ui.levels.size():
 			ui._open_level(level_index, false)
 			await settle()
 			layouts += 1
 			var tag := "%s at %dx%d" % [ui.levels[level_index].id, dimensions.x, dimensions.y]
 			var board = ui.board
+			if dimensions == SIZES[0] and not reference_units.has(level_index):
+				reference_units[level_index] = board.unit
+			if dimensions.x >= 1920 and dimensions.y >= 1080:
+				check(board.unit / dimensions.y >= float(reference_units[level_index]) / 820.0 * 0.95,
+					tag + ": the actual level grows with the screen instead of hitting a fixed cell cap")
+				check(float(ui.count_label.get_theme_font_size("font_size")) / dimensions.y >= float(reference_counter) / 820.0 * 0.95,
+					tag + ": gameplay text remains proportional on large screens")
+			if dimensions == SIZES[0]:
+				check(absf(board.unit - float(reference_units[level_index])) < 1.0, tag + ": returning to a smaller window restores the original board scale")
 			var grid := Rect2(board.global_position + board.origin, Vector2(board.state.width, board.state.height) * board.unit)
 			check(screen.encloses(grid), tag + ": the complete grid fits the viewport")
 			check(board.get_global_rect().encloses(grid), tag + ": tiles are not clipped by the board")
-			check(grid.position.y >= ui.toolbar.get_global_rect().end.y + 4, tag + ": the grid clears the toolbar")
+			check(grid.position.y >= ui.toolbar.get_global_rect().end.y + 4, tag + ": the grid clears the toolbar (grid %.1f, toolbar %s, counter font %d)" % [grid.position.y, ui.toolbar.get_global_rect(), ui.count_label.get_theme_font_size("font_size")])
 			check(grid.end.y <= ui.status_label.position.y - 8, tag + ": feedback has separate space")
 			check(grid.get_center().distance_to(screen.get_center()) < 1.0, tag + ": the puzzle stays centered")
 			check(board.unit >= 28.0, tag + ": cells stay usable at the smallest test viewport")
@@ -85,6 +102,28 @@ func _run() -> void:
 		ui._try_move("right")
 		await settle()
 		check(ui.result_panel.visible and screen.encloses(ui.result_panel.get_global_rect()), "%dx%d: completion controls remain on screen" % [dimensions.x, dimensions.y])
+	# Resizing an active, animated puzzle must preserve its rules and history.
+	ui._open_level(11, false)
+	var initial := Puzzle.key(ui.session.state)
+	settings.reduce_motion = false
+	ui.apply_settings()
+	var action: Dictionary = ui.levels[11].solution[0]
+	ui.session.selected = int(action.source)
+	ui._try_move(action.direction)
+	var moved := Puzzle.key(ui.session.state)
+	var selection: int = ui.session.selected
+	viewport.size = Vector2i(2560, 1640)
+	await settle()
+	check(Puzzle.key(ui.session.state) == moved and ui.session.steps == 1 and ui.session.selected == selection,
+		"Resizing a live puzzle preserves particles, terrain, selection, and steps")
+	check(ui.session.history.size() == 1, "Resizing an animated puzzle preserves undo history")
+	ui._undo()
+	check(Puzzle.key(ui.session.state) == initial and ui.session.steps == 0, "Undo after a resize restores the original puzzle")
+	viewport.size = SIZES[0]
+	await settle()
+	check(absf(ui.board.unit - float(reference_units[11])) < 1.0, "Shrinking an active puzzle restores its original scale")
+	settings.reduce_motion = true
+	ui.apply_settings()
 	ui._show_notice("Cannot move")
 	await create_timer(1.5).timeout
 	check(ui.status_label.text.is_empty(), "Brief feedback clears itself")

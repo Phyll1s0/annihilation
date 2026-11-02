@@ -36,6 +36,9 @@ var pause_button: Button
 var modes: HBoxContainer
 var toolbar: HBoxContainer
 var notice: Tween
+var restart_button: Button
+var result_box: VBoxContainer
+var result_buttons: HBoxContainer
 
 func _ready() -> void:
 	settings.apply_language()
@@ -91,6 +94,7 @@ func _build_ui() -> void:
 	add_child(board)
 	toolbar = HBoxContainer.new()
 	toolbar.alignment = BoxContainer.ALIGNMENT_CENTER
+	toolbar.minimum_size_changed.connect(_fit_toolbar)
 	toolbar.add_theme_constant_override("separation", 16)
 	add_child(toolbar)
 	count_label = _label("0", 30, PRIMARY)
@@ -102,7 +106,8 @@ func _build_ui() -> void:
 	toolbar.add_child(goal_label)
 	undo_button = _icon_button("arrow-undo-outline", "Undo · Z", _undo, 23, 32)
 	toolbar.add_child(undo_button)
-	toolbar.add_child(_icon_button("refresh-outline", "Restart · R", _restart, 24, 32))
+	restart_button = _icon_button("refresh-outline", "Restart · R", _restart, 24, 32)
+	toolbar.add_child(restart_button)
 	status_label = _label("", 11, MUTED)
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -113,30 +118,65 @@ func _build_ui() -> void:
 func _layout_ui() -> void:
 	if board == null:
 		return
-	var edge := clampf(size.x * 0.025, 16.0, 40.0)
+	var factor := maxf(1.0, minf(size.x / 1280.0, size.y / 820.0))
+	var edge := clampf(size.x * 0.025, 16.0, 40.0 * factor)
 	var compact := size.x < 600.0
-	back_button.position = Vector2(edge, 20)
-	chapter_label.position = Vector2(edge + 64, 34)
-	pause_button.position = Vector2(size.x - edge - 48, 20)
+	_scale_icon(back_button, 32, 48, factor)
+	_scale_icon(pause_button, 28, 48, factor)
+	_scale_icon(undo_button, 23, 32, factor)
+	_scale_icon(restart_button, 24, 32, factor)
+	back_button.position = Vector2(edge, 20 * factor)
+	chapter_label.position = Vector2(edge + 64 * factor, 34 * factor)
+	chapter_label.add_theme_font_size_override("font_size", roundi(12 * factor))
+	pause_button.position = Vector2(size.x - edge - 48 * factor, 20 * factor)
+	for button in [easy_button, hard_button]:
+		button.custom_minimum_size = Vector2(96, 44) * factor
+		button.add_theme_font_size_override("font_size", roundi(14 * factor))
+	modes.add_theme_constant_override("separation", roundi(12 * factor))
 	modes.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	modes.offset_left = -110
-	modes.offset_right = 110
-	modes.offset_top = 76 if compact else 24
-	modes.offset_bottom = modes.offset_top + 38
-	var toolbar_top := 120.0 if compact else 78.0
-	toolbar.position = Vector2((size.x - 320) / 2.0, toolbar_top)
-	toolbar.size = Vector2(320, 46)
-	var clearance := minf(toolbar_top + 68.0, size.y * 0.30)
+	modes.offset_left = -110 * factor
+	modes.offset_right = 110 * factor
+	modes.offset_top = (76 if compact else 24) * factor
+	modes.offset_bottom = modes.offset_top + 44 * factor
+	var toolbar_top := (132.0 if compact else 78.0) * factor
+	toolbar.add_theme_constant_override("separation", roundi(16 * factor))
+	count_label.add_theme_font_size_override("font_size", roundi(30 * factor))
+	goal_label.add_theme_font_size_override("font_size", roundi(16 * factor))
+	toolbar.position = Vector2((size.x - 320 * factor) / 2.0, toolbar_top)
+	toolbar.size = Vector2(320, 46) * factor
+	var clearance := minf(toolbar_top + 68.0 * factor, size.y * 0.30)
 	board.position = Vector2(edge, clearance)
 	board.size = Vector2(maxf(1.0, size.x - edge * 2.0), maxf(1.0, size.y - clearance * 2.0))
-	board.maximum_unit = clampf(minf(size.x, size.y) * 0.14, 56.0, 144.0)
+	board.padding = Vector2(40, 40) * factor
+	board.visual_scale = factor
+	# Keep cell proportions as the viewport grows; fit the entire level to its safe area.
+	board.maximum_unit = maxf(56.0, minf(size.x, size.y) * 0.14)
 	board._layout_board()
 	board.queue_redraw()
-	status_label.position = Vector2(edge, size.y - 48)
-	status_label.size = Vector2(size.x - edge * 2.0, 32)
-	var result_width := minf(480, size.x - edge * 2.0)
+	status_label.position = Vector2(edge, size.y - 48 * factor)
+	status_label.size = Vector2(size.x - edge * 2.0, 32 * factor)
+	status_label.add_theme_font_size_override("font_size", roundi(11 * factor))
+	var result_width := minf(480 * factor, size.x - edge * 2.0)
+	result_title.add_theme_font_size_override("font_size", roundi(30 * factor))
+	result_description.add_theme_font_size_override("font_size", roundi(16 * factor))
+	result_box.add_theme_constant_override("separation", roundi(22 * factor))
+	result_buttons.add_theme_constant_override("separation", roundi(28 * factor))
+	for i in result_buttons.get_child_count():
+		_scale_icon(result_buttons.get_child(i), 31 if i == 2 else 29, 48, factor)
 	result_panel.offset_left = -result_width / 2.0
 	result_panel.offset_right = result_width / 2.0
+	result_panel.offset_top = -100 * factor
+	result_panel.offset_bottom = 130 * factor
+
+func _scale_icon(button: Button, icon_size: int, hit_size: int, factor: float) -> void:
+	button.add_theme_constant_override("icon_max_width", roundi(icon_size * factor))
+	button.custom_minimum_size = Vector2.ONE * hit_size * factor
+	button.size = button.custom_minimum_size
+
+func _fit_toolbar() -> void:
+	# Font shaping updates container minimums after the resize notification.
+	toolbar.size = Vector2(320, 46) * board.visual_scale
+	toolbar.position.x = (size.x - toolbar.size.x) / 2.0
 
 func _build_result(canvas: Control) -> void:
 	result_panel = PanelContainer.new()
@@ -148,6 +188,7 @@ func _build_result(canvas: Control) -> void:
 	result_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	canvas.add_child(result_panel)
 	var box := VBoxContainer.new()
+	result_box = box
 	box.add_theme_constant_override("separation", 22)
 	result_panel.add_child(box)
 	result_title = _label("", 30, PRIMARY)
@@ -159,6 +200,7 @@ func _build_result(canvas: Control) -> void:
 	result_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(result_description)
 	var buttons := HBoxContainer.new()
+	result_buttons = buttons
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 28)
 	box.add_child(buttons)

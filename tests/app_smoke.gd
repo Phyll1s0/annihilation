@@ -120,6 +120,25 @@ func _run() -> void:
 	await create_timer(0.4).timeout
 	check(app.game.session.steps == 1, "Gameplay accepts keyboard input after navigation")
 	var saved_state := Puzzle.key(app.game.session.state)
+	if DisplayServer.get_name() != "headless":
+		var normal_unit: float = app.game.board.unit
+		var normal_height: float = app.game.size.y
+		await capture("game-windowed")
+		key(KEY_F11)
+		await create_timer(0.8).timeout
+		await settle()
+		check(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN, "An active puzzle enters native fullscreen")
+		check(app.game.board.unit / app.game.size.y >= normal_unit / normal_height * 0.95,
+			"The actual gameplay board keeps its visual proportion in native fullscreen")
+		check(Puzzle.key(app.game.session.state) == saved_state and app.game.session.steps == 1 and app.game.session.history.size() == 1,
+			"Native fullscreen preserves the current puzzle and undo history")
+		print("Fullscreen puzzle: %s, cell %.1f -> %.1f" % [app.game.size, normal_unit, app.game.board.unit])
+		await capture("game-fullscreen")
+		key(KEY_F11)
+		await create_timer(0.8).timeout
+		root.size = Vector2i(1280, 820)
+		await settle()
+		check(absf(app.game.board.unit - normal_unit) < 1.0, "Leaving fullscreen restores the gameplay board's windowed scale")
 	key(KEY_ESCAPE)
 	key(KEY_ESCAPE)
 	await settle()

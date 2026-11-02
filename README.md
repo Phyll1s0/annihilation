@@ -72,7 +72,7 @@ python3 tools/check.py --visual
 ~~~
 
 The visual checks open native windows and save screenshots in `builds/`. Tests use isolated saves.
-Layout checks cover all 20 levels at nine viewport sizes, including ultrawide and portrait layouts, and verify pointer input after resizing.
+Layout checks cover all 20 levels at thirteen viewport sizes, including ultrawide, portrait, and 5K layouts. They verify proportional board growth, pointer input, and undo after resizing a live puzzle.
 
 After changing a level, regenerate its shortest-path certificate and run the checks:
 
