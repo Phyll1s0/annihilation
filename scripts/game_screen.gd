@@ -261,7 +261,7 @@ func _next() -> void:
 	if custom_run:
 		navigation_requested.emit(_return_page())
 		return
-	if current == levels.size() - 1:
+	if current == levels.size() - 1 or not progress.level_unlocked(levels, current + 1, settings.developer_mode):
 		navigation_requested.emit("campaign")
 	else:
 		_open_level(current + 1)
@@ -320,7 +320,10 @@ func _sync() -> void:
 		if custom_run:
 			result_title.text = tr("New record") if custom_new_record else tr("Complete")
 			result_description.text = tr("Moves: %d · Best known: %d") % [session.steps, custom_best]
+		next_button.disabled = not custom_run and current < levels.size() - 1 and not progress.level_unlocked(levels, current + 1, settings.developer_mode)
 		next_button.tooltip_text = tr("Back to editor" if custom_return == "editor" else "Back to my levels") if custom_run else (tr("Back to levels") if current == levels.size() - 1 else tr("Next level"))
+
+		if next_button.disabled: next_button.tooltip_text = tr("Complete every Easy level in this chapter to unlock the next.")
 
 func _refresh_language() -> void:
 	_sync()

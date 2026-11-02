@@ -223,6 +223,8 @@ func _run() -> void:
 	key(KEY_Z)
 	await settle()
 	check(app.game.session.steps == 0 and app.progress.resume.actions.is_empty(), "Undo updates the persistent checkpoint")
+	app.settings.developer_mode = true
+	app.settings.save()
 	app.start_level(16, true)
 	await settle()
 	await capture("new-level-17")

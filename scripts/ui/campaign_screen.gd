@@ -207,20 +207,25 @@ func refresh() -> void:
 		grid.remove_child(child)
 		child.queue_free()
 	cards.clear()
-	resume_button.visible = not progress.resume.is_empty()
+	var resume_index := Catalog.index_of(levels, str(progress.resume.get("level_id", "")))
+	resume_button.visible = not progress.resume.is_empty() and progress.level_unlocked(levels, resume_index, settings.developer_mode)
 	if resume_button.visible:
 		var saved: Dictionary = progress.resume
 		resume_button.tooltip_text = tr("Level %s · %s · Moves: %d") % [saved.level_id, tr("Hard") if saved.hard_mode else tr("Easy"), saved.actions.size()]
 	_accent(easy_button, not settings.hard_mode)
 	_accent(hard_button, settings.hard_mode)
+	var unlocked: Array = progress.unlocked_chapters(levels, settings.developer_mode)
+	var playable := chapter in unlocked
+	var blocker: String = progress.blocking_chapter(levels, chapter)
+	var lock_hint := tr("Complete every Easy level in %s to unlock.") % tr(blocker) if not playable else ""
 	var chapter_index := chapter_names.find(chapter)
 	chapter_title.text = tr(chapter)
 	chapter_number.text = "%02d / %02d" % [chapter_index + 1, chapter_names.size()]
 	previous_button.disabled = chapter_index == 0
 	following_button.disabled = chapter_index == chapter_names.size() - 1
 	for i in chapter_buttons.size():
-		chapter_buttons[i].tooltip_text = tr(chapter_names[i])
-		chapter_buttons[i].add_theme_color_override("font_color", PRIMARY if i == chapter_index else Color("484d52"))
+		chapter_buttons[i].tooltip_text = tr(chapter_names[i]) + (" · " + tr("Locked") if chapter_names[i] not in unlocked else "")
+		chapter_buttons[i].add_theme_color_override("font_color", PRIMARY if i == chapter_index else Color("68717b") if chapter_names[i] in unlocked else Color("36393d"))
 	var easy_count := 0
 	var hard_count := 0
 	var total := 0
@@ -230,10 +235,11 @@ func refresh() -> void:
 			continue
 		total += 1
 		var record: Dictionary = progress.records.get(definition.id, {})
-		easy_count += 1 if record.get("easy", false) else 0
+		easy_count += 1 if progress.easy_cleared(definition.id) else 0
 		hard_count += 1 if record.get("hard", false) else 0
 		var index := i
 		var card := _button(definition.id, func(): level_requested.emit(index, settings.hard_mode), Vector2(96, 96))
+		card.disabled = not playable
 		card.add_theme_font_override("font", heavy)
 		card.add_theme_font_size_override("font_size", 32)
 		var cleared: bool = record.get("hard" if settings.hard_mode else "easy", false)
@@ -244,9 +250,10 @@ func refresh() -> void:
 		var caption := "%s  /  %s" % [definition.id, tr(definition.title)]
 		if settings.hard_mode:
 			caption += tr("   ·   Best possible: %d") % definition.optimal_moves
-		card.tooltip_text = caption
-		card.mouse_entered.connect(func(): detail.text = caption)
-		card.focus_entered.connect(func(): detail.text = caption)
+		card.tooltip_text = caption + ("\n" + lock_hint if not playable else "")
+		var hint: String = caption if playable else lock_hint
+		card.mouse_entered.connect(func(): detail.text = hint)
+		card.focus_entered.connect(func(): detail.text = hint)
 		grid.add_child(card)
 		_remember_layout(card)
 		cards.append(card)
@@ -254,7 +261,7 @@ func refresh() -> void:
 		var amount: int = easy_count if key == "easy" else hard_count
 		bars[key].counter.text = "%d / %d" % [amount, total]
 		bars[key].bar.value = float(amount) / total * 100
-	detail.text = ""
+	detail.text = lock_hint
 	_layout_campaign()
 
 func _refresh_language() -> void:

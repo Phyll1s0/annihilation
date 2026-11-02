@@ -671,3 +671,18 @@ msgstr "背景音乐"
 
 msgid "Volume"
 msgstr "音量"
+
+msgid "Locked"
+msgstr "未解锁"
+
+msgid "Complete every Easy level in %s to unlock."
+msgstr "完成「%s」的全部简单关卡即可解锁。"
+
+msgid "Complete every Easy level in this chapter to unlock the next."
+msgstr "完成本章全部简单关卡，即可解锁下一章。"
+
+msgid "No saved levels yet."
+msgstr "暂无已保存关卡。"
+
+msgid "Unlock every campaign level and enable level creation."
+msgstr "解锁所有主线关卡，并启用关卡创作。"

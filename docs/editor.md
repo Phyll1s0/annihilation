@@ -1,6 +1,7 @@
 # Level editor
 
-Choose **Create** on the title screen. The original **Settings → Developer → Developer mode → Level editor** route is also available.
+Open **Settings → Developer**, enable **Developer mode**, then choose **Level editor**.
+Developer mode also reveals **Create** and **Edit** in **My levels** and unlocks every campaign chapter. Turning it off restores normal campaign locks without erasing progress or drafts. Saved custom levels and their leaderboards remain playable.
 The editor is designed for desktop windows, including fullscreen and high-resolution displays.
 
 ## Make a map

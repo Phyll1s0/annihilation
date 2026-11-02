@@ -229,15 +229,9 @@ func _run() -> void:
 	app._navigate("back")
 	check(app.screen == "game" and app.paused and Puzzle.key(app.game.session.state) == campaign_state, "Leaving the editor restores the original paused campaign")
 	app.show_screen("home")
-	app.home.create_button.grab_focus()
-	var enter := InputEventKey.new()
-	enter.physical_keycode = KEY_ENTER
-	enter.pressed = true
-	viewport.push_input(enter, true)
-	await settle()
-	check(app.screen == "editor", "Enter on the home Create shortcut opens the editor")
-	app._navigate("editor_back")
-	check(app.screen == "home", "The home shortcut returns directly to Home")
+	app.preferences._set_option("developer_mode", false)
+	app._navigate("editor")
+	check(app.screen == "home", "Editor navigation cannot bypass disabled Developer mode")
 	viewport.queue_free()
 	await settle()
 	remove_tree(directory)

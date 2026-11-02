@@ -22,11 +22,11 @@ Linked portals share a letter and color. Entering an empty portal teleports the 
 | Easy | Clear the board in any number of moves. |
 | Hard | Clear the board in the verified minimum number of moves. |
 
-Each campaign level supports both modes, with separate completion records and a shared personal best. Invalid moves and selection changes do not count. Undo restores particles, tiles, portals, and the move counter.
+Each campaign level supports both modes, with separate completion records and a shared personal best. Clearing Hard also marks Easy complete. Invalid moves and selection changes do not count. Undo restores particles, tiles, portals, and the move counter.
 
 ## Features
 
-- 30 handcrafted levels across nine chapters, all available from level selection.
+- 30 handcrafted levels across nine chapters. Finish every Easy level in a chapter to unlock the next; levels within an open chapter can be played in any order.
 - Advanced chapters after level 20, including dense maps with six portal groups and twelve particles.
 - A level editor with drawing tools, undo/redo, automatic drafts, a personal library, and isolated playtesting.
 - Local custom-level leaderboards with personal bests and JSON sharing of maps and completed walks.
@@ -59,12 +59,13 @@ Optional controls and a short rules reference are available under Settings → C
 
 ## Make your own levels
 
-Choose **Create** on the title screen, or open **Settings → Developer**, enable **Developer mode**, and choose **Level editor**.
+Open **Settings → Developer**, enable **Developer mode**, and choose **Level editor**.
+Developer mode unlocks every campaign level and reveals **Create** and **Edit** in **My levels**. Turning it off restores normal chapter progression while keeping your genuine completion records and drafts.
 Start with a blank map or copy a campaign level, paint tiles and particles, then press **F5** to playtest.
 Maps support up to **12 × 12** tiles and portal groups **A–Z**.
 
 Choose **Save** in the editor to add a map to **Start → My levels**. Imported maps also need to be saved to appear there.
-Use **Play**, **Leaderboard**, or **Edit** beside a saved map; unfinished maps can be edited until they are ready to play.
+Use **Play** or **Leaderboard** beside a saved map, or **Edit** with Developer mode enabled; unfinished maps can be edited until they are ready to play.
 
 Custom levels have no minimum-verification step. Finish a playtest to set a record, then improve it with fewer moves.
 Open **Leaderboard** to set your player name and see the best completed run for each name.

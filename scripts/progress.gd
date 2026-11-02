@@ -32,7 +32,7 @@ func load_records() -> void:
 		var best = record.get("best", 0)
 		if not (best is int or best is float) or best < 1 or best != floor(best):
 			continue
-		records[str(id)] = {"best": int(best), "easy": record.get("easy") == true,
+		records[str(id)] = {"best": int(best), "easy": record.get("easy") == true or record.get("hard") == true,
 			"hard": record.get("hard") == true, "content_hash": str(record.get("content_hash", ""))}
 	var saved = data.get("resume")
 	if saved is Dictionary and saved.get("level_id") is String and saved.get("content_hash") is String and saved.get("hard_mode") is bool and saved.get("actions") is Array and saved.actions.size() <= 10000:
@@ -96,9 +96,38 @@ func save() -> Error:
 		return error
 	return DirAccess.rename_absolute(temporary, path)
 
+func easy_cleared(id: String) -> bool:
+	var record: Dictionary = records.get(id, {})
+	return record.get("easy", false) or record.get("hard", false)
+
+func chapter_complete(levels: Array, chapter: String) -> bool:
+	var found := false
+	for level in levels:
+		if level.chapter != chapter: continue
+		found = true
+		if not easy_cleared(level.id): return false
+	return found
+
+func unlocked_chapters(levels: Array, developer: bool = false) -> Array[String]:
+	var unlocked: Array[String] = []
+	for chapter in Catalog.chapters(levels):
+		unlocked.append(chapter)
+		if not developer and not chapter_complete(levels, chapter): break
+	return unlocked
+
+func level_unlocked(levels: Array, index: int, developer: bool = false) -> bool:
+	return index >= 0 and index < levels.size() and levels[index].chapter in unlocked_chapters(levels, developer)
+
+func blocking_chapter(levels: Array, target: String) -> String:
+	for chapter in Catalog.chapters(levels):
+		if chapter == target: return ""
+		if not chapter_complete(levels, chapter): return chapter
+	return ""
+
 func completed(hard_mode: bool) -> int:
 	var count := 0
 	for record in records.values():
-		if record.get("hard" if hard_mode else "easy", false):
+		var cleared: bool = record.get("hard", false) if hard_mode else (record.get("easy", false) or record.get("hard", false))
+		if cleared:
 			count += 1
 	return count

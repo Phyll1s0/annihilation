@@ -34,9 +34,11 @@ var editor_directory := ""
 var editor_return := "home"
 var editor_origin_screen := "home"
 var editor_origin_paused := false
+var developer_access := false
 
 func _ready() -> void:
 	settings.apply_language()
+	developer_access = settings.developer_mode
 	_setup_theme()
 	background = Background.new()
 	background.settings = settings
@@ -75,7 +77,8 @@ func _ready() -> void:
 		game.apply_settings()
 		if test_game != null: test_game.apply_settings()
 		background.apply_settings()
-		music.apply_settings())
+		music.apply_settings()
+		_refresh_access())
 	game.pause_requested.connect(pause_game)
 	game.state_changed.connect(func(): home.refresh())
 	_build_pause()
@@ -92,10 +95,10 @@ func _navigate(destination: String) -> void:
 	if music != null: music.unlock()
 	match destination:
 		"continue":
-			if not progress.resume.is_empty():
+			if not progress.resume.is_empty() and progress.level_unlocked(levels, game.current, settings.developer_mode):
 				show_screen("game")
 			else:
-				start_level(Catalog.recommended(levels, progress.records, settings.hard_mode), settings.hard_mode)
+				show_screen("campaign")
 		"my_levels":
 			_ensure_library()
 			show_screen("my_levels")
@@ -108,9 +111,8 @@ func _navigate(destination: String) -> void:
 			if settings_return_paused:
 				pause_game()
 		"editor":
+			if not settings.developer_mode: return
 			if screen in ["home", "my_levels"]:
-				settings.developer_mode = true
-				settings.save()
 				editor_return = screen
 			elif screen == "settings" and settings_return not in ["editor", "editor_test"]:
 				editor_return = "settings"
@@ -126,6 +128,8 @@ func _navigate(destination: String) -> void:
 		_: show_screen(destination)
 
 func show_screen(destination: String) -> void:
+	if destination == "editor" and not settings.developer_mode: return
+	if destination == "game" and not progress.level_unlocked(levels, game.current, settings.developer_mode): destination = "campaign"
 	if not pages.has(destination):
 		return
 	screen = destination
@@ -147,12 +151,35 @@ func show_screen(destination: String) -> void:
 		"my_levels": my_levels.refresh()
 	pages[destination].enter(settings.reduce_motion)
 
-func start_level(index: int, hard: bool) -> void:
+func start_level(index: int, hard: bool) -> bool:
+	if not progress.level_unlocked(levels, index, settings.developer_mode): return false
 	settings.hard_mode = hard
 	settings.save()
 	game.session.hard_mode = hard
 	game._open_level(index)
 	show_screen("game")
+	return true
+
+func _refresh_access() -> void:
+	if developer_access != settings.developer_mode:
+		developer_access = settings.developer_mode
+		campaign.refresh()
+		if my_levels != null: my_levels.refresh()
+	if settings.developer_mode: return
+	if screen == "settings":
+		if settings_return == "game" and not progress.level_unlocked(levels, game.current):
+			settings_return = "campaign"
+			settings_return_paused = false
+		elif settings_return == "editor" or (settings_return == "editor_test" and test_game.custom_return == "editor"):
+			if editor != null: editor._persist()
+			_ensure_library()
+			settings_return = "my_levels"
+			settings_return_paused = false
+	elif screen == "game" and not progress.level_unlocked(levels, game.current):
+		show_screen("campaign")
+	elif screen == "editor" or (screen == "editor_test" and test_game.custom_return == "editor"):
+		if editor != null: editor._persist()
+		_navigate("my_levels")
 
 func _ensure_custom_content() -> void:
 	if custom_library != null: return
@@ -167,10 +194,12 @@ func _ensure_library() -> void:
 	my_levels = preload("res://scripts/ui/library_screen.gd").new()
 	my_levels.library = custom_library
 	my_levels.records = custom_records
+	my_levels.settings = settings
 	my_levels.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	my_levels.navigation_requested.connect(_navigate)
 	my_levels.level_requested.connect(func(level: Dictionary): _start_custom(level, "my_levels"))
 	my_levels.edit_requested.connect(func(path: String):
+		if not settings.developer_mode: return
 		_navigate("editor")
 		editor.open_saved(path))
 	pages.my_levels = my_levels
@@ -196,6 +225,7 @@ func _start_test(definition: Dictionary) -> void:
 	_start_custom(definition, "editor")
 
 func _start_custom(definition: Dictionary, origin: String) -> void:
+	if origin == "editor" and not settings.developer_mode: return
 	_ensure_custom_content()
 	if test_game == null:
 		test_game = preload("res://scenes/game_screen.tscn").instantiate()

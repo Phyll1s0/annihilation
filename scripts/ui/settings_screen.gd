@@ -188,7 +188,7 @@ func _ready() -> void:
 		editor_button.disabled = not enabled)
 	developer_row.add_child(developer_toggle)
 	switches.developer_mode = developer_toggle
-	var developer_copy := _label("Create, save, and play your own levels.", 14, MUTED)
+	var developer_copy := _label("Unlock every campaign level and enable level creation.", 14, MUTED)
 	developer_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	developer.add_child(developer_copy)
 	editor_button = _button("Level editor", func(): navigation_requested.emit("editor"), Vector2(180, 48))

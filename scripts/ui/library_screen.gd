@@ -4,6 +4,7 @@ signal level_requested(definition: Dictionary)
 signal edit_requested(path: String)
 var library
 var records
+var settings
 var frame: MarginContainer
 var contents: VBoxContainer
 var list: VBoxContainer
@@ -82,10 +83,11 @@ func refresh() -> void:
 		list.remove_child(child)
 		child.queue_free()
 	rows.clear()
+	create_button.visible = settings.developer_mode
 	empty_label = null
 	var saved: Array = library.list_levels()
 	if saved.is_empty():
-		empty_label = _label("No saved levels yet. Create a level and choose Save to add it here.", 16, MUTED)
+		empty_label = _label("No saved levels yet. Create a level and choose Save to add it here." if settings.developer_mode else "No saved levels yet.", 16, MUTED)
 		empty_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		list.add_child(empty_label)
 		_remember_layout(empty_label)
@@ -118,6 +120,7 @@ func refresh() -> void:
 		scores.add_theme_font_size_override("font_size", 12)
 		row.add_child(scores)
 		var edit := _button("Edit", func(): edit_requested.emit(path), Vector2(88, 44))
+		edit.visible = settings.developer_mode
 		row.add_child(edit)
 		_remember_layout(plate)
 		rows.append({"play": play, "edit": edit, "scores": scores, "definition": definition})

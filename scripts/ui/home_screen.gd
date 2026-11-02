@@ -6,7 +6,6 @@ var progress
 var settings
 var continue_button: Button
 var settings_button: Button
-var create_button: Button
 var mark
 var body: VBoxContainer
 var title: Label
@@ -38,13 +37,6 @@ func _ready() -> void:
 	continue_button.focus_entered.connect(func(): mark.respond(true, settings.reduce_motion))
 	continue_button.focus_exited.connect(func(): mark.respond(false, settings.reduce_motion))
 	button_center.add_child(continue_button)
-	var create_center := CenterContainer.new()
-	body.add_child(create_center)
-	create_button = _button("Create", func(): navigation_requested.emit("editor"), Vector2(176, 44))
-	for state in ["normal", "hover", "pressed"]:
-		create_button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
-	create_button.add_theme_color_override("font_color", MUTED)
-	create_center.add_child(create_button)
 	settings_button = _icon_button("settings-outline", "Settings", func(): navigation_requested.emit("settings"), 21, 44)
 	settings_button.add_theme_color_override("icon_normal_color", Color("68717b"))
 	settings_button.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -62,7 +54,7 @@ func _layout_home() -> void:
 		return
 	# Grow with the window's shorter scale, without shrinking ordinary windows.
 	var factor := maxf(1.0, minf(size.x / 1280.0, size.y / 820.0))
-	var fit := minf((size.x - 40.0) / 320.0, (size.y - 48.0) / 378.0)
+	var fit := minf((size.x - 40.0) / 320.0, (size.y - 48.0) / 310.0)
 	factor = maxf(0.5, minf(factor, fit))
 	body.custom_minimum_size.x = 320.0 * factor
 	body.add_theme_constant_override("separation", roundi(24.0 * factor))
@@ -72,8 +64,6 @@ func _layout_home() -> void:
 	mark.visual_scale = factor
 	continue_button.add_theme_font_size_override("font_size", roundi(22.0 * factor))
 	continue_button.custom_minimum_size = Vector2(176, 58) * factor
-	create_button.add_theme_font_size_override("font_size", roundi(16.0 * factor))
-	create_button.custom_minimum_size = Vector2(176, 44) * factor
 	var edge := 24.0 * factor
 	var hit := 52.0 * factor
 	settings_button.custom_minimum_size = Vector2.ONE * hit
@@ -102,8 +92,6 @@ func _input(event: InputEvent) -> void:
 	if event.physical_keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE]:
 		if get_viewport().gui_get_focus_owner() == settings_button:
 			navigation_requested.emit("settings")
-		elif get_viewport().gui_get_focus_owner() == create_button:
-			navigation_requested.emit("editor")
 		else:
 			_play()
 		get_viewport().set_input_as_handled()

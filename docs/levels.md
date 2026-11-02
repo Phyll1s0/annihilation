@@ -103,4 +103,4 @@ godot --headless --path . --script tests/run_tests.gd
 
 ## 在游戏里造关卡
 
-「Settings → Developer → Developer mode → Level editor」提供可视化编辑、保存、导入导出与试玩。自制地图允许不完整草稿；进入试玩前检查黑白数量和门组配对。未验证地图只启用简单试玩，验证后可以用困难模式测试。完整流程见 [编辑器指南](editor.md)。
+「Settings → Developer → Developer mode → Level editor」提供可视化编辑、保存、导入导出与试玩。自制地图允许不完整草稿；进入试玩前检查黑白数量和门组配对。自制地图可以直接试玩，不验证理论最少步数；合法通关走法记录在本地排行榜，保存后可在「Start → My levels」游玩。完整流程见 [编辑器指南](editor.md)。
