@@ -41,12 +41,13 @@ var restart_button: Button
 var result_box: VBoxContainer
 var result_buttons: HBoxContainer
 var custom_run := false
+var custom_return := "editor"
 var custom_best := 0
 var custom_player := "Player"
 var custom_new_record := false
 
 func _return_page() -> String:
-	return "editor" if custom_run else "campaign"
+	return custom_return if custom_run else "campaign"
 
 func _ready() -> void:
 	settings.apply_language()
@@ -258,7 +259,7 @@ func _undo() -> void:
 
 func _next() -> void:
 	if custom_run:
-		navigation_requested.emit("editor")
+		navigation_requested.emit(_return_page())
 		return
 	if current == levels.size() - 1:
 		navigation_requested.emit("campaign")
@@ -285,7 +286,7 @@ func _sync() -> void:
 	if levels.is_empty():
 		return
 	var level: Dictionary = levels[current]
-	chapter_label.text = tr("Playtest") if custom_run else "%02d" % [current + 1]
+	chapter_label.text = tr("Playtest" if custom_return == "editor" else "Custom level") if custom_run else "%02d" % [current + 1]
 	chapter_label.tooltip_text = "%s / %s" % [tr(level.chapter), level.title if custom_run else tr(level.title)]
 	count_label.text = str(session.steps)
 	var record: Dictionary = progress.records.get(level.id, {})
@@ -296,7 +297,7 @@ func _sync() -> void:
 	_accent(hard_button, session.hard_mode)
 	modes.visible = not custom_run
 	if custom_run:
-		count_label.tooltip_text = tr("Best known: %d moves") % custom_best if custom_best > 0 else tr("No records yet")
+		count_label.tooltip_text = tr_n("Best known: %d move", "Best known: %d moves", custom_best) % custom_best if custom_best > 0 else tr("No records yet")
 	undo_button.disabled = session.history.is_empty()
 	board.present(session.state, session.selected)
 	board.visible = not Puzzle.won(session.state) or board.animating()
@@ -319,7 +320,7 @@ func _sync() -> void:
 		if custom_run:
 			result_title.text = tr("New record") if custom_new_record else tr("Complete")
 			result_description.text = tr("Moves: %d · Best known: %d") % [session.steps, custom_best]
-		next_button.tooltip_text = tr("Back to editor") if custom_run else (tr("Back to levels") if current == levels.size() - 1 else tr("Next level"))
+		next_button.tooltip_text = tr("Back to editor" if custom_return == "editor" else "Back to my levels") if custom_run else (tr("Back to levels") if current == levels.size() - 1 else tr("Next level"))
 
 func _refresh_language() -> void:
 	_sync()

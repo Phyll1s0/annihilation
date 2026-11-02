@@ -614,8 +614,9 @@ msgstr "玩家名称"
 msgid "No records yet"
 msgstr "暂无纪录"
 
-msgid "Best known: %d moves"
-msgstr "当前纪录：%d 步"
+msgid "Best known: %d move"
+msgid_plural "Best known: %d moves"
+msgstr[0] "当前纪录：%d 步"
 
 msgid "Drag to paint. Right click removes tiles."
 msgstr "拖动绘制；右键删除整个格子。"
@@ -640,3 +641,24 @@ msgstr "新纪录"
 
 msgid "Moves: %d · Best known: %d"
 msgstr "本次：%d 步 · 当前纪录：%d 步"
+
+msgid "Choose a level · Enter"
+msgstr "选择关卡 · 回车"
+
+msgid "Play"
+msgstr "游玩"
+
+msgid "Edit"
+msgstr "编辑"
+
+msgid "Back to my levels"
+msgstr "返回我的关卡"
+
+msgid "Finish this map in the editor before playing."
+msgstr "先在编辑器中补全关卡，再开始游玩。"
+
+msgid "No saved levels yet. Create a level and choose Save to add it here."
+msgstr "暂无已保存关卡。创作关卡并点击保存，即可添加到这里。"
+
+msgid "Level saved to My levels."
+msgstr "已保存到我的关卡。"

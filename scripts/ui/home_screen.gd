@@ -84,15 +84,13 @@ func _layout_home() -> void:
 	settings_button.offset_bottom = -edge
 
 func _play() -> void:
-	navigation_requested.emit("continue")
+	navigation_requested.emit("campaign")
 
 func refresh() -> void:
 	if continue_button == null:
 		return
-	var saved: Dictionary = progress.resume
-	continue_button.text = tr("Start") if saved.is_empty() else tr("Continue")
-	continue_button.tooltip_text = tr("Next level · Enter") if saved.is_empty() else tr("Level %s · %s · Moves: %d") % [
-		saved.level_id, tr("Hard") if saved.hard_mode else tr("Easy"), saved.actions.size()]
+	continue_button.text = tr("Start")
+	continue_button.tooltip_text = tr("Choose a level · Enter")
 	mark.respond(false, true)
 
 func _refresh_language() -> void:

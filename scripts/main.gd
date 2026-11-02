@@ -26,6 +26,9 @@ var pause_center: CenterContainer
 var pause_actions: Dictionary = {}
 var editor
 var test_game
+var my_levels
+var custom_library
+var custom_records
 var editor_directory := ""
 var editor_return := "home"
 var editor_origin_screen := "home"
@@ -87,6 +90,9 @@ func _navigate(destination: String) -> void:
 				show_screen("game")
 			else:
 				start_level(Catalog.recommended(levels, progress.records, settings.hard_mode), settings.hard_mode)
+		"my_levels":
+			_ensure_library()
+			show_screen("my_levels")
 		"settings":
 			settings_return = screen
 			settings_return_paused = paused
@@ -96,10 +102,10 @@ func _navigate(destination: String) -> void:
 			if settings_return_paused:
 				pause_game()
 		"editor":
-			if screen == "home":
+			if screen in ["home", "my_levels"]:
 				settings.developer_mode = true
 				settings.save()
-				editor_return = "home"
+				editor_return = screen
 			elif screen == "settings" and settings_return not in ["editor", "editor_test"]:
 				editor_return = "settings"
 				editor_origin_screen = settings_return
@@ -131,6 +137,7 @@ func show_screen(destination: String) -> void:
 		"game": game.apply_settings()
 		"editor_test": test_game.apply_settings()
 		"editor": editor.refresh()
+		"my_levels": my_levels.refresh()
 	pages[destination].enter(settings.reduce_motion)
 
 func start_level(index: int, hard: bool) -> void:
@@ -140,13 +147,37 @@ func start_level(index: int, hard: bool) -> void:
 	game._open_level(index)
 	show_screen("game")
 
-func _ensure_editor() -> void:
-	if editor != null: return
+func _ensure_custom_content() -> void:
+	if custom_library != null: return
 	if editor_directory.is_empty():
 		editor_directory = "user://editor" if settings.path == "user://settings.cfg" else settings.path + ".editor"
+	custom_library = preload("res://scripts/editor_library.gd").new(editor_directory)
+	custom_records = preload("res://scripts/custom_records.gd").new(editor_directory)
+
+func _ensure_library() -> void:
+	if my_levels != null: return
+	_ensure_custom_content()
+	my_levels = preload("res://scripts/ui/library_screen.gd").new()
+	my_levels.library = custom_library
+	my_levels.records = custom_records
+	my_levels.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	my_levels.navigation_requested.connect(_navigate)
+	my_levels.level_requested.connect(func(level: Dictionary): _start_custom(level, "my_levels"))
+	my_levels.edit_requested.connect(func(path: String):
+		_navigate("editor")
+		editor.open_saved(path))
+	pages.my_levels = my_levels
+	add_child(my_levels)
+	move_child(pause_layer, get_child_count() - 1)
+
+func _ensure_editor() -> void:
+	if editor != null: return
+	_ensure_custom_content()
 	editor = preload("res://scripts/ui/editor_screen.gd").new()
 	editor.directory = editor_directory
 	editor.levels = levels
+	editor.library = custom_library
+	editor.records = custom_records
 	editor.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	editor.navigation_requested.connect(_navigate)
 	editor.playtest_requested.connect(_start_test)
@@ -155,6 +186,10 @@ func _ensure_editor() -> void:
 	move_child(pause_layer, get_child_count() - 1)
 
 func _start_test(definition: Dictionary) -> void:
+	_start_custom(definition, "editor")
+
+func _start_custom(definition: Dictionary, origin: String) -> void:
+	_ensure_custom_content()
 	if test_game == null:
 		test_game = preload("res://scenes/game_screen.tscn").instantiate()
 		test_game.custom_run = true
@@ -165,8 +200,8 @@ func _start_test(definition: Dictionary) -> void:
 		test_game.navigation_requested.connect(_navigate)
 		test_game.pause_requested.connect(pause_game)
 		test_game.custom_completed.connect(func(level: Dictionary, actions: Array):
-			var outcome: Dictionary = editor.records.submit(level, test_game.custom_player, actions)
-			test_game.custom_best = editor.records.best(level)
+			var outcome: Dictionary = custom_records.submit(level, test_game.custom_player, actions)
+			test_game.custom_best = custom_records.best(level)
 			test_game.custom_new_record = outcome.get("improved", false)
 			if not outcome.get("saved", false): test_game.save_error = true)
 		pages.editor_test = test_game
@@ -174,8 +209,9 @@ func _start_test(definition: Dictionary) -> void:
 		move_child(pause_layer, get_child_count() - 1)
 	test_game.levels = [definition]
 	test_game.progress.bind_catalog(test_game.levels)
-	test_game.custom_best = editor.records.best(definition)
-	test_game.custom_player = editor.records.player
+	test_game.custom_return = origin
+	test_game.custom_best = custom_records.best(definition)
+	test_game.custom_player = custom_records.player
 	test_game.custom_new_record = false
 	test_game.session.hard_mode = false
 	test_game._open_level(0)
@@ -211,7 +247,7 @@ func _build_pause() -> void:
 		["resume", "Resume", resume_game],
 		["restart", "Restart level", func(): resume_game(); _active_game()._restart()],
 		["settings", "Settings", func(): _navigate("settings")],
-		["levels", "Back to levels", func(): _navigate("editor") if screen == "editor_test" else show_screen("campaign")],
+		["levels", "Back to levels", func(): _navigate(test_game._return_page()) if screen == "editor_test" else show_screen("campaign")],
 		["home", "Home", func(): show_screen("home")],
 	]
 	for entry in entries:
@@ -247,7 +283,8 @@ func pause_game() -> void:
 	active.input_enabled = false
 	active.board.cancel_animation()
 	active._sync()
-	var return_message := "Back to editor" if screen == "editor_test" else "Back to levels"
+	var return_message := "Back to levels"
+	if screen == "editor_test": return_message = "Back to editor" if test_game.custom_return == "editor" else "Back to my levels"
 	pause_actions.levels.set_meta("message", return_message)
 	pause_actions.levels.text = tr(return_message)
 	pause_layer.show()

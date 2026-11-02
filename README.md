@@ -22,7 +22,7 @@ Linked portals share a letter and color. Entering an empty portal teleports the 
 | Easy | Clear the board in any number of moves. |
 | Hard | Clear the board in the verified minimum number of moves. |
 
-Each level supports both modes, with separate completion records and a shared personal best. Invalid moves and selection changes do not count. Undo restores particles, tiles, portals, and the move counter.
+Each campaign level supports both modes, with separate completion records and a shared personal best. Invalid moves and selection changes do not count. Undo restores particles, tiles, portals, and the move counter.
 
 ## Features
 
@@ -32,7 +32,8 @@ Each level supports both modes, with separate completion records and a shared pe
 - Local custom-level leaderboards with personal bests and JSON sharing of maps and completed walks.
 - Campaign minimum move counts verified by independent Python and GDScript solvers.
 - Automatic saves, resumable games, and undo history restored after restarting.
-- A minimal title screen with scalable text and controls that starts the next unfinished level or resumes the current run.
+- A minimal title screen with scalable text and controls. Start opens level selection; Continue in the campaign selection restores the saved run.
+- A My levels tab for playing, editing, and viewing the records of saved custom maps.
 - Black-and-white pieces, a pure black background with faint star trails, and an orbital zero mark.
 - Responsive chapter selection, progress indicators, pause menus, and Settings, with readable controls in fullscreen.
 - Reduced-motion controls; background details fade during play.
@@ -49,7 +50,7 @@ Each level supports both modes, with separate completion records and a shared pe
 | Z | Undo |
 | R | Restart the level |
 | Esc | Deselect, then pause |
-| Enter / Space on the title screen | Start or continue |
+| Enter / Space on the title screen | Open level selection |
 | F11 | Toggle fullscreen |
 
 Level selection is available from the back button during play or the pause menu. Switching modes restarts the current level.
@@ -60,6 +61,9 @@ Optional controls and a short rules reference are available under Settings → C
 Choose **Create** on the title screen, or open **Settings → Developer**, enable **Developer mode**, and choose **Level editor**.
 Start with a blank map or copy a campaign level, paint tiles and particles, then press **F5** to playtest.
 Maps support up to **12 × 12** tiles and portal groups **A–Z**.
+
+Choose **Save** in the editor to add a map to **Start → My levels**. Imported maps also need to be saved to appear there.
+Use **Play**, **Leaderboard**, or **Edit** beside a saved map; unfinished maps can be edited until they are ready to play.
 
 Custom levels have no minimum-verification step. Finish a playtest to set a record, then improve it with fewer moves.
 Open **Leaderboard** to set your player name and see the best completed run for each name.

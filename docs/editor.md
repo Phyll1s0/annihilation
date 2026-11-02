@@ -29,7 +29,7 @@ Resizing preserves cells inside the new bounds and can be undone.
 ## Drafts and saved levels
 
 The current draft is saved automatically. Reopening the editor restores it.
-**Save** updates the current entry in **My levels**. Switching away from unsaved edits keeps a draft copy instead of overwriting an existing saved original.
+**Save** updates the current entry in **Start → My levels**, where you can play it, view its leaderboard, or open it for editing. Saved incomplete maps stay available for editing, with Play disabled until particles and portal pairs are complete. Switching away from unsaved edits keeps a draft copy instead of overwriting an existing saved original.
 
 Campaign maps are copied into custom levels. Editing or playtesting them does not change the campaign, its completion records, or its current checkpoint.
 
@@ -48,6 +48,8 @@ Names are local labels, not authenticated accounts. There is no automatic online
 ## Import and export
 
 **Import** and **Export** open the level JSON panel. You can paste or copy JSON, open a file, or save a file. Web exports download through the browser.
+
+After importing, choose **Save** to add the map to level selection.
 
 Exports contain the map and its leaderboard under the optional `records` field. Send the JSON to another player, then import their exported JSON to merge improved scores. Repeated imports do not duplicate names or replace a better score with a worse one.
 

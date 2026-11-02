@@ -57,5 +57,6 @@ func list_levels() -> Array:
 		var path := directory.path_join("levels").path_join(name)
 		var parsed := load_file(path, false)
 		if parsed.has("model"):
-			result.append({"title": parsed.model.title, "path": path})
+			result.append({"title": parsed.model.title, "path": path, "definition": parsed.model.definition(), "playable": parsed.model.validation_error().is_empty()})
+	result.sort_custom(func(a, b): return a.title.naturalnocasecmp_to(b.title) < 0 if a.title != b.title else a.path < b.path)
 	return result

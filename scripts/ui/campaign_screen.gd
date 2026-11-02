@@ -24,6 +24,9 @@ var center: CenterContainer
 var body: VBoxContainer
 var level_area: CenterContainer
 var ui_scale := 1.0
+var tabs: HBoxContainer
+var my_levels_button: Button
+var resume_button: Button
 
 func _ready() -> void:
 	_setup_theme()
@@ -35,6 +38,17 @@ func _ready() -> void:
 	settings_button.offset_top = 24
 	settings_button.offset_bottom = 72
 	add_child(settings_button)
+	tabs = HBoxContainer.new()
+	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	tabs.add_theme_constant_override("separation", 12)
+	add_child(tabs)
+	var campaign_button := _button("Campaign", func(): pass, Vector2(155, 44))
+	_accent(campaign_button, true)
+	tabs.add_child(campaign_button)
+	my_levels_button = _button("My levels", func(): navigation_requested.emit("my_levels"), Vector2(155, 44))
+	tabs.add_child(my_levels_button)
+	resume_button = _button("Continue", func(): navigation_requested.emit("continue"), Vector2(120, 44))
+	tabs.add_child(resume_button)
 	center = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -133,6 +147,8 @@ func _layout_campaign() -> void:
 	settings_button.offset_right = -24 * ui_scale
 	settings_button.offset_top = 24 * ui_scale
 	settings_button.offset_bottom = 72 * ui_scale
+	tabs.size = tabs.get_combined_minimum_size()
+	tabs.position = Vector2((size.x - tabs.size.x) / 2.0, 24 * ui_scale)
 	_fit_center()
 	call_deferred("_place_chapter_arrows")
 
@@ -191,6 +207,10 @@ func refresh() -> void:
 		grid.remove_child(child)
 		child.queue_free()
 	cards.clear()
+	resume_button.visible = not progress.resume.is_empty()
+	if resume_button.visible:
+		var saved: Dictionary = progress.resume
+		resume_button.tooltip_text = tr("Level %s · %s · Moves: %d") % [saved.level_id, tr("Hard") if saved.hard_mode else tr("Easy"), saved.actions.size()]
 	_accent(easy_button, not settings.hard_mode)
 	_accent(hard_button, settings.hard_mode)
 	var chapter_index := chapter_names.find(chapter)

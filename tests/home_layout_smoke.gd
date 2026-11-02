@@ -68,7 +68,7 @@ func _run() -> void:
 			event.pressed = pressed
 			event.position = home.continue_button.get_global_rect().get_center()
 			viewport.push_input(event, true)
-		check(navigation[0] == "continue", tag + ": the resized start action accepts pointer input")
+		check(navigation[0] == "campaign", tag + ": the resized start action accepts pointer input")
 		if DisplayServer.get_name() != "headless" and dimensions in [SIZES[0], SIZES[3], SIZES[5]]:
 			redraw(viewport)
 			await process_frame

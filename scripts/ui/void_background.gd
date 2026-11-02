@@ -37,10 +37,15 @@ func _ready() -> void:
 		})
 	for i in 74:
 		stars.append(Vector4(random.randf(), random.randf(), random.randf_range(0.16, 0.52), random.randf_range(0.5, 1.1)))
-	# A few composed arcs frame the title, especially on the quieter right side.
+	# Layered arcs frame the home screen while the title keeps its quiet center.
 	for arc in [Vector4(0.57, 3.63, 0.36, 0.17), Vector4(0.63, 3.45, 0.24, 0.15),
 		Vector4(0.43, -0.42, 0.40, 0.18), Vector4(0.35, 0.25, 0.48, 0.15),
-		Vector4(0.36, 0.90, 0.38, 0.20), Vector4(0.48, 1.30, 0.40, 0.14)]:
+		Vector4(0.36, 0.90, 0.38, 0.20), Vector4(0.48, 1.30, 0.40, 0.14),
+		Vector4(0.42, -0.92, 0.55, 0.24), Vector4(0.55, -0.65, 0.50, 0.22),
+		Vector4(0.30, 0.43, 0.34, 0.22), Vector4(0.39, 0.63, 0.32, 0.25),
+		Vector4(0.62, 1.16, 0.65, 0.23), Vector4(0.45, 1.76, 0.45, 0.21),
+		Vector4(0.58, 2.17, 0.52, 0.24), Vector4(0.70, 2.62, 0.45, 0.22),
+		Vector4(0.60, 3.18, 0.40, 0.22), Vector4(0.48, 3.87, 0.48, 0.23)]:
 		trails.append({"radius": arc.x, "angle": arc.y, "length": arc.z,
 			"alpha": arc.w, "pin": false, "home_only": true})
 	apply_settings()
@@ -77,6 +82,8 @@ func _clear_center(point: Vector2) -> float:
 	return smoothstep(0.17, 0.43, distance)
 
 func _draw_field() -> void:
+	# Preserve the hairline appearance at the home screen's native display scale.
+	var home_scale := maxf(1.0, minf(size.x / 1280.0, size.y / 820.0)) if page == "home" else 1.0
 	for star in stars:
 		var point := Vector2(star.x, star.y) * size
 		var alpha := star.z * _clear_center(point) * detail
@@ -92,7 +99,7 @@ func _draw_field() -> void:
 			var point := _orbit(angle, trail.radius)
 			points.append(point)
 			colors.append(Color(SILVER, trail.alpha * pow(t, 1.5) * _clear_center(point) * detail))
-		field.draw_polyline_colors(points, colors, 0.8, true)
+		field.draw_polyline_colors(points, colors, 0.8 * home_scale, true)
 		if trail.pin:
 			field.draw_circle(points[-1], 1.0, Color(SILVER, 0.5 * _clear_center(points[-1]) * detail), true, -1, true)
 	if not settings.reduce_motion and page == "home":

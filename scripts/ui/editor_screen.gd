@@ -11,7 +11,7 @@ var model
 var library
 var board
 var records
-var records_layer: Control
+var records_layer
 var records_panel: PanelContainer
 var records_table: VBoxContainer
 var player_input: LineEdit
@@ -49,8 +49,8 @@ func _ready() -> void:
 	theme.set_stylebox("normal", "LineEdit", _style(Color(1, 1, 1, 0.025), LINE))
 	theme.set_stylebox("focus", "LineEdit", _style(Color("080808"), Color(1, 1, 1, 0.4)))
 	theme.set_stylebox("normal", "TextEdit", _style(Color("080808"), LINE))
-	library = Library.new(directory)
-	records = Records.new(directory)
+	if library == null: library = Library.new(directory)
+	if records == null: records = Records.new(directory)
 	model = library.load_draft()
 	_build_ui()
 	autosave = Timer.new()
@@ -60,7 +60,6 @@ func _ready() -> void:
 	add_child(autosave)
 	_remember_layout(frame)
 	_remember_layout(exchange_panel)
-	_remember_layout(records_panel)
 	frame.minimum_size_changed.connect(_fit_frame)
 	resized.connect(_layout_editor)
 	_layout_editor()
@@ -202,7 +201,6 @@ func _layout_editor() -> void:
 	var factor := _screen_scale()
 	_apply_layout(frame, factor)
 	_apply_layout(exchange_panel, factor)
-	_apply_layout(records_panel, factor)
 	theme.default_font_size = roundi(14 * factor)
 	for selector in [level_menu, portal_menu]:
 		var popup: PopupMenu = selector.get_popup()
@@ -219,11 +217,6 @@ func _layout_editor() -> void:
 	exchange_panel.offset_top = margin
 	exchange_panel.offset_right = -margin
 	exchange_panel.offset_bottom = -margin
-	records_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	records_panel.offset_left = margin
-	records_panel.offset_top = margin
-	records_panel.offset_right = -margin
-	records_panel.offset_bottom = -margin
 
 func _fit_frame() -> void:
 	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -258,7 +251,7 @@ func _sync() -> void:
 	portal_count.text = tr("%d / 2 ends") % model.board.count(group)
 	statistics.text = tr("White %d · Black %d · Portal ends %d") % [model.pieces.count(1), model.pieces.count(-1), model.board.filter(func(tag): return tag > 0).size()]
 	var best: int = records.best(model.definition())
-	best_label.text = tr("No records yet") if best == 0 else tr("Best known: %d moves") % best
+	best_label.text = tr("No records yet") if best == 0 else tr_n("Best known: %d move", "Best known: %d moves", best) % best
 
 func _status(message: String) -> void:
 	if not is_instance_valid(status): return
@@ -298,7 +291,7 @@ func _save() -> void:
 	_persist()
 	model.dirty = false
 	_refresh_menu()
-	_status("Level saved.")
+	_status("Level saved to My levels.")
 
 func _refresh_menu() -> void:
 	level_menu.clear()
@@ -334,78 +327,26 @@ func _playtest() -> void:
 	playtest_requested.emit(model.definition())
 
 func _build_records() -> void:
-	records_layer = Control.new()
-	records_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	records_layer = preload("res://scripts/ui/records_dialog.gd").new()
+	records_layer.records = records
 	add_child(records_layer)
-	var shade := ColorRect.new()
-	shade.color = Color(0, 0, 0, 0.9)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	records_layer.add_child(shade)
-	records_panel = PanelContainer.new()
-	records_panel.add_theme_stylebox_override("panel", _style(Color("080808"), LINE, 4))
-	records_layer.add_child(records_panel)
-	var contents := VBoxContainer.new()
-	contents.add_theme_constant_override("separation", 16)
-	records_panel.add_child(contents)
-	var header := HBoxContainer.new()
-	contents.add_child(header)
-	header.add_child(_title("Local leaderboard", 24, 1))
-	_spacer(header)
-	header.add_child(_button("Close", func(): _save_player(); records_layer.hide(), Vector2(100, 40)))
-	records_heading = _label("", 16, MUTED)
-	records_heading.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	records_heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	contents.add_child(records_heading)
-	var profile := HBoxContainer.new()
-	profile.add_child(_label("Player name", 14, MUTED))
-	player_input = LineEdit.new()
-	player_input.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	player_input.max_length = 32
-	player_input.custom_minimum_size = Vector2(240, 40)
-	player_input.text_submitted.connect(func(_value: String): _save_player())
-	player_input.focus_exited.connect(_save_player)
-	profile.add_child(player_input)
-	contents.add_child(profile)
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	contents.add_child(scroll)
-	records_table = VBoxContainer.new()
-	records_table.add_theme_constant_override("separation", 12)
-	records_table.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(records_table)
-	var hint := _label("Best run per name. Export JSON to share this map and its records; import a friend's JSON to merge their scores.", 12, MUTED)
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	contents.add_child(hint)
-	records_layer.hide()
+	records_panel = records_layer.panel
+	records_table = records_layer.table
+	player_input = records_layer.player_input
+	records_heading = records_layer.heading
 
 func _save_player() -> void:
-	if records.set_player(player_input.text) != OK: _status("Could not save records.")
-	player_input.text = records.player
+	records_layer.save_player()
 
 func _show_records() -> void:
 	model.rename(title_input.text)
-	records_heading.text = model.title
-	player_input.text = records.player
-	for child in records_table.get_children():
-		records_table.remove_child(child)
-		child.queue_free()
-	var rows: Array = records.entries(model.definition())
-	if rows.is_empty(): records_table.add_child(_label("No records yet", 16, MUTED))
-	for i in rows.size():
-		var row := HBoxContainer.new()
-		records_table.add_child(row)
-		row.add_child(_label("%02d" % (i + 1), 16, MUTED))
-		var name_label := _label("", 16)
-		name_label.text = rows[i].player
-		name_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		row.add_child(name_label)
-		row.add_child(_label(tr("Moves: %d") % rows[i].moves, 16, PRIMARY))
-	for child in records_table.get_children(): _remember_layout(child)
-	_apply_layout(records_table, _screen_scale())
-	records_layer.show()
+	records_layer.show_level(model.definition())
+
+func open_saved(path: String) -> void:
+	var parsed: Dictionary = library.load_file(path, false)
+	if not parsed.has("model"): _status(parsed.error); return
+	if parsed.model.id == model.id: return
+	if _stash(): _replace(parsed.model, false)
 
 func _build_exchange() -> void:
 	exchange_layer = Control.new()
@@ -513,10 +454,7 @@ func _input(event: InputEvent) -> void:
 	if exchange_layer.visible:
 		if event.physical_keycode == KEY_ESCAPE: exchange_layer.hide(); get_viewport().set_input_as_handled()
 		return
-	if records_layer.visible:
-		if event.physical_keycode == KEY_ESCAPE:
-			_save_player(); records_layer.hide(); get_viewport().set_input_as_handled()
-		return
+	if records_layer.visible: return
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus is LineEdit or focus is TextEdit: return
 	if event.physical_keycode == KEY_F5:
