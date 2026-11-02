@@ -166,6 +166,12 @@ func _run() -> void:
 	await settle()
 	check(app.preferences.status.get_global_rect().end.y <= app.size.y, "Settings fit the logical canvas at minimum window height")
 	await capture("settings-960")
+	app.preferences._tab(true)
+	await settle()
+	check(app.preferences.controls.get_global_rect().end.y <= app.preferences.status.global_position.y,
+		"Optional controls and rules fit above the status at minimum window height")
+	check(app.preferences.status.get_global_rect().end.y <= app.size.y, "Optional instructions do not overflow the window")
+	await capture("controls-960")
 	DirAccess.remove_absolute(save_path)
 	DirAccess.remove_absolute(save_path + ".cfg")
 	print("NULL application: %d checks, %d failures" % [checks, failures])

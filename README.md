@@ -30,8 +30,9 @@ Each level supports both modes, with separate completion records and a shared pe
 - Minimum move counts verified by independent Python and GDScript solvers.
 - Automatic saves, resumable games, and undo history restored after restarting.
 - A minimal title screen that starts the next unfinished level or resumes the current run.
-- Black-and-white pieces, a quiet star-trail background, and an orbital zero mark.
+- Black-and-white pieces, a pure black background with faint star trails, and an orbital zero mark.
 - Fullscreen and reduced-motion settings; background details fade during play.
+- Centered, square-cell boards that resize with the window, without a text footer during play.
 
 ## Controls
 
@@ -47,6 +48,7 @@ Each level supports both modes, with separate completion records and a shared pe
 | F11 | Toggle fullscreen |
 
 Level selection is available from the back button during play or the pause menu. Switching modes restarts the current level.
+Optional controls and a short rules reference are available under Settings → Controls.
 
 ## Run locally
 
@@ -68,6 +70,7 @@ python3 tools/check.py --visual
 ~~~
 
 The visual checks open native windows and save screenshots in `builds/`. Tests use isolated saves.
+Layout checks cover all 20 levels at nine viewport sizes, including ultrawide and portrait layouts, and verify pointer input after resizing.
 
 After changing a level, regenerate its shortest-path certificate and run the checks:
 

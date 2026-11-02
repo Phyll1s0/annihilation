@@ -22,17 +22,19 @@ var unit := 80.0
 var origin := Vector2.ZERO
 var reduce_motion := false
 var show_hints := true
-var padding := Vector2(88, 80)
-var maximum_unit := 64.0
+var padding := Vector2(40, 40)
+var maximum_unit := 112.0
 
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	clip_contents = true
+	resized.connect(func(): _layout_board(); queue_redraw())
 	mouse_exited.connect(func(): hover = -1; queue_redraw())
 
 func present(next: Dictionary, selection: int) -> void:
 	state = next
 	selected = selection
+	_layout_board()
 	queue_redraw()
 
 func animate(result: Dictionary, before: Dictionary) -> void:
@@ -64,7 +66,8 @@ func _process(delta: float) -> void:
 func _layout_board() -> void:
 	if state.is_empty():
 		return
-	unit = minf(maximum_unit, minf((size.x - padding.x) / state.width, (size.y - padding.y) / state.height))
+	var available := (size - padding).max(Vector2.ONE)
+	unit = maxf(1.0, minf(maximum_unit, minf(available.x / state.width, available.y / state.height)))
 	origin = (size - Vector2(state.width, state.height) * unit) / 2.0
 
 func center_of(index: int) -> Vector2:
@@ -101,7 +104,7 @@ func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
 	var rect := Rect2(center_of(index) - Vector2.ONE * tile_size / 2.0, Vector2.ONE * tile_size)
 	var style := StyleBoxFlat.new()
 	var portal_color := Color("b5bec7") if portal % 2 == 1 else Color("7b8a9b")
-	style.bg_color = Color(0.282, 0.302, 0.322, 0.30 * opacity) if portal == 0 else Color(portal_color, 0.15 * opacity)
+	style.bg_color = Color(1, 1, 1, 0.035 * opacity) if portal == 0 else Color(portal_color, 0.09 * opacity)
 	style.border_color = Color(1, 1, 1, 0.25 * opacity) if portal == 0 else Color(portal_color, 0.45 * opacity)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(3 if portal == 0 else 10)

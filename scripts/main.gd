@@ -121,7 +121,7 @@ func _build_pause() -> void:
 	pause_layer.add_child(center)
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size.x = 360
-	panel.add_theme_stylebox_override("panel", _style(Color("262626"), LINE, 4))
+	panel.add_theme_stylebox_override("panel", _style(Color("080808"), LINE, 4))
 	center.add_child(panel)
 	var box := VBoxContainer.new()
 	panel.add_child(box)

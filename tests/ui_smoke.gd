@@ -56,7 +56,7 @@ func _run() -> void:
 	ui.settings = Settings.new(save_path + ".cfg")
 	root.add_child(ui)
 	await settle()
-	check(ui.title_label.text == "初见", "First level loads")
+	check(ui.session.level.id == "01", "First level loads")
 	click_cell(0)
 	await settle()
 	check(ui.session.selected == 0, "Mouse hit testing selects a piece")

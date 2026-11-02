@@ -6,6 +6,6 @@
       <stop offset="1" stop-color="#d8e1ee" stop-opacity=".55"/>
     </linearGradient>
   </defs>
-  <rect width="128" height="128" rx="28" fill="#090c12"/>
+  <rect width="128" height="128" rx="28" fill="#000000"/>
   <ellipse cx="64" cy="64" rx="23" ry="34" transform="rotate(14 64 64)" fill="none" stroke="url(#light)" stroke-width="1.7"/>
 </svg>

@@ -19,6 +19,7 @@ def main():
         ['godot', '--headless', '--path', '.', '--editor', '--import', '--quit'],
         ['godot', '--headless', '--path', '.', '--script', 'tests/run_tests.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/ui_smoke.gd'],
+        ['godot', *headless, '--path', '.', '--script', 'tests/layout_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/app_smoke.gd'],
     ]
     for command in commands:

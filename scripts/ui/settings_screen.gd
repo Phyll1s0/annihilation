@@ -71,13 +71,16 @@ func _ready() -> void:
 	controls = VBoxContainer.new()
 	controls.add_theme_constant_override("separation", 20)
 	page.add_child(controls)
-	for entry in [["移动", "↑ ↓ ← →  /  WASD"], ["选择棋子", "Tab  /  Shift Tab"],
+	for entry in [["选中 / 移动", "点棋子，再点相邻格"], ["移动", "↑ ↓ ← →  /  WASD"], ["选择棋子", "Tab  /  Shift Tab"],
 		["撤销", "Z"], ["重新开始", "R"], ["取消选择 / 暂停", "Esc"]]:
 		var row := HBoxContainer.new()
 		controls.add_child(row)
 		row.add_child(_label(entry[0], 16))
 		_spacer(row)
 		row.add_child(_label(entry[1], 14, MUTED))
+	var rules := _label("让异色棋子相遇，清空棋盘。相遇处的地板会消失。\n同色棋子互相阻挡；相同字母的传送门成对连通。", 12, MUTED)
+	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	controls.add_child(rules)
 	var remaining := Control.new()
 	remaining.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	page.add_child(remaining)

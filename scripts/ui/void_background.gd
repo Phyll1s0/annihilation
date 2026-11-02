@@ -1,5 +1,5 @@
 extends ColorRect
-## Sparse orbital trails leave an empty center. All artwork is native vector/shader.
+## Sparse orbital trails over true black, with an empty center.
 const SILVER := Color("bcc8dc")
 var settings
 var field: Control
@@ -18,34 +18,13 @@ var detail := 1.0:
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var shader := Shader.new()
-	shader.code = """
-shader_type canvas_item;
-uniform vec2 canvas_size = vec2(1280.0, 820.0);
-void fragment() {
-	vec2 p = UV;
-	p.x *= canvas_size.x / canvas_size.y;
-	vec2 glow_center = vec2(0.18 * canvas_size.x / canvas_size.y, 0.84);
-	float glow = exp(-dot(p - glow_center, p - glow_center) * 2.5);
-	float edge = smoothstep(0.18, 0.85, length(UV - vec2(0.5)));
-	vec3 night = vec3(0.026, 0.033, 0.049);
-	night += vec3(0.012, 0.017, 0.029) * glow;
-	night -= vec3(0.009, 0.011, 0.015) * edge;
-	COLOR = vec4(night, 1.0);
-}
-"""
-	var shader_material := ShaderMaterial.new()
-	shader_material.shader = shader
-	material = shader_material
+	color = Color.BLACK
 	field = Control.new()
 	field.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	field.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	field.draw.connect(_draw_field)
 	add_child(field)
-	resized.connect(func():
-		material.set_shader_parameter("canvas_size", size)
-		field.queue_redraw())
-	material.set_shader_parameter("canvas_size", size)
+	resized.connect(func(): field.queue_redraw())
 	var random := RandomNumberGenerator.new()
 	random.seed = 20261102
 	for i in 36:

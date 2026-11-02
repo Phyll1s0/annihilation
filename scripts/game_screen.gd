@@ -18,9 +18,7 @@ var settings = Settings.new()
 var input_enabled := true
 var current := 0
 var board
-var title_label: Label
 var chapter_label: Label
-var description_label: Label
 var count_label: Label
 var goal_label: Label
 var status_label: Label
@@ -33,6 +31,11 @@ var result_description: Label
 var next_button: Button
 var save_error := false
 var standalone_background
+var back_button: Button
+var pause_button: Button
+var modes: HBoxContainer
+var toolbar: HBoxContainer
+var notice: Tween
 
 func _ready() -> void:
 	if levels.is_empty():
@@ -42,6 +45,8 @@ func _ready() -> void:
 	progress.bind_catalog(levels)
 	_setup_theme()
 	_build_ui()
+	resized.connect(_layout_ui)
+	_layout_ui()
 	session.hard_mode = settings.hard_mode
 	_open_level(0, false)
 
@@ -60,18 +65,12 @@ func _build_ui() -> void:
 		standalone_background.settings = settings
 		add_child(standalone_background)
 		standalone_background.set_page("game")
-	_back_button(func(): navigation_requested.emit("campaign"))
-	var pause := _icon_button("pause-outline", "暂停 · Esc", func(): pause_requested.emit(), 28)
-	pause.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	pause.offset_left = -72
-	pause.offset_right = -24
-	pause.offset_top = 24
-	pause.offset_bottom = 72
-	add_child(pause)
+	back_button = _back_button(func(): navigation_requested.emit("campaign"))
+	pause_button = _icon_button("pause-outline", "暂停 · Esc", func(): pause_requested.emit(), 28)
+	add_child(pause_button)
 	chapter_label = _label("", 11, MUTED)
-	chapter_label.position = Vector2(90, 38)
 	add_child(chapter_label)
-	var modes := HBoxContainer.new()
+	modes = HBoxContainer.new()
 	modes.alignment = BoxContainer.ALIGNMENT_CENTER
 	modes.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	modes.offset_left = -130
@@ -84,33 +83,15 @@ func _build_ui() -> void:
 	for button in [easy_button, hard_button]:
 		button.add_theme_font_size_override("font_size", 12)
 		modes.add_child(button)
-	var panel := PanelContainer.new()
-	panel.anchor_left = 0.10
-	panel.anchor_top = 0.10
-	panel.anchor_right = 0.90
-	panel.anchor_bottom = 0.90
-	panel.add_theme_stylebox_override("panel", _style(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0))
-	add_child(panel)
-	var canvas := Control.new()
-	panel.add_child(canvas)
 	board = Board.new()
 	board.font = regular
-	board.padding = Vector2(40, 32)
-	board.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	board.offset_top = 60
-	board.offset_bottom = -64
 	board.cell_pressed.connect(_click_cell)
 	board.animation_finished.connect(_sync)
-	canvas.add_child(board)
-	var toolbar := HBoxContainer.new()
+	add_child(board)
+	toolbar = HBoxContainer.new()
 	toolbar.alignment = BoxContainer.ALIGNMENT_CENTER
 	toolbar.add_theme_constant_override("separation", 16)
-	toolbar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	toolbar.offset_left = -180
-	toolbar.offset_right = 180
-	toolbar.offset_top = 4
-	toolbar.offset_bottom = 50
-	canvas.add_child(toolbar)
+	add_child(toolbar)
 	count_label = _label("0", 30, PRIMARY)
 	count_label.add_theme_font_override("font", regular)
 	toolbar.add_child(count_label)
@@ -121,26 +102,40 @@ func _build_ui() -> void:
 	undo_button = _icon_button("arrow-undo-outline", "撤销 · Z", _undo, 23, 32)
 	toolbar.add_child(undo_button)
 	toolbar.add_child(_icon_button("refresh-outline", "重新开始 · R", _restart, 24, 32))
-	description_label = _label("", 13, MUTED)
-	description_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	description_label.offset_top = -40
-	description_label.offset_bottom = -12
-	canvas.add_child(description_label)
-	title_label = _title("", 17, 2)
-	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	title_label.offset_top = -68
-	title_label.offset_bottom = -40
-	add_child(title_label)
 	status_label = _label("", 11, MUTED)
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	status_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	status_label.offset_top = -34
-	status_label.offset_bottom = -12
+	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(status_label)
-	_build_result(canvas)
+	_build_result(self)
+
+func _layout_ui() -> void:
+	if board == null:
+		return
+	var edge := clampf(size.x * 0.025, 16.0, 40.0)
+	var compact := size.x < 600.0
+	back_button.position = Vector2(edge, 20)
+	chapter_label.position = Vector2(edge + 64, 34)
+	pause_button.position = Vector2(size.x - edge - 48, 20)
+	modes.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	modes.offset_left = -110
+	modes.offset_right = 110
+	modes.offset_top = 76 if compact else 24
+	modes.offset_bottom = modes.offset_top + 38
+	var toolbar_top := 120.0 if compact else 78.0
+	toolbar.position = Vector2((size.x - 320) / 2.0, toolbar_top)
+	toolbar.size = Vector2(320, 46)
+	var clearance := minf(toolbar_top + 68.0, size.y * 0.30)
+	board.position = Vector2(edge, clearance)
+	board.size = Vector2(maxf(1.0, size.x - edge * 2.0), maxf(1.0, size.y - clearance * 2.0))
+	board.maximum_unit = clampf(minf(size.x, size.y) * 0.14, 56.0, 144.0)
+	board._layout_board()
+	board.queue_redraw()
+	status_label.position = Vector2(edge, size.y - 48)
+	status_label.size = Vector2(size.x - edge * 2.0, 32)
+	var result_width := minf(480, size.x - edge * 2.0)
+	result_panel.offset_left = -result_width / 2.0
+	result_panel.offset_right = result_width / 2.0
 
 func _build_result(canvas: Control) -> void:
 	result_panel = PanelContainer.new()
@@ -160,6 +155,7 @@ func _build_result(canvas: Control) -> void:
 	box.add_child(result_title)
 	result_description = _label("", 16, INK)
 	result_description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	result_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(result_description)
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -226,33 +222,48 @@ func _sync() -> void:
 	if levels.is_empty():
 		return
 	var level: Dictionary = levels[current]
-	chapter_label.text = "LEVEL  %02d   /   %s" % [current + 1, level.chapter]
-	title_label.text = level.title
-	description_label.text = level.description
+	chapter_label.text = "%02d" % [current + 1]
+	chapter_label.tooltip_text = "%s / %s" % [level.chapter, level.title]
 	count_label.text = str(session.steps)
 	var record: Dictionary = progress.records.get(level.id, {})
 	var best := "—" if record.is_empty() else str(record.best)
 	goal_label.text = "/ %d" % level.optimal_moves if session.hard_mode else "步"
-	count_label.tooltip_text = "个人最佳：" + best
+	count_label.tooltip_text = "步数 · 个人最佳：" + best
 	_accent(easy_button, not session.hard_mode)
 	_accent(hard_button, session.hard_mode)
 	undo_button.disabled = session.history.is_empty()
 	board.present(session.state, session.selected)
 	board.visible = not Puzzle.won(session.state) or board.animating()
-	var over: bool = session.hard_mode and session.steps > int(level.optimal_moves)
-	status_label.text = "已超过最优步数，可撤销或重来；也可以继续探索。" if over else ""
+	if notice != null and notice.is_running():
+		notice.kill()
+	status_label.modulate.a = 1.0
+	status_label.text = ""
 	if save_error:
-		status_label.text = "未能写入存档；当前会话仍保留对局和记录。"
+		status_label.text = "存档失败"
+		status_label.tooltip_text = "当前会话仍保留对局和记录。"
 	var finished := Puzzle.won(session.state)
 	result_panel.visible = finished and not board.animating()
 	if finished:
 		result_title.text = ("最优解" if session.hard_mode else "完成") if session.cleared() else "再少几步"
 		if session.hard_mode:
-			result_description.text = "%d 步完成 / 最优 %d 步 · %s" % [session.steps, level.optimal_moves,
-				"困难通关" if session.cleared() else "困难尚未通关"]
+			result_description.text = "%d / %d 步" % [session.steps, level.optimal_moves]
 		else:
-			result_description.text = "%d 步完成 · 简单通关，试试困难模式？" % session.steps
+			result_description.text = "%d 步" % session.steps
 		next_button.tooltip_text = "返回选关" if current == levels.size() - 1 else "下一关"
+
+func _show_notice(message: String) -> void:
+	if save_error:
+		return
+	if notice != null and notice.is_running():
+		notice.kill()
+	status_label.text = message
+	status_label.tooltip_text = ""
+	status_label.modulate.a = 1.0
+	notice = create_tween()
+	notice.tween_interval(1.4)
+	if not settings.reduce_motion:
+		notice.tween_property(status_label, "modulate:a", 0.0, 0.25)
+	notice.tween_callback(func(): status_label.text = "")
 
 func _click_cell(index: int) -> void:
 	if not input_enabled or board.animating() or Puzzle.won(session.state):
@@ -277,12 +288,12 @@ func _try_move(direction: String) -> void:
 	if not input_enabled or board.animating() or Puzzle.won(session.state):
 		return
 	if session.selected < 0:
-		status_label.text = "先点选一颗棋子，或按 Tab 选择。"
+		_show_notice("请选择棋子")
 		return
 	var before: Dictionary = session.state
 	var result: Dictionary = session.play(direction)
 	if result.is_empty():
-		status_label.text = "这一步走不通：检查地板、同色棋子和传送门的另一端。"
+		_show_notice("无法移动")
 		return
 	board.animate(result, before)
 	if Puzzle.won(session.state):
