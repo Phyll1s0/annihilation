@@ -1,9 +1,9 @@
 [
   {
     "id": "01",
-    "title": "初见",
-    "chapter": "相遇",
-    "description": "点选一颗棋子，再点相邻格。让黑与白相遇。",
+    "title": "First Contact",
+    "chapter": "Encounter",
+    "description": "Select a particle, then a neighboring tile. Bring black and white together.",
     "layout": [
       "wb"
     ],
@@ -21,9 +21,9 @@
   },
   {
     "id": "02",
-    "title": "靠近一点",
-    "chapter": "相遇",
-    "description": "每次只走一格。选择哪一颗移动，由你决定。",
+    "title": "Closer",
+    "chapter": "Encounter",
+    "description": "Move one tile at a time. Choose which particle takes the next step.",
     "layout": [
       "w..b"
     ],
@@ -49,9 +49,9 @@
   },
   {
     "id": "03",
-    "title": "四角",
-    "chapter": "相遇",
-    "description": "同色不能重叠，异色相遇会带走脚下的地板。",
+    "title": "Four Corners",
+    "chapter": "Encounter",
+    "description": "Matching colors block each other. Opposite colors remove the tile where they meet.",
     "layout": [
       "w.b",
       "...",
@@ -83,9 +83,9 @@
   },
   {
     "id": "04",
-    "title": "留一条路",
-    "chapter": "取舍",
-    "description": "中间的相遇很诱人。但路一旦消失，就不会回来。",
+    "title": "Leave a Path",
+    "chapter": "Choices",
+    "description": "The center is a tempting meeting place. A lost path will not return.",
     "layout": [
       "w.bw.b"
     ],
@@ -115,9 +115,9 @@
   },
   {
     "id": "05",
-    "title": "错身",
-    "chapter": "取舍",
-    "description": "为另一颗棋子保留位置，再完成合并。",
+    "title": "Passing By",
+    "chapter": "Choices",
+    "description": "Leave room for the other particle before bringing them together.",
     "layout": [
       "ww.b",
       "....",
@@ -149,9 +149,9 @@
   },
   {
     "id": "06",
-    "title": "窄桥",
-    "chapter": "取舍",
-    "description": "桥很窄。先想好在哪里相遇，再迈出下一步。",
+    "title": "Narrow Bridge",
+    "chapter": "Choices",
+    "description": "The bridge is narrow. Choose where to meet before taking another step.",
     "layout": [
       "w...b",
       ".#.#.",
@@ -201,9 +201,9 @@
   },
   {
     "id": "07",
-    "title": "折叠",
-    "chapter": "另一端",
-    "description": "带 A 的两个格子相连。走入传送门，只计一步。",
+    "title": "Fold",
+    "chapter": "Beyond",
+    "description": "The two A tiles are linked. A portal move costs one step.",
     "layout": [
       "w.A##",
       "#####",
@@ -235,9 +235,9 @@
   },
   {
     "id": "08",
-    "title": "隔空相拥",
-    "chapter": "另一端",
-    "description": "另一端已有异色棋子？传送后直接合并，入口变为普通地板。",
+    "title": "Across the Void",
+    "chapter": "Beyond",
+    "description": "An opposite color at the exit merges on arrival. The entrance becomes a normal tile.",
     "layout": [
       "wA##",
       "####",
@@ -263,9 +263,9 @@
   },
   {
     "id": "09",
-    "title": "回声",
-    "chapter": "另一端",
-    "description": "传送门既是捷径，也可能成为最后一次相遇的地方。",
+    "title": "Echo",
+    "chapter": "Beyond",
+    "description": "A portal can be a shortcut, or the place of a final meeting.",
     "layout": [
       "wA.b",
       ".##.",
@@ -297,9 +297,9 @@
   },
   {
     "id": "10",
-    "title": "双重折叠",
-    "chapter": "另一端",
-    "description": "A 与 A 相连，B 与 B 相连。相同字母，不会认错路。",
+    "title": "Double Fold",
+    "chapter": "Beyond",
+    "description": "A links to A, and B links to B. Follow the matching letters.",
     "layout": [
       "wA#Bb",
       "..#..",
@@ -331,9 +331,9 @@
   },
   {
     "id": "11",
-    "title": "先后之间",
-    "chapter": "归于灰",
-    "description": "三对黑白，有限的路。合并的顺序也是答案的一部分。",
+    "title": "In Due Order",
+    "chapter": "Stillness",
+    "description": "Three pairs, limited paths. The order of collisions is part of the solution.",
     "layout": [
       "w...b",
       "##.##",
@@ -399,9 +399,9 @@
   },
   {
     "id": "12",
-    "title": "余白",
-    "chapter": "归于灰",
-    "description": "让所有黑白归于寂静，留下恰到好处的余白。",
+    "title": "Negative Space",
+    "chapter": "Stillness",
+    "description": "Bring every particle to rest, leaving only empty space.",
     "layout": [
       "w.A..",
       ".#.#.",
@@ -451,13 +451,13 @@
   },
   {
     "id": "13",
-    "title": "两段路",
-    "chapter": "留与失",
-    "description": "先决定留下哪一段路，再决定谁向谁靠近。",
+    "title": "Two Paths",
+    "chapter": "Remnants",
+    "description": "Choose which stretch of path to preserve, then decide who moves closer.",
     "layout": [
       "w..bw..b"
     ],
-    "concept": "分区配对",
+    "concept": "Regional pairing",
     "optimal_moves": 6,
     "solution": [
       {
@@ -492,15 +492,15 @@
   },
   {
     "id": "14",
-    "title": "三次相遇",
-    "chapter": "留与失",
-    "description": "三对黑白，共用一处窄口。别让最后一对无路可走。",
+    "title": "Three Encounters",
+    "chapter": "Remnants",
+    "description": "Three pairs share a narrow passage. Keep a route open for the last pair.",
     "layout": [
       "w.b.w",
       "##.##",
       "b.w.b"
     ],
-    "concept": "公共通路与消融顺序",
+    "concept": "Shared paths and collision order",
     "optimal_moves": 10,
     "solution": [
       {
@@ -551,15 +551,15 @@
   },
   {
     "id": "15",
-    "title": "借一步",
-    "chapter": "留与失",
-    "description": "同色挡在前面时，不妨先为彼此借出一个位置。",
+    "title": "Make Room",
+    "chapter": "Remnants",
+    "description": "When matching colors block the way, make room for one another.",
     "layout": [
       "ww..",
       "...b",
       "#b##"
     ],
-    "concept": "同色借位",
+    "concept": "Making room for matching colors",
     "optimal_moves": 6,
     "solution": [
       {
@@ -594,15 +594,15 @@
   },
   {
     "id": "16",
-    "title": "桥两端",
-    "chapter": "留与失",
-    "description": "不是每一块地板都适合用来告别。",
+    "title": "Across the Bridge",
+    "chapter": "Remnants",
+    "description": "Not every tile is a good place to say goodbye.",
     "layout": [
       "w...b",
       "##.##",
       "b...w"
     ],
-    "concept": "保留唯一连接",
+    "concept": "Preserving the only connection",
     "optimal_moves": 8,
     "solution": [
       {
@@ -645,14 +645,14 @@
   },
   {
     "id": "17",
-    "title": "先过门",
-    "chapter": "往复",
-    "description": "另一端还有棋子在等。先疏通出口，再安排下一次传送。",
+    "title": "Clear the Passage",
+    "chapter": "Recurrence",
+    "description": "A particle is waiting at the far end. Clear the exit before the next portal move.",
     "layout": [
       "wwA#A.b",
       "...###b"
     ],
-    "concept": "出口疏通与桥头保护",
+    "concept": "Clearing exits and protecting crossings",
     "optimal_moves": 10,
     "solution": [
       {
@@ -703,15 +703,15 @@
   },
   {
     "id": "18",
-    "title": "留一扇门",
-    "chapter": "往复",
-    "description": "让一扇门消失，再走过另一扇门留下的地板。",
+    "title": "One Gate Left",
+    "chapter": "Recurrence",
+    "description": "Remove one portal, then cross the normal tile left at its partner.",
     "layout": [
       "#w##",
       "wA.b",
       "###A"
     ],
-    "concept": "传送门退化后的路线",
+    "concept": "Routes after portal collapse",
     "optimal_moves": 4,
     "solution": [
       {
@@ -744,15 +744,15 @@
   },
   {
     "id": "19",
-    "title": "双向来信",
-    "chapter": "往复",
-    "description": "两组传送门连接不同的路。让相遇发生在对的地方。",
+    "title": "Crossed Signals",
+    "chapter": "Recurrence",
+    "description": "Two portal pairs connect separate paths. Bring the right colors together.",
     "layout": [
       "wA#B.b",
       ".##.##",
       "bB#A.w"
     ],
-    "concept": "跨区调度",
+    "concept": "Routing between regions",
     "optimal_moves": 10,
     "solution": [
       {
@@ -803,14 +803,14 @@
   },
   {
     "id": "20",
-    "title": "让出出口",
-    "chapter": "往复",
-    "description": "有时需要先移动目的地的棋子，旅程才真正开始。",
+    "title": "Clear the Exit",
+    "chapter": "Recurrence",
+    "description": "Sometimes the particle at the destination must move before a journey can begin.",
     "layout": [
       "wA#A.bb",
       "###...."
     ],
-    "concept": "同色出口阻挡与绕行",
+    "concept": "Blocked exits and detours",
     "tokens": [
       [
         3,

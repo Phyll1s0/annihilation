@@ -48,9 +48,16 @@ func capture(name_value: String) -> void:
 		await create_timer(0.35).timeout
 	if app.background.transition != null and app.background.transition.is_running():
 		await create_timer(0.65).timeout
+	redraw(app)
 	await process_frame
 	RenderingServer.force_draw()
 	root.get_texture().get_image().save_png("res://builds/" + name_value + ".png")
+
+func redraw(node: Node) -> void:
+	if node is CanvasItem:
+		node.queue_redraw()
+	for child in node.get_children():
+		redraw(child)
 
 func make_app() -> void:
 	app = load("res://scenes/main.tscn").instantiate()
@@ -64,6 +71,7 @@ func _run() -> void:
 	make_app()
 	await settle()
 	check(app.screen == "home" and app.home.visible and not app.game.visible, "Startup opens the home screen")
+	check(app.home.continue_button.text == "Start" and app.game.easy_button.text == "Easy", "The default UI is English regardless of system language")
 	await capture("home-1280")
 	app.home.settings_button.grab_focus()
 	await settle()
@@ -116,6 +124,18 @@ func _run() -> void:
 	await settle()
 	check(app.background.clock == frozen_clock, "The background stays still with reduced motion enabled")
 	await capture("settings-1280")
+	var before_language := Puzzle.key(app.game.session.state)
+	var before_history: int = app.game.session.history.size()
+	app.preferences.language_selector.select(1)
+	app.preferences.language_selector.item_selected.emit(1)
+	await settle()
+	check(app.preferences.heading.text == "设置" and app.game.easy_button.text == "简单", "The language selector updates visible and hidden screens immediately")
+	check(app.home.continue_button.text == "继续" and app.campaign.chapter_title.text == "相遇", "Dynamic home and chapter text also updates")
+	check(app.game.session.steps == 1 and Puzzle.key(app.game.session.state) == before_language and app.game.session.history.size() == before_history,
+		"Changing language preserves the board, move count, and undo history")
+	check(app.game.count_label.text == "1", "Language changes preserve the displayed move counter")
+	check(Settings.new(save_path + ".cfg").language == "zh_CN", "The language selector saves the preference")
+	await capture("settings-zh-1280")
 	app._navigate("back")
 	check(app.paused and app.screen == "game", "Returning from pause settings restores the pause menu")
 	key(KEY_ESCAPE)
@@ -129,6 +149,14 @@ func _run() -> void:
 	make_app()
 	await settle()
 	check(app.screen == "home" and not app.progress.resume.is_empty(), "A fresh application finds the saved run")
+	check(app.settings.language == "zh_CN" and app.home.continue_button.text == "继续", "Restart restores the chosen Chinese language")
+	app._navigate("settings")
+	app.preferences.language_selector.select(0)
+	app.preferences.language_selector.item_selected.emit(0)
+	await settle()
+	check(app.home.continue_button.text == "Continue" and app.game.hard_button.text == "Hard", "Switching back restores English text")
+	check(app.campaign.chapter_title.text == "Encounter", "Chapter names return to English")
+	app._navigate("back")
 	click(app.home.continue_button)
 	await settle()
 	check(app.screen == "game" and app.game.session.steps == 1 and Puzzle.key(app.game.session.state) == saved_state, "Continue restores the exact board after restart")
@@ -148,7 +176,7 @@ func _run() -> void:
 	check(app.progress.resume.is_empty(), "Final completion clears the checkpoint")
 	app.game.next_button.pressed.emit()
 	check(app.screen == "campaign", "Final level returns to chapter selection")
-	app.campaign.chapter = "往复"
+	app.campaign.chapter = app.campaign.chapter_names[-1]
 	app.progress.records.clear()
 	app.campaign.refresh()
 	await settle()
@@ -172,6 +200,28 @@ func _run() -> void:
 		"Optional controls and rules fit above the status at minimum window height")
 	check(app.preferences.status.get_global_rect().end.y <= app.size.y, "Optional instructions do not overflow the window")
 	await capture("controls-960")
+	app.preferences._tab(false)
+	app.preferences.language_selector.select(1)
+	app.preferences.language_selector.item_selected.emit(1)
+	await settle()
+	check(app.preferences.status.get_global_rect().end.y <= app.size.y, "Chinese language settings fit the minimum window height")
+	await capture("settings-zh-960")
+	app.preferences._tab(true)
+	await settle()
+	check(app.preferences.controls.get_global_rect().end.y <= app.preferences.status.global_position.y, "Chinese instructions fit after a live language switch")
+	await capture("controls-zh-960")
+	app.show_screen("campaign")
+	await settle()
+	await capture("campaign-zh-960")
+	app.start_level(0, false)
+	app.game.session.selected = 0
+	app.game._try_move("right")
+	await settle()
+	check(app.game.result_title.text == "完成", "Completion text follows the chosen language")
+	app.preferences.language_selector.select(0)
+	app.preferences.language_selector.item_selected.emit(0)
+	await settle()
+	check(app.game.result_title.text == "Complete" and app.game.result_description.text == "Moves: 1", "Completed games also refresh when language changes")
 	DirAccess.remove_absolute(save_path)
 	DirAccess.remove_absolute(save_path + ".cfg")
 	print("NULL application: %d checks, %d failures" % [checks, failures])

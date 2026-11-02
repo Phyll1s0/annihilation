@@ -25,7 +25,7 @@ func _ready() -> void:
 	body.add_child(title)
 	var button_center := CenterContainer.new()
 	body.add_child(button_center)
-	continue_button = _button("开始", _play, Vector2(112, 42))
+	continue_button = _button("Start", _play, Vector2(112, 42))
 	continue_button.add_theme_font_size_override("font_size", 14)
 	for state in ["normal", "hover", "pressed"]:
 		continue_button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
@@ -37,7 +37,7 @@ func _ready() -> void:
 	continue_button.focus_entered.connect(func(): mark.respond(true, settings.reduce_motion))
 	continue_button.focus_exited.connect(func(): mark.respond(false, settings.reduce_motion))
 	button_center.add_child(continue_button)
-	settings_button = _icon_button("settings-outline", "设置", func(): navigation_requested.emit("settings"), 21, 44)
+	settings_button = _icon_button("settings-outline", "Settings", func(): navigation_requested.emit("settings"), 21, 44)
 	settings_button.add_theme_color_override("icon_normal_color", Color("68717b"))
 	settings_button.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	settings_button.offset_left = -68
@@ -54,10 +54,13 @@ func refresh() -> void:
 	if continue_button == null:
 		return
 	var saved: Dictionary = progress.resume
-	continue_button.text = "开始" if saved.is_empty() else "继续"
-	continue_button.tooltip_text = "进入下一关 · Enter" if saved.is_empty() else "关卡 %s · %s · 已走 %d 步" % [
-		saved.level_id, "困难" if saved.hard_mode else "简单", saved.actions.size()]
+	continue_button.text = tr("Start") if saved.is_empty() else tr("Continue")
+	continue_button.tooltip_text = tr("Next level · Enter") if saved.is_empty() else tr("Level %s · %s · Moves: %d") % [
+		saved.level_id, tr("Hard") if saved.hard_mode else tr("Easy"), saved.actions.size()]
 	mark.respond(false, true)
+
+func _refresh_language() -> void:
+	refresh()
 
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree() or not event is InputEventKey or not event.pressed or event.echo:

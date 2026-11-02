@@ -1,0 +1,309 @@
+msgid ""
+msgstr "Project-Id-Version: NULL\nLanguage: zh_CN\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Back"
+msgstr "返回"
+
+msgid "Start"
+msgstr "开始"
+
+msgid "Continue"
+msgstr "继续"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Easy"
+msgstr "简单"
+
+msgid "Hard"
+msgstr "困难"
+
+msgid "Next level · Enter"
+msgstr "进入下一关 · Enter"
+
+msgid "Level %s · %s · Moves: %d"
+msgstr "关卡 %s · %s · 已走 %d 步"
+
+msgid "General"
+msgstr "常规"
+
+msgid "Controls"
+msgstr "操作"
+
+msgid "Language"
+msgstr "语言"
+
+msgid "Show legal moves"
+msgstr "显示可走邻格"
+
+msgid "Show reachable tiles when a particle is selected."
+msgstr "选中棋子时，显示可以进入的相邻格。"
+
+msgid "Reduced motion"
+msgstr "减少动态效果"
+
+msgid "Freeze the sky and show moves without animation."
+msgstr "冻结星轨，并立即显示行动结果。"
+
+msgid "Fullscreen"
+msgstr "全屏显示"
+
+msgid "Press F11 to toggle fullscreen."
+msgstr "F11 可以随时切换全屏。"
+
+msgid "Select / move"
+msgstr "选中 / 移动"
+
+msgid "Click a particle, then a neighboring tile"
+msgstr "点棋子，再点相邻格"
+
+msgid "Move"
+msgstr "移动"
+
+msgid "Cycle particles"
+msgstr "选择棋子"
+
+msgid "Undo"
+msgstr "撤销"
+
+msgid "Restart"
+msgstr "重新开始"
+
+msgid "Deselect / pause"
+msgstr "取消选择 / 暂停"
+
+msgid "Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked."
+msgstr "让异色棋子相遇，清空棋盘。相遇处的地板会消失。\n同色棋子互相阻挡；相同字母的传送门成对连通。"
+
+msgid "Settings are saved automatically."
+msgstr "设置会自动保存。"
+
+msgid "Settings saved."
+msgstr "设置已保存。"
+
+msgid "Could not save settings. Changes still apply to this session."
+msgstr "设置未能写入磁盘，当前会话仍然生效。"
+
+msgid "Clear the board"
+msgstr "清空棋盘即可"
+
+msgid "Clear the board in the fewest moves"
+msgstr "以最少步数清空棋盘"
+
+msgid "Previous chapter"
+msgstr "上一章"
+
+msgid "Next chapter"
+msgstr "下一章"
+
+msgid "   ·   Best possible: %d"
+msgstr "   ·   最优 %d 步"
+
+msgid "Pause · Esc"
+msgstr "暂停 · Esc"
+
+msgid "Undo · Z"
+msgstr "撤销 · Z"
+
+msgid "Restart · R"
+msgstr "重新开始 · R"
+
+msgid "Try again"
+msgstr "再试一次"
+
+msgid "Levels"
+msgstr "关卡选择"
+
+msgid "Next level"
+msgstr "下一关"
+
+msgid "Moves · Personal best: %s"
+msgstr "步数 · 个人最佳：%s"
+
+msgid "Save failed"
+msgstr "存档失败"
+
+msgid "Your current game and records are still available in this session."
+msgstr "当前会话仍保留对局和记录。"
+
+msgid "Optimal"
+msgstr "最优解"
+
+msgid "Complete"
+msgstr "完成"
+
+msgid "Try fewer moves"
+msgstr "再少几步"
+
+msgid "Moves: %d / %d"
+msgstr "%d / %d 步"
+
+msgid "Moves: %d"
+msgstr "%d 步"
+
+msgid "Back to levels"
+msgstr "返回选关"
+
+msgid "Select a particle"
+msgstr "请选择棋子"
+
+msgid "Cannot move"
+msgstr "无法移动"
+
+msgid "Unable to load levels."
+msgstr "无法加载关卡"
+
+msgid "Paused"
+msgstr "暂停"
+
+msgid "Resume"
+msgstr "继续游戏"
+
+msgid "Restart level"
+msgstr "重新开始本关"
+
+msgid "Home"
+msgstr "返回首页"
+
+msgid "First Contact"
+msgstr "初见"
+
+msgid "Encounter"
+msgstr "相遇"
+
+msgid "Select a particle, then a neighboring tile. Bring black and white together."
+msgstr "点选一颗棋子，再点相邻格。让黑与白相遇。"
+
+msgid "Closer"
+msgstr "靠近一点"
+
+msgid "Move one tile at a time. Choose which particle takes the next step."
+msgstr "每次只走一格。选择哪一颗移动，由你决定。"
+
+msgid "Four Corners"
+msgstr "四角"
+
+msgid "Matching colors block each other. Opposite colors remove the tile where they meet."
+msgstr "同色不能重叠，异色相遇会带走脚下的地板。"
+
+msgid "Leave a Path"
+msgstr "留一条路"
+
+msgid "Choices"
+msgstr "取舍"
+
+msgid "The center is a tempting meeting place. A lost path will not return."
+msgstr "中间的相遇很诱人。但路一旦消失，就不会回来。"
+
+msgid "Passing By"
+msgstr "错身"
+
+msgid "Leave room for the other particle before bringing them together."
+msgstr "为另一颗棋子保留位置，再完成合并。"
+
+msgid "Narrow Bridge"
+msgstr "窄桥"
+
+msgid "The bridge is narrow. Choose where to meet before taking another step."
+msgstr "桥很窄。先想好在哪里相遇，再迈出下一步。"
+
+msgid "Fold"
+msgstr "折叠"
+
+msgid "Beyond"
+msgstr "另一端"
+
+msgid "The two A tiles are linked. A portal move costs one step."
+msgstr "带 A 的两个格子相连。走入传送门，只计一步。"
+
+msgid "Across the Void"
+msgstr "隔空相拥"
+
+msgid "An opposite color at the exit merges on arrival. The entrance becomes a normal tile."
+msgstr "另一端已有异色棋子？传送后直接合并，入口变为普通地板。"
+
+msgid "Echo"
+msgstr "回声"
+
+msgid "A portal can be a shortcut, or the place of a final meeting."
+msgstr "传送门既是捷径，也可能成为最后一次相遇的地方。"
+
+msgid "Double Fold"
+msgstr "双重折叠"
+
+msgid "A links to A, and B links to B. Follow the matching letters."
+msgstr "A 与 A 相连，B 与 B 相连。相同字母，不会认错路。"
+
+msgid "In Due Order"
+msgstr "先后之间"
+
+msgid "Stillness"
+msgstr "归于灰"
+
+msgid "Three pairs, limited paths. The order of collisions is part of the solution."
+msgstr "三对黑白，有限的路。合并的顺序也是答案的一部分。"
+
+msgid "Negative Space"
+msgstr "余白"
+
+msgid "Bring every particle to rest, leaving only empty space."
+msgstr "让所有黑白归于寂静，留下恰到好处的余白。"
+
+msgid "Two Paths"
+msgstr "两段路"
+
+msgid "Remnants"
+msgstr "留与失"
+
+msgid "Choose which stretch of path to preserve, then decide who moves closer."
+msgstr "先决定留下哪一段路，再决定谁向谁靠近。"
+
+msgid "Three Encounters"
+msgstr "三次相遇"
+
+msgid "Three pairs share a narrow passage. Keep a route open for the last pair."
+msgstr "三对黑白，共用一处窄口。别让最后一对无路可走。"
+
+msgid "Make Room"
+msgstr "借一步"
+
+msgid "When matching colors block the way, make room for one another."
+msgstr "同色挡在前面时，不妨先为彼此借出一个位置。"
+
+msgid "Across the Bridge"
+msgstr "桥两端"
+
+msgid "Not every tile is a good place to say goodbye."
+msgstr "不是每一块地板都适合用来告别。"
+
+msgid "Clear the Passage"
+msgstr "先过门"
+
+msgid "Recurrence"
+msgstr "往复"
+
+msgid "A particle is waiting at the far end. Clear the exit before the next portal move."
+msgstr "另一端还有棋子在等。先疏通出口，再安排下一次传送。"
+
+msgid "One Gate Left"
+msgstr "留一扇门"
+
+msgid "Remove one portal, then cross the normal tile left at its partner."
+msgstr "让一扇门消失，再走过另一扇门留下的地板。"
+
+msgid "Crossed Signals"
+msgstr "双向来信"
+
+msgid "Two portal pairs connect separate paths. Bring the right colors together."
+msgstr "两组传送门连接不同的路。让相遇发生在对的地方。"
+
+msgid "Clear the Exit"
+msgstr "让出出口"
+
+msgid "Sometimes the particle at the destination must move before a journey can begin."
+msgstr "有时需要先移动目的地的棋子，旅程才真正开始。"
+
+msgid "move"
+msgid_plural "moves"
+msgstr[0] "步"

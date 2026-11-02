@@ -85,7 +85,7 @@ func _run() -> void:
 		ui._try_move("right")
 		await settle()
 		check(ui.result_panel.visible and screen.encloses(ui.result_panel.get_global_rect()), "%dx%d: completion controls remain on screen" % [dimensions.x, dimensions.y])
-	ui._show_notice("无法移动")
+	ui._show_notice("Cannot move")
 	await create_timer(1.5).timeout
 	check(ui.status_label.text.is_empty(), "Brief feedback clears itself")
 	viewport.queue_free()

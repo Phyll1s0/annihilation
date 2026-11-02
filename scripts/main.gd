@@ -23,13 +23,14 @@ var pause_layer: Control
 var paused := false
 
 func _ready() -> void:
+	settings.apply_language()
 	_setup_theme()
 	background = Background.new()
 	background.settings = settings
 	add_child(background)
 	var catalog := Catalog.load_campaign()
 	if not catalog.errors.is_empty():
-		var error := _label("无法加载关卡\n\n" + "\n".join(catalog.errors), 20)
+		var error := _label(tr("Unable to load levels.") + "\n\n" + "\n".join(catalog.errors), 20)
 		add_child(error)
 		return
 	levels = catalog.levels
@@ -125,14 +126,14 @@ func _build_pause() -> void:
 	center.add_child(panel)
 	var box := VBoxContainer.new()
 	panel.add_child(box)
-	var heading := _title("暂停", 26, 1)
+	var heading := _title("Paused", 26, 1)
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(heading)
-	box.add_child(_button("继续游戏", resume_game))
-	box.add_child(_button("重新开始本关", func(): resume_game(); game._restart()))
-	box.add_child(_button("游戏设置", func(): _navigate("settings")))
-	box.add_child(_button("返回选关", func(): show_screen("campaign")))
-	box.add_child(_button("返回首页", func(): show_screen("home")))
+	box.add_child(_button("Resume", resume_game))
+	box.add_child(_button("Restart level", func(): resume_game(); game._restart()))
+	box.add_child(_button("Settings", func(): _navigate("settings")))
+	box.add_child(_button("Back to levels", func(): show_screen("campaign")))
+	box.add_child(_button("Home", func(): show_screen("home")))
 	pause_layer.hide()
 
 func pause_game() -> void:

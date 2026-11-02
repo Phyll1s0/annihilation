@@ -32,6 +32,7 @@ Each level supports both modes, with separate completion records and a shared pe
 - A minimal title screen that starts the next unfinished level or resumes the current run.
 - Black-and-white pieces, a pure black background with faint star trails, and an orbital zero mark.
 - Fullscreen and reduced-motion settings; background details fade during play.
+- English by default, with an instant, saved switch to Simplified Chinese in Settings → General → Language.
 - Centered, square-cell boards that resize with the window, without a text footer during play.
 
 ## Controls
@@ -63,6 +64,7 @@ Tested with Godot **4.6.2**. The game runs locally, with progress and preference
 ## Development
 
 Levels live in `data/levels.json`. The rules, session history, rendering, navigation, and persistence are separate modules.
+UI copy and level names use English source messages, with translations in `locale/`. Changing language keeps the current puzzle and undo history intact.
 
 ~~~bash
 python3 tools/check.py

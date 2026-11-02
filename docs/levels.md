@@ -1,6 +1,6 @@
 # NULL 关卡编写与认证
 
-关卡集中放在 `data/levels.json`。每关使用固定宽度的字符串数组表示地形，另保存模式共用的标题和教学文案。
+关卡集中放在 `data/levels.json`。每关使用固定宽度的字符串数组表示地形。`title`、`chapter`、`description` 使用英文源文案，对应中文译文保存在 `locale/zh_CN.po`；游戏中不常驻显示关卡说明。
 
 ## 地图字符
 
@@ -17,9 +17,9 @@
 ```json
 {
   "id": "example",
-  "title": "隔空相遇",
-  "chapter": "另一端",
-  "description": "进入传送门，与另一端的黑棋子合并。",
+  "title": "Across the Void",
+  "chapter": "Beyond",
+  "description": "Enter the portal to meet the black particle at the other end.",
   "layout": ["wA#A"],
   "tokens": [[3, -1]]
 }
@@ -32,6 +32,7 @@
 3. 工具补全 `optimal_moves`、`solution` 和 `proof`。不可解或超过搜索上限时失败，不能将目标步数当作已验证结果。
 4. 运行 Godot 规则测试，交叉验证最优步数并重放每关保存的解。
 5. 进入游戏分别测试自由通关和最少步数目标，观察死局、撤销和传送的反馈。
+6. 在 `locale/en.po` 和 `locale/zh_CN.po` 中加入新文案，检查两种语言的选关名称和悬停提示。
 
 ```bash
 python3 tools/certify_levels.py
@@ -55,4 +56,4 @@ godot --headless --path . --script tests/run_tests.gd
 | 19 双向来信 | 10 | 两组门连接不同区域，安排跨区配对 |
 | 20 让出出口 | 8 | 出口初始同色阻挡，先移动出口棋子，再安排绕行 |
 
-这些重点用于制作和试玩评估，玩家界面只显示必要的引导。关卡不是单纯按步数排序：新机制的第一关可以更短，之后再组合多个约束。
+这些重点用于制作和试玩评估。玩家界面保持简洁，操作和规则在设置中按需查看。关卡不是单纯按步数排序：新机制的第一关可以更短，之后再组合多个约束。

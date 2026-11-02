@@ -9,8 +9,11 @@ var general: VBoxContainer
 var controls: VBoxContainer
 var general_button: Button
 var controls_button: Button
+var language_selector: OptionButton
+var status_message := "Settings are saved automatically."
 
 func _ready() -> void:
+	settings.apply_language()
 	_setup_theme()
 	_back_button(func(): navigation_requested.emit("back"))
 	var margin := _margin(self, 82)
@@ -26,30 +29,44 @@ func _ready() -> void:
 	var gap := Control.new()
 	gap.custom_minimum_size.y = 150
 	navigation.add_child(gap)
-	general_button = _button("常规", func(): _tab(false), Vector2(160, 48))
-	controls_button = _button("操作", func(): _tab(true), Vector2(160, 48))
+	general_button = _button("General", func(): _tab(false), Vector2(160, 48))
+	controls_button = _button("Controls", func(): _tab(true), Vector2(160, 48))
 	navigation.add_child(general_button)
 	navigation.add_child(controls_button)
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	navigation.add_child(spacer)
-	navigation.add_child(_button("返回", func(): navigation_requested.emit("back"), Vector2(160, 48)))
+	navigation.add_child(_button("Back", func(): navigation_requested.emit("back"), Vector2(160, 48)))
 	var panel := PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _style(Color(0, 0, 0, 0.06), Color(1, 1, 1, 0.40), 3))
 	layout.add_child(panel)
 	var inside := _margin(panel, 22)
 	var page := VBoxContainer.new()
-	page.add_theme_constant_override("separation", 30)
+	page.add_theme_constant_override("separation", 24)
 	inside.add_child(page)
-	heading = _title("设置", 28, 1)
+	heading = _title("Settings", 28, 1)
 	page.add_child(heading)
 	general = VBoxContainer.new()
-	general.add_theme_constant_override("separation", 26)
+	general.add_theme_constant_override("separation", 18)
 	page.add_child(general)
-	for entry in [["show_hints", "显示可走邻格", "选中棋子时，显示可以进入的相邻格。"],
-		["reduce_motion", "减少动态效果", "关闭界面过渡，并立即显示行动结果。"],
-		["fullscreen", "全屏显示", "F11 可以随时切换全屏。"]]:
+	var language_row := HBoxContainer.new()
+	general.add_child(language_row)
+	var language_label := _label("Language", 18)
+	language_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	language_row.add_child(language_label)
+	_spacer(language_row)
+	language_selector = OptionButton.new()
+	language_selector.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	language_selector.custom_minimum_size = Vector2(160, 40)
+	language_selector.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	language_selector.add_item("English")
+	language_selector.add_item("简体中文")
+	language_selector.item_selected.connect(_set_language)
+	language_row.add_child(language_selector)
+	for entry in [["show_hints", "Show legal moves", "Show reachable tiles when a particle is selected."],
+		["reduce_motion", "Reduced motion", "Freeze the sky and show moves without animation."],
+		["fullscreen", "Fullscreen", "Press F11 to toggle fullscreen."]]:
 		var key: String = entry[0]
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 24)
@@ -69,22 +86,26 @@ func _ready() -> void:
 		row.add_child(toggle)
 		switches[key] = toggle
 	controls = VBoxContainer.new()
-	controls.add_theme_constant_override("separation", 20)
+	controls.add_theme_constant_override("separation", 16)
 	page.add_child(controls)
-	for entry in [["选中 / 移动", "点棋子，再点相邻格"], ["移动", "↑ ↓ ← →  /  WASD"], ["选择棋子", "Tab  /  Shift Tab"],
-		["撤销", "Z"], ["重新开始", "R"], ["取消选择 / 暂停", "Esc"]]:
+	for entry in [["Select / move", "Click a particle, then a neighboring tile"], ["Move", "↑ ↓ ← →  /  WASD"], ["Cycle particles", "Tab  /  Shift Tab"],
+		["Undo", "Z"], ["Restart", "R"], ["Deselect / pause", "Esc"]]:
 		var row := HBoxContainer.new()
 		controls.add_child(row)
 		row.add_child(_label(entry[0], 16))
 		_spacer(row)
-		row.add_child(_label(entry[1], 14, MUTED))
-	var rules := _label("让异色棋子相遇，清空棋盘。相遇处的地板会消失。\n同色棋子互相阻挡；相同字母的传送门成对连通。", 12, MUTED)
+		var binding := _label(entry[1], 14, MUTED)
+		binding.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		binding.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		binding.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		row.add_child(binding)
+	var rules := _label("Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked.", 12, MUTED)
 	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	controls.add_child(rules)
 	var remaining := Control.new()
 	remaining.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	page.add_child(remaining)
-	status = _label("设置会自动保存。", 11, MUTED)
+	status = _label("Settings are saved automatically.", 11, MUTED)
 	page.add_child(status)
 	_tab(false)
 	refresh()
@@ -92,7 +113,7 @@ func _ready() -> void:
 func _tab(show_controls: bool) -> void:
 	general.visible = not show_controls
 	controls.visible = show_controls
-	heading.text = "操作" if show_controls else "设置"
+	heading.text = tr("Controls") if show_controls else tr("Settings")
 	_accent(general_button, not show_controls)
 	_accent(controls_button, show_controls)
 	var active := controls_button if show_controls else general_button
@@ -103,11 +124,29 @@ func _tab(show_controls: bool) -> void:
 
 func _set_option(key: String, enabled: bool) -> void:
 	settings.set(key, enabled)
-	status.text = "设置已保存。" if settings.save() == OK else "设置未能写入磁盘，当前会话仍然生效。"
+	_save_settings()
 	if key == "fullscreen":
 		settings.apply_window()
 	settings_changed.emit()
 
+func _save_settings() -> void:
+	status_message = "Settings saved." if settings.save() == OK else "Could not save settings. Changes still apply to this session."
+	status.text = tr(status_message)
+
+func _set_language(index: int) -> void:
+	if index < 0 or index >= settings.LANGUAGES.size():
+		return
+	settings.language = settings.LANGUAGES[index]
+	_save_settings()
+	settings.apply_language()
+	settings_changed.emit()
+
+func _refresh_language() -> void:
+	if heading != null:
+		heading.text = tr("Controls") if controls.visible else tr("Settings")
+		status.text = tr(status_message)
+
 func refresh() -> void:
+	language_selector.select(settings.LANGUAGES.find(settings.language))
 	for key in switches:
 		switches[key].set_pressed_no_signal(settings.get(key))

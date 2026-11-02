@@ -1,0 +1,310 @@
+msgid ""
+msgstr "Project-Id-Version: NULL\nLanguage: en\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Continue"
+msgstr "Continue"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Easy"
+msgstr "Easy"
+
+msgid "Hard"
+msgstr "Hard"
+
+msgid "Next level · Enter"
+msgstr "Next level · Enter"
+
+msgid "Level %s · %s · Moves: %d"
+msgstr "Level %s · %s · Moves: %d"
+
+msgid "General"
+msgstr "General"
+
+msgid "Controls"
+msgstr "Controls"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "Show legal moves"
+msgstr "Show legal moves"
+
+msgid "Show reachable tiles when a particle is selected."
+msgstr "Show reachable tiles when a particle is selected."
+
+msgid "Reduced motion"
+msgstr "Reduced motion"
+
+msgid "Freeze the sky and show moves without animation."
+msgstr "Freeze the sky and show moves without animation."
+
+msgid "Fullscreen"
+msgstr "Fullscreen"
+
+msgid "Press F11 to toggle fullscreen."
+msgstr "Press F11 to toggle fullscreen."
+
+msgid "Select / move"
+msgstr "Select / move"
+
+msgid "Click a particle, then a neighboring tile"
+msgstr "Click a particle, then a neighboring tile"
+
+msgid "Move"
+msgstr "Move"
+
+msgid "Cycle particles"
+msgstr "Cycle particles"
+
+msgid "Undo"
+msgstr "Undo"
+
+msgid "Restart"
+msgstr "Restart"
+
+msgid "Deselect / pause"
+msgstr "Deselect / pause"
+
+msgid "Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked."
+msgstr "Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked."
+
+msgid "Settings are saved automatically."
+msgstr "Settings are saved automatically."
+
+msgid "Settings saved."
+msgstr "Settings saved."
+
+msgid "Could not save settings. Changes still apply to this session."
+msgstr "Could not save settings. Changes still apply to this session."
+
+msgid "Clear the board"
+msgstr "Clear the board"
+
+msgid "Clear the board in the fewest moves"
+msgstr "Clear the board in the fewest moves"
+
+msgid "Previous chapter"
+msgstr "Previous chapter"
+
+msgid "Next chapter"
+msgstr "Next chapter"
+
+msgid "   ·   Best possible: %d"
+msgstr "   ·   Best possible: %d"
+
+msgid "Pause · Esc"
+msgstr "Pause · Esc"
+
+msgid "Undo · Z"
+msgstr "Undo · Z"
+
+msgid "Restart · R"
+msgstr "Restart · R"
+
+msgid "Try again"
+msgstr "Try again"
+
+msgid "Levels"
+msgstr "Levels"
+
+msgid "Next level"
+msgstr "Next level"
+
+msgid "Moves · Personal best: %s"
+msgstr "Moves · Personal best: %s"
+
+msgid "Save failed"
+msgstr "Save failed"
+
+msgid "Your current game and records are still available in this session."
+msgstr "Your current game and records are still available in this session."
+
+msgid "Optimal"
+msgstr "Optimal"
+
+msgid "Complete"
+msgstr "Complete"
+
+msgid "Try fewer moves"
+msgstr "Try fewer moves"
+
+msgid "Moves: %d / %d"
+msgstr "Moves: %d / %d"
+
+msgid "Moves: %d"
+msgstr "Moves: %d"
+
+msgid "Back to levels"
+msgstr "Back to levels"
+
+msgid "Select a particle"
+msgstr "Select a particle"
+
+msgid "Cannot move"
+msgstr "Cannot move"
+
+msgid "Unable to load levels."
+msgstr "Unable to load levels."
+
+msgid "Paused"
+msgstr "Paused"
+
+msgid "Resume"
+msgstr "Resume"
+
+msgid "Restart level"
+msgstr "Restart level"
+
+msgid "Home"
+msgstr "Home"
+
+msgid "First Contact"
+msgstr "First Contact"
+
+msgid "Encounter"
+msgstr "Encounter"
+
+msgid "Select a particle, then a neighboring tile. Bring black and white together."
+msgstr "Select a particle, then a neighboring tile. Bring black and white together."
+
+msgid "Closer"
+msgstr "Closer"
+
+msgid "Move one tile at a time. Choose which particle takes the next step."
+msgstr "Move one tile at a time. Choose which particle takes the next step."
+
+msgid "Four Corners"
+msgstr "Four Corners"
+
+msgid "Matching colors block each other. Opposite colors remove the tile where they meet."
+msgstr "Matching colors block each other. Opposite colors remove the tile where they meet."
+
+msgid "Leave a Path"
+msgstr "Leave a Path"
+
+msgid "Choices"
+msgstr "Choices"
+
+msgid "The center is a tempting meeting place. A lost path will not return."
+msgstr "The center is a tempting meeting place. A lost path will not return."
+
+msgid "Passing By"
+msgstr "Passing By"
+
+msgid "Leave room for the other particle before bringing them together."
+msgstr "Leave room for the other particle before bringing them together."
+
+msgid "Narrow Bridge"
+msgstr "Narrow Bridge"
+
+msgid "The bridge is narrow. Choose where to meet before taking another step."
+msgstr "The bridge is narrow. Choose where to meet before taking another step."
+
+msgid "Fold"
+msgstr "Fold"
+
+msgid "Beyond"
+msgstr "Beyond"
+
+msgid "The two A tiles are linked. A portal move costs one step."
+msgstr "The two A tiles are linked. A portal move costs one step."
+
+msgid "Across the Void"
+msgstr "Across the Void"
+
+msgid "An opposite color at the exit merges on arrival. The entrance becomes a normal tile."
+msgstr "An opposite color at the exit merges on arrival. The entrance becomes a normal tile."
+
+msgid "Echo"
+msgstr "Echo"
+
+msgid "A portal can be a shortcut, or the place of a final meeting."
+msgstr "A portal can be a shortcut, or the place of a final meeting."
+
+msgid "Double Fold"
+msgstr "Double Fold"
+
+msgid "A links to A, and B links to B. Follow the matching letters."
+msgstr "A links to A, and B links to B. Follow the matching letters."
+
+msgid "In Due Order"
+msgstr "In Due Order"
+
+msgid "Stillness"
+msgstr "Stillness"
+
+msgid "Three pairs, limited paths. The order of collisions is part of the solution."
+msgstr "Three pairs, limited paths. The order of collisions is part of the solution."
+
+msgid "Negative Space"
+msgstr "Negative Space"
+
+msgid "Bring every particle to rest, leaving only empty space."
+msgstr "Bring every particle to rest, leaving only empty space."
+
+msgid "Two Paths"
+msgstr "Two Paths"
+
+msgid "Remnants"
+msgstr "Remnants"
+
+msgid "Choose which stretch of path to preserve, then decide who moves closer."
+msgstr "Choose which stretch of path to preserve, then decide who moves closer."
+
+msgid "Three Encounters"
+msgstr "Three Encounters"
+
+msgid "Three pairs share a narrow passage. Keep a route open for the last pair."
+msgstr "Three pairs share a narrow passage. Keep a route open for the last pair."
+
+msgid "Make Room"
+msgstr "Make Room"
+
+msgid "When matching colors block the way, make room for one another."
+msgstr "When matching colors block the way, make room for one another."
+
+msgid "Across the Bridge"
+msgstr "Across the Bridge"
+
+msgid "Not every tile is a good place to say goodbye."
+msgstr "Not every tile is a good place to say goodbye."
+
+msgid "Clear the Passage"
+msgstr "Clear the Passage"
+
+msgid "Recurrence"
+msgstr "Recurrence"
+
+msgid "A particle is waiting at the far end. Clear the exit before the next portal move."
+msgstr "A particle is waiting at the far end. Clear the exit before the next portal move."
+
+msgid "One Gate Left"
+msgstr "One Gate Left"
+
+msgid "Remove one portal, then cross the normal tile left at its partner."
+msgstr "Remove one portal, then cross the normal tile left at its partner."
+
+msgid "Crossed Signals"
+msgstr "Crossed Signals"
+
+msgid "Two portal pairs connect separate paths. Bring the right colors together."
+msgstr "Two portal pairs connect separate paths. Bring the right colors together."
+
+msgid "Clear the Exit"
+msgstr "Clear the Exit"
+
+msgid "Sometimes the particle at the destination must move before a journey can begin."
+msgstr "Sometimes the particle at the destination must move before a journey can begin."
+
+msgid "move"
+msgid_plural "moves"
+msgstr[0] "move"
+msgstr[1] "moves"

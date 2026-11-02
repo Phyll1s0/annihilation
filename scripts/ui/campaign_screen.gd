@@ -22,7 +22,7 @@ var following_button: Button
 func _ready() -> void:
 	_setup_theme()
 	_back_button(func(): navigation_requested.emit("home"))
-	var settings_button := _icon_button("settings-outline", "设置", func(): navigation_requested.emit("settings"))
+	var settings_button := _icon_button("settings-outline", "Settings", func(): navigation_requested.emit("settings"))
 	settings_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	settings_button.offset_left = -72
 	settings_button.offset_right = -24
@@ -50,18 +50,20 @@ func _ready() -> void:
 	progress_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	progress_box.add_theme_constant_override("separation", 10)
 	header.add_child(progress_box)
-	bars.easy = _progress_bar("简单", Color("b8bec5"), progress_box)
-	bars.hard = _progress_bar("困难", PRIMARY, progress_box)
+	bars.easy = _progress_bar("Easy", Color("b8bec5"), progress_box)
+	bars.hard = _progress_bar("Hard", PRIMARY, progress_box)
 	var modes := HBoxContainer.new()
 	modes.alignment = BoxContainer.ALIGNMENT_CENTER
 	modes.add_theme_constant_override("separation", 12)
 	body.add_child(modes)
-	easy_button = _button("简单", func(): _mode(false), Vector2(155, 36))
-	hard_button = _button("困难", func(): _mode(true), Vector2(155, 36))
+	easy_button = _button("Easy", func(): _mode(false), Vector2(155, 36))
+	hard_button = _button("Hard", func(): _mode(true), Vector2(155, 36))
 	easy_button.add_theme_font_size_override("font_size", 12)
 	hard_button.add_theme_font_size_override("font_size", 12)
-	easy_button.tooltip_text = "清空棋盘即可"
-	hard_button.tooltip_text = "以最少步数清空棋盘"
+	easy_button.tooltip_text = tr("Clear the board")
+	easy_button.set_meta("hint", "Clear the board")
+	hard_button.tooltip_text = tr("Clear the board in the fewest moves")
+	hard_button.set_meta("hint", "Clear the board in the fewest moves")
 	modes.add_child(easy_button)
 	modes.add_child(hard_button)
 	var grid_center := CenterContainer.new()
@@ -91,14 +93,14 @@ func _ready() -> void:
 			button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 		pagination.add_child(button)
 		chapter_buttons.append(button)
-	previous_button = _icon_button("chevron-back-outline", "上一章", func(): _shift(-1), 42, 60)
+	previous_button = _icon_button("chevron-back-outline", "Previous chapter", func(): _shift(-1), 42, 60)
 	previous_button.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
 	previous_button.offset_left = 168
 	previous_button.offset_right = 228
 	previous_button.offset_top = -30
 	previous_button.offset_bottom = 30
 	add_child(previous_button)
-	following_button = _icon_button("chevron-forward-outline", "下一章", func(): _shift(1), 42, 60)
+	following_button = _icon_button("chevron-forward-outline", "Next chapter", func(): _shift(1), 42, 60)
 	following_button.set_anchors_and_offsets_preset(Control.PRESET_CENTER_RIGHT)
 	following_button.offset_left = -228
 	following_button.offset_right = -168
@@ -150,11 +152,12 @@ func refresh() -> void:
 	_accent(easy_button, not settings.hard_mode)
 	_accent(hard_button, settings.hard_mode)
 	var chapter_index := chapter_names.find(chapter)
-	chapter_title.text = chapter
+	chapter_title.text = tr(chapter)
 	chapter_number.text = "%02d / %02d" % [chapter_index + 1, chapter_names.size()]
 	previous_button.disabled = chapter_index == 0
 	following_button.disabled = chapter_index == chapter_names.size() - 1
 	for i in chapter_buttons.size():
+		chapter_buttons[i].tooltip_text = tr(chapter_names[i])
 		chapter_buttons[i].add_theme_color_override("font_color", PRIMARY if i == chapter_index else Color("484d52"))
 	var easy_count := 0
 	var hard_count := 0
@@ -176,9 +179,9 @@ func refresh() -> void:
 			Color(PRIMARY, 0.35) if cleared else Color(0, 0, 0, 0), 0))
 		card.add_theme_stylebox_override("hover", _style(Color(PRIMARY, 0.07), Color(1, 1, 1, 0.56), 0))
 		card.add_theme_color_override("font_color", PRIMARY if cleared else INK)
-		var caption := "%s  /  %s" % [definition.id, definition.title]
+		var caption := "%s  /  %s" % [definition.id, tr(definition.title)]
 		if settings.hard_mode:
-			caption += "   ·   最优 %d 步" % definition.optimal_moves
+			caption += tr("   ·   Best possible: %d") % definition.optimal_moves
 		card.tooltip_text = caption
 		card.mouse_entered.connect(func(): detail.text = caption)
 		card.focus_entered.connect(func(): detail.text = caption)
@@ -189,3 +192,6 @@ func refresh() -> void:
 		bars[key].counter.text = "%d / %d" % [amount, total]
 		bars[key].bar.value = float(amount) / total * 100
 	detail.text = ""
+
+func _refresh_language() -> void:
+	refresh()

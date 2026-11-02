@@ -160,12 +160,22 @@ func _test_framework() -> void:
 	check(store.records.has("01") and store.records["01"].hard, "First prototype progress migrates using known content hashes")
 	check(Catalog.recommended(catalog.levels, store.records, false) == 1, "Continue recommends the first unfinished level")
 	var config = Settings.new(path + ".cfg")
+	check(config.language == "en", "Missing language preferences default to English")
 	config.show_hints = false
 	config.reduce_motion = true
 	config.hard_mode = true
+	config.language = "zh_CN"
 	check(config.save() == OK, "Preferences save")
 	config = Settings.new(path + ".cfg")
 	check(not config.show_hints and config.reduce_motion and config.hard_mode, "Preferences survive reload")
+	check(config.language == "zh_CN", "The selected language survives reload")
+	var invalid := ConfigFile.new()
+	invalid.set_value("preferences", "language", "unsupported")
+	invalid.save(path + ".cfg")
+	check(Settings.new(path + ".cfg").language == "en", "Unsupported language preferences fall back to English")
+	invalid.set_value("preferences", "language", 42)
+	invalid.save(path + ".cfg")
+	check(Settings.new(path + ".cfg").language == "en", "Invalid language value types fall back to English")
 	DirAccess.remove_absolute(path)
 	DirAccess.remove_absolute(path + ".cfg")
 

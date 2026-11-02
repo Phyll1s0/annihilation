@@ -38,6 +38,7 @@ var toolbar: HBoxContainer
 var notice: Tween
 
 func _ready() -> void:
+	settings.apply_language()
 	if levels.is_empty():
 		levels = Catalog.load_campaign().levels
 	if levels.is_empty():
@@ -66,7 +67,7 @@ func _build_ui() -> void:
 		add_child(standalone_background)
 		standalone_background.set_page("game")
 	back_button = _back_button(func(): navigation_requested.emit("campaign"))
-	pause_button = _icon_button("pause-outline", "暂停 · Esc", func(): pause_requested.emit(), 28)
+	pause_button = _icon_button("pause-outline", "Pause · Esc", func(): pause_requested.emit(), 28)
 	add_child(pause_button)
 	chapter_label = _label("", 11, MUTED)
 	add_child(chapter_label)
@@ -78,8 +79,8 @@ func _build_ui() -> void:
 	modes.offset_top = 28
 	modes.offset_bottom = 62
 	add_child(modes)
-	easy_button = _button("简单", func(): _change_mode(false), Vector2(96, 32))
-	hard_button = _button("困难", func(): _change_mode(true), Vector2(96, 32))
+	easy_button = _button("Easy", func(): _change_mode(false), Vector2(96, 32))
+	hard_button = _button("Hard", func(): _change_mode(true), Vector2(96, 32))
 	for button in [easy_button, hard_button]:
 		button.add_theme_font_size_override("font_size", 12)
 		modes.add_child(button)
@@ -99,9 +100,9 @@ func _build_ui() -> void:
 	goal_label.add_theme_font_override("font", regular)
 	goal_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	toolbar.add_child(goal_label)
-	undo_button = _icon_button("arrow-undo-outline", "撤销 · Z", _undo, 23, 32)
+	undo_button = _icon_button("arrow-undo-outline", "Undo · Z", _undo, 23, 32)
 	toolbar.add_child(undo_button)
-	toolbar.add_child(_icon_button("refresh-outline", "重新开始 · R", _restart, 24, 32))
+	toolbar.add_child(_icon_button("refresh-outline", "Restart · R", _restart, 24, 32))
 	status_label = _label("", 11, MUTED)
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -161,9 +162,9 @@ func _build_result(canvas: Control) -> void:
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 28)
 	box.add_child(buttons)
-	buttons.add_child(_icon_button("refresh-outline", "再试一次", _restart, 29))
-	buttons.add_child(_icon_button("grid-outline", "关卡选择", func(): navigation_requested.emit("campaign"), 29))
-	next_button = _icon_button("chevron-forward-outline", "下一关", _next, 31)
+	buttons.add_child(_icon_button("refresh-outline", "Try again", _restart, 29))
+	buttons.add_child(_icon_button("grid-outline", "Levels", func(): navigation_requested.emit("campaign"), 29))
+	next_button = _icon_button("chevron-forward-outline", "Next level", _next, 31)
 	buttons.add_child(next_button)
 	result_panel.hide()
 
@@ -223,12 +224,12 @@ func _sync() -> void:
 		return
 	var level: Dictionary = levels[current]
 	chapter_label.text = "%02d" % [current + 1]
-	chapter_label.tooltip_text = "%s / %s" % [level.chapter, level.title]
+	chapter_label.tooltip_text = "%s / %s" % [tr(level.chapter), tr(level.title)]
 	count_label.text = str(session.steps)
 	var record: Dictionary = progress.records.get(level.id, {})
 	var best := "—" if record.is_empty() else str(record.best)
-	goal_label.text = "/ %d" % level.optimal_moves if session.hard_mode else "步"
-	count_label.tooltip_text = "步数 · 个人最佳：" + best
+	goal_label.text = "/ %d" % level.optimal_moves if session.hard_mode else tr_n("move", "moves", session.steps)
+	count_label.tooltip_text = tr("Moves · Personal best: %s") % best
 	_accent(easy_button, not session.hard_mode)
 	_accent(hard_button, session.hard_mode)
 	undo_button.disabled = session.history.is_empty()
@@ -238,25 +239,29 @@ func _sync() -> void:
 		notice.kill()
 	status_label.modulate.a = 1.0
 	status_label.text = ""
+	status_label.tooltip_text = ""
 	if save_error:
-		status_label.text = "存档失败"
-		status_label.tooltip_text = "当前会话仍保留对局和记录。"
+		status_label.text = tr("Save failed")
+		status_label.tooltip_text = tr("Your current game and records are still available in this session.")
 	var finished := Puzzle.won(session.state)
 	result_panel.visible = finished and not board.animating()
 	if finished:
-		result_title.text = ("最优解" if session.hard_mode else "完成") if session.cleared() else "再少几步"
+		result_title.text = (tr("Optimal") if session.hard_mode else tr("Complete")) if session.cleared() else tr("Try fewer moves")
 		if session.hard_mode:
-			result_description.text = "%d / %d 步" % [session.steps, level.optimal_moves]
+			result_description.text = tr("Moves: %d / %d") % [session.steps, level.optimal_moves]
 		else:
-			result_description.text = "%d 步" % session.steps
-		next_button.tooltip_text = "返回选关" if current == levels.size() - 1 else "下一关"
+			result_description.text = tr("Moves: %d") % session.steps
+		next_button.tooltip_text = tr("Back to levels") if current == levels.size() - 1 else tr("Next level")
+
+func _refresh_language() -> void:
+	_sync()
 
 func _show_notice(message: String) -> void:
 	if save_error:
 		return
 	if notice != null and notice.is_running():
 		notice.kill()
-	status_label.text = message
+	status_label.text = tr(message)
 	status_label.tooltip_text = ""
 	status_label.modulate.a = 1.0
 	notice = create_tween()
@@ -288,12 +293,12 @@ func _try_move(direction: String) -> void:
 	if not input_enabled or board.animating() or Puzzle.won(session.state):
 		return
 	if session.selected < 0:
-		_show_notice("请选择棋子")
+		_show_notice("Select a particle")
 		return
 	var before: Dictionary = session.state
 	var result: Dictionary = session.play(direction)
 	if result.is_empty():
-		_show_notice("无法移动")
+		_show_notice("Cannot move")
 		return
 	board.animate(result, before)
 	if Puzzle.won(session.state):

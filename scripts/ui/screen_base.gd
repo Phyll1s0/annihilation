@@ -10,6 +10,28 @@ var regular: Font
 var heavy: Font
 var entrance: Tween
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+		call_deferred("_update_language")
+
+func _update_language() -> void:
+	_translate_controls(self)
+	_refresh_language()
+
+func _translate_controls(parent: Node) -> void:
+	if parent.has_meta("message"):
+		parent.text = tr(parent.get_meta("message"))
+	if parent.has_meta("hint"):
+		parent.tooltip_text = tr(parent.get_meta("hint"))
+	for child in parent.get_children():
+		# Each screen handles its own dynamic text after translating its controls.
+		if child.has_method("_update_language"):
+			continue
+		_translate_controls(child)
+
+func _refresh_language() -> void:
+	pass
+
 func _style(fill: Color, border: Color = LINE, radius: int = 3) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = fill
@@ -63,7 +85,9 @@ func _setup_theme() -> void:
 
 func _label(text: String, font_size: int = 15, color: Color = INK, bold: bool = false) -> Label:
 	var label := Label.new()
-	label.text = text
+	label.text = tr(text)
+	if not text.is_empty():
+		label.set_meta("message", text)
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	if bold:
@@ -73,7 +97,9 @@ func _label(text: String, font_size: int = 15, color: Color = INK, bold: bool = 
 func _button(text: String, action: Callable, minimum: Vector2 = Vector2(0, 42)) -> Button:
 	var button := Button.new()
 	button.focus_mode = Control.FOCUS_ALL
-	button.text = text
+	button.text = tr(text)
+	if not text.is_empty():
+		button.set_meta("message", text)
 	button.custom_minimum_size = minimum
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.pressed.connect(action)
@@ -113,13 +139,14 @@ func _icon_button(icon: String, hint: String, action: Callable, icon_size: int =
 	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	button.expand_icon = true
 	button.add_theme_constant_override("icon_max_width", icon_size)
-	button.tooltip_text = hint
+	button.tooltip_text = tr(hint)
+	button.set_meta("hint", hint)
 	for state in ["normal", "hover", "pressed", "disabled"]:
 		button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 	return button
 
 func _back_button(action: Callable) -> Button:
-	var button := _icon_button("arrow-back-circle-outline", "返回", action, 32)
+	var button := _icon_button("arrow-back-circle-outline", "Back", action, 32)
 	button.position = Vector2(24, 24)
 	add_child(button)
 	return button
