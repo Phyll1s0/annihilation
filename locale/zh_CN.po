@@ -181,32 +181,32 @@ msgstr "靠近一点"
 msgid "Move one tile at a time. Choose which particle takes the next step."
 msgstr "每次只走一格。选择哪一颗移动，由你决定。"
 
-msgid "Borrowed Space"
-msgstr "借来的空位"
+msgid "Four Corners"
+msgstr "四角"
 
-msgid "A small empty pocket changes who can pass."
-msgstr "一个小小的空位，决定谁能先通过。"
+msgid "Matching colors block each other. Opposite colors remove the tile where they meet."
+msgstr "同色不能重叠，异色相遇会带走脚下的地板。"
 
-msgid "Last Crossing"
-msgstr "最后的渡口"
+msgid "Leave a Path"
+msgstr "留一条路"
 
 msgid "Choices"
 msgstr "取舍"
 
-msgid "Choose where to meet while both shores still need the crossing."
-msgstr "两岸都还需要渡口时，想好在哪里相遇。"
+msgid "The center is a tempting meeting place. A lost path will not return."
+msgstr "中间的相遇很诱人。但路一旦消失，就不会回来。"
 
-msgid "Counterflow"
-msgstr "逆向流"
+msgid "Passing By"
+msgstr "错身"
 
-msgid "Three pairs share one loop. Make room before closing a route."
-msgstr "三对黑白共用一圈通路。封路前，先留出错身的空间。"
+msgid "Leave room for the other particle before bringing them together."
+msgstr "为另一颗棋子保留位置，再完成合并。"
 
-msgid "Step Back"
-msgstr "退一步"
+msgid "Narrow Bridge"
+msgstr "窄桥"
 
-msgid "The nearest meeting may be too soon."
-msgstr "最近的相遇，也许来得太早。"
+msgid "The bridge is narrow. Choose where to meet before taking another step."
+msgstr "桥很窄。先想好在哪里相遇，再迈出下一步。"
 
 msgid "Fold"
 msgstr "折叠"
@@ -217,38 +217,38 @@ msgstr "另一端"
 msgid "The two A tiles are linked. A portal move costs one step."
 msgstr "带 A 的两个格子相连。走入传送门，只计一步。"
 
-msgid "Occupied Orbit"
-msgstr "占位轨道"
+msgid "Across the Void"
+msgstr "隔空相拥"
 
-msgid "The particle at the far end has a journey of its own."
-msgstr "另一端的棋子，也有自己的路要走。"
+msgid "An opposite color at the exit merges on arrival. The entrance becomes a normal tile."
+msgstr "另一端已有异色棋子？传送后直接合并，入口变为普通地板。"
 
-msgid "Afterimage"
-msgstr "残影"
+msgid "Echo"
+msgstr "回声"
 
-msgid "A vanished portal can leave a path behind."
-msgstr "一扇门消失后，也可能留下通路。"
+msgid "A portal can be a shortcut, or the place of a final meeting."
+msgstr "传送门既是捷径，也可能成为最后一次相遇的地方。"
 
-msgid "Relay"
-msgstr "接力"
+msgid "Double Fold"
+msgstr "双重折叠"
 
-msgid "One journey opens the way for the next."
-msgstr "一段旅程，为下一段让出道路。"
+msgid "A links to A, and B links to B. Follow the matching letters."
+msgstr "A 与 A 相连，B 与 B 相连。相同字母，不会认错路。"
 
-msgid "Exchange"
-msgstr "交换"
+msgid "In Due Order"
+msgstr "先后之间"
 
 msgid "Stillness"
 msgstr "归于灰"
 
-msgid "Four arms share one center. Let each particle find its place."
-msgstr "四条支路共用一个中心，让每颗棋子找到自己的位置。"
+msgid "Three pairs, limited paths. The order of collisions is part of the solution."
+msgstr "三对黑白，有限的路。合并的顺序也是答案的一部分。"
 
-msgid "Event Horizon"
-msgstr "视界"
+msgid "Negative Space"
+msgstr "余白"
 
-msgid "Traffic can travel in both directions. Keep room for the return."
-msgstr "路不只通向远方，也要为归来的棋子留出位置。"
+msgid "Bring every particle to rest, leaving only empty space."
+msgstr "让所有黑白归于寂静，留下恰到好处的余白。"
 
 msgid "Two Paths"
 msgstr "两段路"
@@ -307,3 +307,45 @@ msgstr "有时需要先移动目的地的棋子，旅程才真正开始。"
 msgid "move"
 msgid_plural "moves"
 msgstr[0] "步"
+
+msgid "Undertow"
+msgstr "暗流"
+
+msgid "Parallax"
+msgstr "视差"
+
+msgid "Counterflow"
+msgstr "逆向流"
+
+msgid "Three pairs share a narrow loop. Leave room for the last journey."
+msgstr "三对棋子共用狭窄的环路，为最后一次通行留出空间。"
+
+msgid "Step Back"
+msgstr "退一步"
+
+msgid "The nearest meeting may be too soon."
+msgstr "最近的相遇，也许来得太早。"
+
+msgid "Unravel"
+msgstr "解缠"
+
+msgid "Every collision changes which paths remain. Untangle the queues before they close."
+msgstr "每次合并都会改变余下的道路，在封路前解开交错的队列。"
+
+msgid "Keep It Open"
+msgstr "门还不能关"
+
+msgid "Some crossings must wait for another arrival."
+msgstr "有些通路，还要等待下一次抵达。"
+
+msgid "Three Orbits"
+msgstr "三重轨道"
+
+msgid "Three linked routes meet at a center that can change."
+msgstr "三条相连的轨道，交汇在一个会改变的中心。"
+
+msgid "Singularity"
+msgstr "奇点"
+
+msgid "Four pairs, three gates, and very little room to say goodbye."
+msgstr "四对棋子，三组门，留给相遇的空间却很少。"

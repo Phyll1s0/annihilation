@@ -21,6 +21,11 @@ func settle() -> void:
 	await process_frame
 	await process_frame
 
+func native_transition() -> void:
+	# Finish the macOS Spaces animation before sending another fullscreen toggle.
+	await create_timer(3.2 if OS.get_name() == "macOS" else 0.8).timeout
+	await settle()
+
 func key(code: Key) -> void:
 	var event := InputEventKey.new()
 	event.keycode = code
@@ -75,14 +80,13 @@ func _run() -> void:
 	await capture("home-1280")
 	if DisplayServer.get_name() != "headless":
 		key(KEY_F11)
-		await create_timer(0.8).timeout
-		await settle()
+		await native_transition()
 		check(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN, "F11 enters native fullscreen")
 		print("Fullscreen home: %s, title %d, start %d" % [app.home.size,
 			app.home.title.get_theme_font_size("font_size"), app.home.continue_button.get_theme_font_size("font_size")])
 		await capture("home-fullscreen")
 		key(KEY_F11)
-		await create_timer(0.8).timeout
+		await native_transition()
 		root.size = Vector2i(1280, 820)
 		await settle()
 		check(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "F11 returns to the ordinary window")
@@ -125,8 +129,7 @@ func _run() -> void:
 		var normal_height: float = app.game.size.y
 		await capture("game-windowed")
 		key(KEY_F11)
-		await create_timer(0.8).timeout
-		await settle()
+		await native_transition()
 		check(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN, "An active puzzle enters native fullscreen")
 		check(app.game.board.unit / app.game.size.y >= normal_unit / normal_height * 0.95,
 			"The actual gameplay board keeps its visual proportion in native fullscreen")
@@ -135,7 +138,7 @@ func _run() -> void:
 		print("Fullscreen puzzle: %s, cell %.1f -> %.1f" % [app.game.size, normal_unit, app.game.board.unit])
 		await capture("game-fullscreen")
 		key(KEY_F11)
-		await create_timer(0.8).timeout
+		await native_transition()
 		root.size = Vector2i(1280, 820)
 		await settle()
 		check(absf(app.game.board.unit - normal_unit) < 1.0, "Leaving fullscreen restores the gameplay board's windowed scale")
@@ -160,14 +163,13 @@ func _run() -> void:
 		var settings_font: int = app.preferences.heading.get_theme_font_size("font_size")
 		var settings_height: float = app.preferences.size.y
 		key(KEY_F11)
-		await create_timer(0.8).timeout
-		await settle()
+		await native_transition()
 		check(app.preferences.switches.fullscreen.button_pressed, "The settings switch reflects native fullscreen")
 		check(float(app.preferences.heading.get_theme_font_size("font_size")) / app.preferences.size.y >= settings_font / settings_height * 0.95, "The actual settings screen scales in native fullscreen")
 		check(root.get_texture().get_size() == Vector2(DisplayServer.window_get_size()), "Settings render at the window's actual pixel resolution")
 		await capture("settings-fullscreen")
 		click(app.preferences.switches.fullscreen)
-		await create_timer(0.8).timeout
+		await native_transition()
 		root.size = Vector2i(1280, 820)
 		await settle()
 		check(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED and not app.settings.fullscreen, "The resized settings switch exits fullscreen by mouse")
@@ -219,15 +221,25 @@ func _run() -> void:
 	for action in app.levels[19].solution:
 		app.game.session.selected = int(action.source)
 		app.game._try_move(action.direction)
-	check(app.game.session.cleared() and app.progress.records["20"].hard, "New original finale completes in hard mode")
+	check(app.game.session.cleared() and app.progress.records["20"].hard, "The original final level still completes in hard mode")
 	check(app.progress.resume.is_empty(), "Final completion clears the checkpoint")
+	app.game.next_button.pressed.emit()
+	check(app.screen == "game" and app.game.current == 20, "Level 20 continues into the advanced chapters")
+	for index in range(20, app.levels.size()):
+		app.start_level(index, true)
+		await settle()
+		for action in app.levels[index].solution:
+			app.game.session.selected = int(action.source)
+			app.game._try_move(action.direction)
+		check(app.game.session.cleared() and app.progress.records[app.levels[index].id].hard,
+			"Advanced level %s completes in hard mode through the live game" % app.levels[index].id)
 	app.game.next_button.pressed.emit()
 	check(app.screen == "campaign", "Final level returns to chapter selection")
 	app.campaign.chapter = app.campaign.chapter_names[-1]
 	app.progress.records.clear()
 	app.campaign.refresh()
 	await settle()
-	check(app.campaign.cards.size() == 4, "New chapter renders four authored puzzles")
+	check(app.campaign.cards.size() == 3, "The final chapter renders three advanced puzzles")
 	await capture("campaign-1280")
 	root.size = Vector2i(960, 680)
 	app.show_screen("home")

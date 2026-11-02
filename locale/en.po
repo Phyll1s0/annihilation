@@ -181,32 +181,32 @@ msgstr "Closer"
 msgid "Move one tile at a time. Choose which particle takes the next step."
 msgstr "Move one tile at a time. Choose which particle takes the next step."
 
-msgid "Borrowed Space"
-msgstr "Borrowed Space"
+msgid "Four Corners"
+msgstr "Four Corners"
 
-msgid "A small empty pocket changes who can pass."
-msgstr "A small empty pocket changes who can pass."
+msgid "Matching colors block each other. Opposite colors remove the tile where they meet."
+msgstr "Matching colors block each other. Opposite colors remove the tile where they meet."
 
-msgid "Last Crossing"
-msgstr "Last Crossing"
+msgid "Leave a Path"
+msgstr "Leave a Path"
 
 msgid "Choices"
 msgstr "Choices"
 
-msgid "Choose where to meet while both shores still need the crossing."
-msgstr "Choose where to meet while both shores still need the crossing."
+msgid "The center is a tempting meeting place. A lost path will not return."
+msgstr "The center is a tempting meeting place. A lost path will not return."
 
-msgid "Counterflow"
-msgstr "Counterflow"
+msgid "Passing By"
+msgstr "Passing By"
 
-msgid "Three pairs share one loop. Make room before closing a route."
-msgstr "Three pairs share one loop. Make room before closing a route."
+msgid "Leave room for the other particle before bringing them together."
+msgstr "Leave room for the other particle before bringing them together."
 
-msgid "Step Back"
-msgstr "Step Back"
+msgid "Narrow Bridge"
+msgstr "Narrow Bridge"
 
-msgid "The nearest meeting may be too soon."
-msgstr "The nearest meeting may be too soon."
+msgid "The bridge is narrow. Choose where to meet before taking another step."
+msgstr "The bridge is narrow. Choose where to meet before taking another step."
 
 msgid "Fold"
 msgstr "Fold"
@@ -217,38 +217,38 @@ msgstr "Beyond"
 msgid "The two A tiles are linked. A portal move costs one step."
 msgstr "The two A tiles are linked. A portal move costs one step."
 
-msgid "Occupied Orbit"
-msgstr "Occupied Orbit"
+msgid "Across the Void"
+msgstr "Across the Void"
 
-msgid "The particle at the far end has a journey of its own."
-msgstr "The particle at the far end has a journey of its own."
+msgid "An opposite color at the exit merges on arrival. The entrance becomes a normal tile."
+msgstr "An opposite color at the exit merges on arrival. The entrance becomes a normal tile."
 
-msgid "Afterimage"
-msgstr "Afterimage"
+msgid "Echo"
+msgstr "Echo"
 
-msgid "A vanished portal can leave a path behind."
-msgstr "A vanished portal can leave a path behind."
+msgid "A portal can be a shortcut, or the place of a final meeting."
+msgstr "A portal can be a shortcut, or the place of a final meeting."
 
-msgid "Relay"
-msgstr "Relay"
+msgid "Double Fold"
+msgstr "Double Fold"
 
-msgid "One journey opens the way for the next."
-msgstr "One journey opens the way for the next."
+msgid "A links to A, and B links to B. Follow the matching letters."
+msgstr "A links to A, and B links to B. Follow the matching letters."
 
-msgid "Exchange"
-msgstr "Exchange"
+msgid "In Due Order"
+msgstr "In Due Order"
 
 msgid "Stillness"
 msgstr "Stillness"
 
-msgid "Four arms share one center. Let each particle find its place."
-msgstr "Four arms share one center. Let each particle find its place."
+msgid "Three pairs, limited paths. The order of collisions is part of the solution."
+msgstr "Three pairs, limited paths. The order of collisions is part of the solution."
 
-msgid "Event Horizon"
-msgstr "Event Horizon"
+msgid "Negative Space"
+msgstr "Negative Space"
 
-msgid "Traffic can travel in both directions. Keep room for the return."
-msgstr "Traffic can travel in both directions. Keep room for the return."
+msgid "Bring every particle to rest, leaving only empty space."
+msgstr "Bring every particle to rest, leaving only empty space."
 
 msgid "Two Paths"
 msgstr "Two Paths"
@@ -308,3 +308,45 @@ msgid "move"
 msgid_plural "moves"
 msgstr[0] "move"
 msgstr[1] "moves"
+
+msgid "Undertow"
+msgstr "Undertow"
+
+msgid "Parallax"
+msgstr "Parallax"
+
+msgid "Counterflow"
+msgstr "Counterflow"
+
+msgid "Three pairs share a narrow loop. Leave room for the last journey."
+msgstr "Three pairs share a narrow loop. Leave room for the last journey."
+
+msgid "Step Back"
+msgstr "Step Back"
+
+msgid "The nearest meeting may be too soon."
+msgstr "The nearest meeting may be too soon."
+
+msgid "Unravel"
+msgstr "Unravel"
+
+msgid "Every collision changes which paths remain. Untangle the queues before they close."
+msgstr "Every collision changes which paths remain. Untangle the queues before they close."
+
+msgid "Keep It Open"
+msgstr "Keep It Open"
+
+msgid "Some crossings must wait for another arrival."
+msgstr "Some crossings must wait for another arrival."
+
+msgid "Three Orbits"
+msgstr "Three Orbits"
+
+msgid "Three linked routes meet at a center that can change."
+msgstr "Three linked routes meet at a center that can change."
+
+msgid "Singularity"
+msgstr "Singularity"
+
+msgid "Four pairs, three gates, and very little room to say goodbye."
+msgstr "Four pairs, three gates, and very little room to say goodbye."

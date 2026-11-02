@@ -75,10 +75,15 @@ def main():
             kind = requirement['kind']
             if kind in ('opening_collision_fatal', 'first_collision_avoids'):
                 assert admitted, f'{level["id"]}: the supposedly tempting collision is unreachable'
-            assert distance is None, f'{level["id"]}: intended idea can be bypassed in {distance} moves'
+            if requirement.get('optimal_only', False):
+                assert distance is None or distance > level['optimal_moves'], f'{level["id"]}: an optimal solution bypasses the intended idea'
+            else:
+                assert distance is None, f'{level["id"]}: intended idea can be bypassed in {distance} moves'
             detail = requirement.get('group', requirement.get('cells', ''))
             if 'color' in requirement:
                 detail += f' (particle {requirement["color"]})'
+            if requirement.get('optimal_only', False):
+                detail += f' (Hard; bypass needs {distance if distance is not None else "no solution"})'
             print(f'{level["id"]} {kind} {detail}: verified ({visited} states)')
             checks += 1
     assert checks, 'No authored design checks were found'
