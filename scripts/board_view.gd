@@ -8,6 +8,7 @@ signal paint_finished
 signal cell_painted(index: int, erase: bool)
 
 const Puzzle = preload("res://scripts/puzzle.gd")
+const DirectionGlyph = preload("res://scripts/ui/direction_glyph.gd")
 const INK := Color("090a0c")
 const PAPER := Color("eef1f4")
 const LINE := Color(1, 1, 1, 0.25)
@@ -164,6 +165,7 @@ func _portal_color(group: int) -> Color:
 
 func _tile(index: int, terrain: int, opacity: float = 1.0) -> void:
 	var portal := terrain if Puzzle.is_portal(terrain) else 0
+	var direction := Puzzle.field_direction(terrain)
 	var tile_size := unit - 2.0 * visual_scale
 	var top_left := (center_of(index) - Vector2.ONE * tile_size / 2.0).round()
 	var bottom_right := (center_of(index) + Vector2.ONE * tile_size / 2.0).round()
@@ -172,6 +174,9 @@ func _tile(index: int, terrain: int, opacity: float = 1.0) -> void:
 	var portal_color := _portal_color(portal)
 	style.bg_color = Color(1, 1, 1, 0.035 * opacity) if portal == 0 else Color(portal_color, 0.12 * opacity)
 	style.border_color = Color(1, 1, 1, 0.25 * opacity) if portal == 0 else Color(portal_color, 0.70 * opacity)
+	if not direction.is_empty():
+		style.bg_color = Color(PRIMARY, 0.06 * opacity)
+		style.border_color = Color(PRIMARY, 0.43 * opacity)
 	style.set_border_width_all(maxi(1, roundi(visual_scale)))
 	var corner := roundi((3.0 if portal == 0 else 10.0) * visual_scale)
 	style.set_corner_radius_all(corner)
@@ -191,18 +196,11 @@ func _tile(index: int, terrain: int, opacity: float = 1.0) -> void:
 		var tag := String.chr(64 + portal)
 		var tag_size := maxi(8, roundi(unit * 0.16))
 		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2 * visual_scale), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(portal_color, opacity * 0.95))
-	var direction := Puzzle.field_direction(terrain)
 	if not direction.is_empty():
-		# The small corner arrow stays visible beneath either particle color.
+		# Mark the departure edge so a particle cannot cover the direction.
 		var axis := Vector2(Puzzle.DIRECTIONS[direction])
-		var side := axis.orthogonal()
-		var arrow_center := rect.position + Vector2.ONE * unit * 0.17
-		var tip := arrow_center + axis * unit * 0.07
-		var tint := Color(PRIMARY, opacity * 0.85)
-		var stroke := maxf(1.0, unit * 0.018)
-		draw_line(arrow_center - axis * unit * 0.07, tip, tint, stroke, true)
-		draw_polyline(PackedVector2Array([tip - axis * unit * 0.045 + side * unit * 0.045, tip,
-			tip - axis * unit * 0.045 - side * unit * 0.045]), tint, stroke, true)
+		DirectionGlyph.draw_mark(self, center_of(index) + axis * unit * 0.28,
+			axis, unit * 0.40, Color(PRIMARY, opacity * 0.88), maxf(1.4, unit * 0.020))
 
 func _piece(point: Vector2, color: int, radius: float, opacity: float = 1.0, active: bool = false) -> void:
 	if radius < 0.1:

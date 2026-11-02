@@ -6,6 +6,7 @@ const Library = preload("res://scripts/editor_library.gd")
 const Records = preload("res://scripts/custom_records.gd")
 const Board = preload("res://scripts/board_view.gd")
 const Puzzle = preload("res://scripts/puzzle.gd")
+const DirectionGlyph = preload("res://scripts/ui/direction_glyph.gd")
 var directory := "user://editor"
 var levels: Array = []
 var model
@@ -29,6 +30,12 @@ var height_input: SpinBox
 var portal_menu: OptionButton
 var portal_count: Label
 var brushes := {}
+var field_button: Button
+var field_directions: HBoxContainer
+var last_field_direction := "right"
+var map_button: Button
+var map_properties: VBoxContainer
+var portal_row: HBoxContainer
 var undo_button: Button
 var redo_button: Button
 var play_button: Button
@@ -47,6 +54,7 @@ var web_callback
 
 func _ready() -> void:
 	_setup_theme()
+	theme.default_font_size = 16
 	theme.set_stylebox("normal", "LineEdit", _style(Color(1, 1, 1, 0.025), LINE))
 	theme.set_stylebox("focus", "LineEdit", _style(Color("080808"), Color(1, 1, 1, 0.4)))
 	theme.set_stylebox("normal", "TextEdit", _style(Color("080808"), LINE))
@@ -88,40 +96,52 @@ func _build_ui() -> void:
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 26)
 	outer.add_child(body)
+	var sidebar_shell := VBoxContainer.new()
+	sidebar_shell.custom_minimum_size.x = 320
+	sidebar_shell.add_theme_constant_override("separation", 14)
+	body.add_child(sidebar_shell)
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size.x = 260
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	body.add_child(scroll)
+	sidebar_shell.add_child(scroll)
 	sidebar = VBoxContainer.new()
 	sidebar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sidebar.add_theme_constant_override("separation", 12)
+	sidebar.add_theme_constant_override("separation", 10)
 	scroll.add_child(sidebar)
 	title_input = LineEdit.new()
 	title_input.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	title_input.placeholder_text = tr("Level name")
 	title_input.max_length = 64
-	title_input.custom_minimum_size.y = 38
+	title_input.custom_minimum_size.y = 44
 	title_input.text_submitted.connect(func(value: String): model.rename(value); _edited())
 	title_input.focus_exited.connect(func(): model.rename(title_input.text); _edited())
 	sidebar.add_child(title_input)
+	map_button = _button("Map settings", func():
+		map_properties.visible = not map_properties.visible
+		_accent(map_button, map_properties.visible), Vector2(0, 40))
+	map_button.add_theme_font_size_override("font_size", 14)
+	sidebar.add_child(map_button)
+	map_properties = VBoxContainer.new()
+	map_properties.hide()
+	sidebar.add_child(map_properties)
 	var open_row := HBoxContainer.new()
-	sidebar.add_child(open_row)
+	map_properties.add_child(open_row)
 	level_menu = OptionButton.new()
 	level_menu.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	level_menu.custom_minimum_size = Vector2(190, 36)
+	level_menu.custom_minimum_size = Vector2(190, 44)
 	level_menu.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	level_menu.fit_to_longest_item = false
 	level_menu.item_selected.connect(_open_selection)
 	open_row.add_child(level_menu)
-	open_row.add_child(_button("New", _new_level, Vector2(58, 36)))
+	open_row.add_child(_button("New", _new_level, Vector2(76, 44)))
 	var dimensions := HBoxContainer.new()
-	sidebar.add_child(dimensions)
+	map_properties.add_child(dimensions)
 	width_input = _dimension(dimensions)
 	dimensions.add_child(_label("×", 16, MUTED))
 	height_input = _dimension(dimensions)
 	dimensions.add_child(_button("Resize", func():
-		model.resize_grid(int(width_input.value), int(height_input.value)); _edited(), Vector2(76, 36)))
-	sidebar.add_child(_label("Brush", 12, MUTED))
+		model.resize_grid(int(width_input.value), int(height_input.value)); _edited(), Vector2(88, 44)))
+	sidebar.add_child(_label("Brush", 14, MUTED))
 	var tools := GridContainer.new()
 	tools.columns = 3
 	tools.add_theme_constant_override("h_separation", 6)
@@ -129,8 +149,8 @@ func _build_ui() -> void:
 	sidebar.add_child(tools)
 	for entry in [["floor", "Floor"], ["void", "Void"], ["white", "White"], ["black", "Black"], ["clear", "Erase piece"], ["portal", "Portal"]]:
 		var name_value: String = entry[0]
-		var button := _button(entry[1], func(): _brush(name_value), Vector2(80, 36))
-		button.add_theme_font_size_override("font_size", 12)
+		var button := _button(entry[1], func(): _brush(name_value), Vector2(96, 48))
+		button.add_theme_font_size_override("font_size", 14)
 		tools.add_child(button)
 		brushes[name_value] = button
 		var hint: String = {"floor": "Place a floor; keep the particle.", "void": "Remove the tile and its particle. Right click also does this.",
@@ -138,47 +158,52 @@ func _build_ui() -> void:
 			"portal": "Place one end of the selected portal group."}[name_value]
 		button.set_meta("hint", hint)
 		button.tooltip_text = tr(hint)
-	var portal_row := HBoxContainer.new()
+	portal_row = HBoxContainer.new()
 	sidebar.add_child(portal_row)
 	portal_menu = OptionButton.new()
-	portal_menu.custom_minimum_size = Vector2(92, 36)
+	portal_menu.custom_minimum_size = Vector2(92, 44)
 	for i in 26: portal_menu.add_item(String.chr(65 + i))
 	portal_menu.item_selected.connect(func(index: int): group = index + 1; _brush("portal"))
 	portal_row.add_child(portal_menu)
-	portal_count = _label("", 12, MUTED)
+	portal_count = _label("", 14, MUTED)
 	portal_count.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	portal_row.add_child(portal_count)
-	sidebar.add_child(_label("One-way field", 12, MUTED))
-	var fields := HBoxContainer.new()
-	fields.add_theme_constant_override("separation", 6)
-	sidebar.add_child(fields)
+	field_button = _button("One-way field", func(): _brush(last_field_direction), Vector2(0, 48))
+	sidebar.add_child(field_button)
+	field_directions = HBoxContainer.new()
+	field_directions.add_theme_constant_override("separation", 8)
+	sidebar.add_child(field_directions)
 	for direction in ["up", "right", "down", "left"]:
 		var brush_name: String = direction
-		var button := _button({"up": "↑", "right": "→", "down": "↓", "left": "←"}[direction],
-			func(): _brush(brush_name), Vector2(60, 36))
+		var button := _button("", func(): _brush(brush_name), Vector2(64, 56))
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var glyph := DirectionGlyph.new()
+		glyph.direction = direction
+		glyph.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		button.add_child(glyph)
 		var hint: String = {"up": "Leave this tile only upward.", "right": "Leave this tile only to the right.",
 			"down": "Leave this tile only downward.", "left": "Leave this tile only to the left."}[direction]
 		button.set_meta("hint", hint)
 		button.tooltip_text = tr(hint)
-		fields.add_child(button)
+		field_directions.add_child(button)
 		brushes[direction] = button
 	var actions := HBoxContainer.new()
-	sidebar.add_child(actions)
-	play_button = _button("Playtest", _playtest, Vector2(122, 44))
-	records_button = _button("Leaderboard", _show_records, Vector2(122, 44))
+	sidebar_shell.add_child(actions)
+	play_button = _button("Playtest", _playtest, Vector2(154, 48))
+	records_button = _button("Leaderboard", _show_records, Vector2(154, 48))
 	for button in [play_button, records_button]:
-		button.add_theme_font_size_override("font_size", 12)
+		button.add_theme_font_size_override("font_size", 14)
 		actions.add_child(button)
 	var files := HBoxContainer.new()
-	sidebar.add_child(files)
+	sidebar_shell.add_child(files)
 	for entry in [["Save", _save], ["Import", func(): _exchange(false)], ["Export", func(): _exchange(true)]]:
-		var button := _button(entry[0], entry[1], Vector2(80, 36))
-		button.add_theme_font_size_override("font_size", 12)
+		var button := _button(entry[0], entry[1], Vector2(96, 44))
+		button.add_theme_font_size_override("font_size", 14)
 		files.add_child(button)
-	best_label = _label("", 12, MUTED)
+	best_label = _label("", 14, MUTED)
 	best_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sidebar.add_child(best_label)
-	status = _label("Drag to paint. Right click removes tiles.", 12, MUTED)
+	sidebar_shell.add_child(best_label)
+	status = _label("Drag to paint. Right click removes tiles.", 14, MUTED)
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status.custom_minimum_size.y = 48
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -196,7 +221,7 @@ func _build_ui() -> void:
 	board.paint_finished.connect(func(): model.commit_edit(); _sync())
 	board.cell_painted.connect(_paint)
 	drawing.add_child(board)
-	statistics = _label("", 12, MUTED)
+	statistics = _label("", 14, MUTED)
 	statistics.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	drawing.add_child(statistics)
 	drawing.add_child(status)
@@ -207,7 +232,7 @@ func _dimension(parent: Node) -> SpinBox:
 	var input := SpinBox.new()
 	input.min_value = 1
 	input.max_value = Model.MAX_SIZE
-	input.custom_minimum_size = Vector2(72, 36)
+	input.custom_minimum_size = Vector2(72, 44)
 	parent.add_child(input)
 	return input
 
@@ -216,11 +241,11 @@ func _layout_editor() -> void:
 	var factor := _screen_scale()
 	_apply_layout(frame, factor)
 	_apply_layout(exchange_panel, factor)
-	theme.default_font_size = roundi(14 * factor)
+	theme.default_font_size = roundi(16 * factor)
 	for selector in [level_menu, portal_menu]:
 		var popup: PopupMenu = selector.get_popup()
 		popup.max_size = Vector2i(0, roundi(size.y * 0.7))
-		popup.add_theme_font_size_override("font_size", roundi(14 * factor))
+		popup.add_theme_font_size_override("font_size", roundi(16 * factor))
 	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	board.maximum_unit = 100 * factor
 	board.visual_scale = factor
@@ -238,6 +263,8 @@ func _fit_frame() -> void:
 
 func _brush(value: String) -> void:
 	brush = value
+	if value in Puzzle.FIELD_DIRECTIONS:
+		last_field_direction = value
 	_sync()
 
 func _paint(cell: int, erase: bool) -> void:
@@ -260,6 +287,10 @@ func _sync() -> void:
 	undo_button.disabled = model.history.is_empty() and model.before.is_empty()
 	redo_button.disabled = model.future.is_empty()
 	for key in brushes: _accent(brushes[key], key == brush)
+	var field_active := brush in Puzzle.FIELD_DIRECTIONS
+	_accent(field_button, field_active)
+	field_directions.visible = field_active
+	portal_row.visible = brush == "portal"
 	var tint: Color = board._portal_color(group)
 	portal_menu.add_theme_color_override("font_color", tint)
 	portal_count.add_theme_color_override("font_color", tint)

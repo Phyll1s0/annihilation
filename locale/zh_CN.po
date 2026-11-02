@@ -743,3 +743,6 @@ msgstr "只能向下离开这一格。"
 
 msgid "Leave this tile only to the left."
 msgstr "只能向左离开这一格。"
+
+msgid "Map settings"
+msgstr "地图设置"

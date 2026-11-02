@@ -6,8 +6,8 @@ The editor is designed for desktop windows, including fullscreen and high-resolu
 
 ## Make a map
 
-1. Choose **New**, or select a campaign level from **Open a level…** to make an editable copy.
-2. Enter a name. Set the width and height, then choose **Resize**. Maps can be 1–12 tiles in each direction.
+1. Open **Map settings**, then choose **New**, or select a campaign level from **Open a level…** to make an editable copy.
+2. Enter a name. In **Map settings**, set the width and height, then choose **Resize**. Maps can be 1–12 tiles in each direction.
 3. Select a brush and click or drag across the board. Right-click removes a tile and its particle.
 4. Choose **Playtest**, or press **F5**, to try the map immediately.
 5. Choose **Save** to keep the level in **My levels**. Complete playtests to establish and improve its records.
@@ -20,6 +20,8 @@ The editor is designed for desktop windows, including fullscreen and high-resolu
 | Erase piece | Remove a particle while keeping the terrain. |
 | Portal | Place the selected A–Z portal group, keeping any particle. |
 | ↑ / → / ↓ / ← | Place a one-way field; keep any particle. Departure is allowed only in the indicated direction. |
+
+Choose the labeled **One-way field** tool, then select one of the four large chevron buttons and paint the board. The last selected direction is remembered when switching brushes. **Playtest**, **Save**, and file actions stay visible below the scrollable tool panel.
 
 Particles can enter a field from any direction and remain there until moved. Fields do not slide particles automatically. **Floor** replaces a field with an ordinary tile; **Erase piece** keeps its direction. Undo, drafts, saved maps, and JSON sharing preserve directions.
 
