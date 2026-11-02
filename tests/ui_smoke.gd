@@ -71,7 +71,7 @@ func _run() -> void:
 	key(KEY_Z)
 	await create_timer(0.42).timeout
 	check(ui.session.steps == 0 and not ui.board.animating() and ui.session.state.pieces == [1, -1], "Undo during animation cannot apply a stale move")
-	ui.level_buttons[1].pressed.emit()
+	ui._open_level(1)
 	ui.hard_button.pressed.emit()
 	await settle()
 	click_cell(0)
@@ -90,7 +90,7 @@ func _run() -> void:
 		key(code)
 		await create_timer(0.38).timeout
 	check(ui.session.cleared() and ui.progress.records["02"].hard, "Optimal hard solution saves a hard medal")
-	ui.level_buttons[7].pressed.emit()
+	ui._open_level(7)
 	await settle()
 	click_cell(0)
 	await settle()
@@ -100,7 +100,7 @@ func _run() -> void:
 	key(KEY_Z)
 	await settle()
 	check(ui.session.state.board[10] == 1 and ui.session.state.board[1] == 1, "Portal undo restores both ends through the UI")
-	ui.level_buttons[11].pressed.emit()
+	ui._open_level(11)
 	ui.progress.records.clear()
 	ui._sync()
 	await settle()

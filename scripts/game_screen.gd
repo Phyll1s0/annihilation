@@ -18,15 +18,12 @@ var settings = Settings.new()
 var input_enabled := true
 var current := 0
 var board
-var level_buttons: Array[Button] = []
-var level_scroll: ScrollContainer
 var title_label: Label
 var chapter_label: Label
 var description_label: Label
 var count_label: Label
 var goal_label: Label
 var status_label: Label
-var collection_label: Label
 var easy_button: Button
 var hard_button: Button
 var undo_button: Button
@@ -55,170 +52,120 @@ func apply_settings() -> void:
 	_sync()
 
 func _build_ui() -> void:
-	var background := ColorRect.new()
-	background.color = PAPER
-	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(background)
-	var margin := _margin(self, 32)
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var layout := HBoxContainer.new()
-	layout.add_theme_constant_override("separation", 30)
-	margin.add_child(layout)
-	_build_sidebar(layout)
-	var divider := VSeparator.new()
-	layout.add_child(divider)
-	var content := VBoxContainer.new()
-	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_theme_constant_override("separation", 18)
-	layout.add_child(content)
-	_build_header(content)
-	_build_board(content)
-	_build_controls(content)
-
-func _build_sidebar(parent: Container) -> void:
-	var sidebar := VBoxContainer.new()
-	sidebar.custom_minimum_size.x = 240
-	sidebar.add_theme_constant_override("separation", 8)
-	parent.add_child(sidebar)
-	var navigation := HBoxContainer.new()
-	sidebar.add_child(navigation)
-	navigation.add_child(_button("← 选关", func(): navigation_requested.emit("campaign"), Vector2(110, 34)))
-	navigation.add_child(_button("暂停  Esc", func(): pause_requested.emit(), Vector2(110, 34)))
-	var brand := HBoxContainer.new()
-	brand.add_theme_constant_override("separation", 6)
-	sidebar.add_child(brand)
-	brand.add_child(_label("GRAY", 57, INK, true))
-	var icon := TextureRect.new()
-	icon.texture = preload("res://assets/icon.svg")
-	icon.custom_minimum_size = Vector2(40, 40)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	brand.add_child(icon)
-	sidebar.add_child(_label("黑与白，相遇之后。", 16, MUTED))
-	var rule := HSeparator.new()
-	rule.custom_minimum_size.y = 30
-	sidebar.add_child(rule)
-	sidebar.add_child(_label("THE COLLECTION   /   01", 11, MUTED, true))
-	var scroll := ScrollContainer.new()
-	level_scroll = scroll
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	sidebar.add_child(scroll)
-	var list := VBoxContainer.new()
-	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", 6)
-	scroll.add_child(list)
-	var previous_chapter := ""
-	for i in levels.size():
-		if levels[i].chapter != previous_chapter:
-			previous_chapter = levels[i].chapter
-			var chapter := _label(previous_chapter, 12, MUTED)
-			chapter.custom_minimum_size.y = 30
-			chapter.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-			list.add_child(chapter)
-		var index := i
-		var button := _button("", func(): _open_level(index), Vector2(226, 40))
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		list.add_child(button)
-		level_buttons.append(button)
-	sidebar.add_child(HSeparator.new())
-	collection_label = _label("", 12, MUTED)
-	sidebar.add_child(collection_label)
-	sidebar.add_child(_label("○ 简单通关     ◇ 困难通关", 11, MUTED))
-
-func _build_header(parent: Container) -> void:
-	var header := HBoxContainer.new()
-	parent.add_child(header)
-	var heading := VBoxContainer.new()
-	heading.add_theme_constant_override("separation", 4)
-	header.add_child(heading)
-	chapter_label = _label("", 12, MUTED, true)
-	heading.add_child(chapter_label)
-	title_label = _label("", 34, INK, true)
-	heading.add_child(title_label)
-	_spacer(header)
-	var count := VBoxContainer.new()
-	count.add_theme_constant_override("separation", 0)
-	header.add_child(count)
-	count_label = _label("00", 42, INK, true)
-	count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	count.add_child(count_label)
-	goal_label = _label("", 12, MUTED)
-	goal_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	count.add_child(goal_label)
+	if get_parent() == get_tree().root:
+		var background := preload("res://scripts/ui/abstract_background.gd").new()
+		background.settings = settings
+		add_child(background)
+	_back_button(func(): navigation_requested.emit("campaign"))
+	var pause := _icon_button("pause-outline", "暂停 · Esc", func(): pause_requested.emit(), 28)
+	pause.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	pause.offset_left = -72
+	pause.offset_right = -24
+	pause.offset_top = 24
+	pause.offset_bottom = 72
+	add_child(pause)
+	chapter_label = _label("", 11, MUTED)
+	chapter_label.position = Vector2(90, 38)
+	add_child(chapter_label)
 	var modes := HBoxContainer.new()
-	parent.add_child(modes)
-	easy_button = _button("简单 · 自由完成", func(): _change_mode(false), Vector2(170, 42))
-	hard_button = _button("困难 · 最少步数", func(): _change_mode(true), Vector2(170, 42))
-	modes.add_child(easy_button)
-	modes.add_child(hard_button)
-	_spacer(modes)
-	modes.add_child(_label("一格一步 · 相遇即消融", 12, MUTED))
-	description_label = _label("")
-	description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description_label.custom_minimum_size.y = 40
-	parent.add_child(description_label)
-
-func _build_board(parent: Container) -> void:
+	modes.alignment = BoxContainer.ALIGNMENT_CENTER
+	modes.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	modes.offset_left = -130
+	modes.offset_right = 130
+	modes.offset_top = 28
+	modes.offset_bottom = 62
+	add_child(modes)
+	easy_button = _button("简单", func(): _change_mode(false), Vector2(96, 32))
+	hard_button = _button("困难", func(): _change_mode(true), Vector2(96, 32))
+	for button in [easy_button, hard_button]:
+		button.add_theme_font_size_override("font_size", 12)
+		modes.add_child(button)
 	var panel := PanelContainer.new()
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _style(Color("f9f8f2"), LINE, 18))
-	parent.add_child(panel)
+	panel.anchor_left = 0.10
+	panel.anchor_top = 0.10
+	panel.anchor_right = 0.90
+	panel.anchor_bottom = 0.90
+	panel.add_theme_stylebox_override("panel", _style(Color(0, 0, 0, 0.015), Color(1, 1, 1, 0.32), 0))
+	add_child(panel)
 	var canvas := Control.new()
-	canvas.custom_minimum_size.y = 220
 	panel.add_child(canvas)
 	board = Board.new()
 	board.font = regular
+	board.padding = Vector2(40, 32)
 	board.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	board.offset_top = 60
+	board.offset_bottom = -64
 	board.cell_pressed.connect(_click_cell)
 	board.animation_finished.connect(_sync)
 	canvas.add_child(board)
+	var toolbar := HBoxContainer.new()
+	toolbar.alignment = BoxContainer.ALIGNMENT_CENTER
+	toolbar.add_theme_constant_override("separation", 16)
+	toolbar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	toolbar.offset_left = -180
+	toolbar.offset_right = 180
+	toolbar.offset_top = 4
+	toolbar.offset_bottom = 50
+	canvas.add_child(toolbar)
+	count_label = _label("0", 30, PRIMARY)
+	count_label.add_theme_font_override("font", tech)
+	toolbar.add_child(count_label)
+	goal_label = _label("", 16, INK)
+	goal_label.add_theme_font_override("font", tech)
+	goal_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	toolbar.add_child(goal_label)
+	undo_button = _icon_button("arrow-undo-outline", "撤销 · Z", _undo, 23, 32)
+	toolbar.add_child(undo_button)
+	toolbar.add_child(_icon_button("refresh-outline", "重新开始 · R", _restart, 24, 32))
+	description_label = _label("", 13, MUTED)
+	description_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	description_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	description_label.offset_top = -40
+	description_label.offset_bottom = -12
+	canvas.add_child(description_label)
+	title_label = _title("", 17, 2)
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	title_label.offset_top = -68
+	title_label.offset_bottom = -40
+	add_child(title_label)
+	status_label = _label("", 11, MUTED)
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	status_label.offset_top = -34
+	status_label.offset_bottom = -12
+	add_child(status_label)
+	_build_result(canvas)
+
+func _build_result(canvas: Control) -> void:
 	result_panel = PanelContainer.new()
 	result_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	result_panel.offset_left = -210
-	result_panel.offset_right = 210
-	result_panel.offset_top = -110
-	result_panel.offset_bottom = 110
-	result_panel.add_theme_stylebox_override("panel", _style(Color("f2f0ea"), INK, 16))
+	result_panel.offset_left = -240
+	result_panel.offset_right = 240
+	result_panel.offset_top = -100
+	result_panel.offset_bottom = 130
+	result_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	canvas.add_child(result_panel)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 12)
+	box.add_theme_constant_override("separation", 22)
 	result_panel.add_child(box)
-	var eyebrow := _label("B L A C K   +   W H I T E", 11, MUTED)
-	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(eyebrow)
-	result_title = _label("", 28, INK, true)
+	result_title = _label("", 40, PRIMARY)
+	result_title.add_theme_font_override("font", tech)
 	result_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(result_title)
-	result_description = _label("", 14, MUTED)
+	result_description = _label("", 16, INK)
 	result_description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(result_description)
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 28)
 	box.add_child(buttons)
-	buttons.add_child(_button("再试一次", _restart))
-	next_button = _button("下一关 →", _next)
+	buttons.add_child(_icon_button("refresh-outline", "再试一次", _restart, 29))
+	buttons.add_child(_icon_button("grid-outline", "关卡选择", func(): navigation_requested.emit("campaign"), 29))
+	next_button = _icon_button("chevron-forward-outline", "下一关", _next, 31)
 	buttons.add_child(next_button)
 	result_panel.hide()
-
-func _build_controls(parent: Container) -> void:
-	var toolbar := HBoxContainer.new()
-	parent.add_child(toolbar)
-	undo_button = _button("↶  撤销  Z", _undo, Vector2(120, 44))
-	toolbar.add_child(undo_button)
-	toolbar.add_child(_button("↻  重来  R", _restart, Vector2(120, 44)))
-	_spacer(toolbar)
-	for entry in [["←", "left"], ["↑", "up"], ["↓", "down"], ["→", "right"]]:
-		var direction: String = entry[1]
-		var button := _button(entry[0], func(): _try_move(direction), Vector2(46, 44))
-		button.tooltip_text = "移动选中的棋子"
-		toolbar.add_child(button)
-	status_label = _label("", 13, MUTED)
-	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	status_label.custom_minimum_size.y = 20
-	parent.add_child(status_label)
-	parent.add_child(_label("点选棋子 → 点相邻格 / 方向键 / WASD   ·   Tab 切换棋子   ·   Esc 取消选择／暂停", 11, MUTED))
 
 func _open_level(index: int, persist: bool = true) -> void:
 	current = clampi(index, 0, levels.size() - 1)
@@ -228,7 +175,6 @@ func _open_level(index: int, persist: bool = true) -> void:
 	if persist:
 		_save_checkpoint()
 	apply_settings()
-	level_scroll.call_deferred("ensure_control_visible", level_buttons[current])
 
 func _change_mode(hard: bool) -> void:
 	if hard == session.hard_mode:
@@ -270,7 +216,6 @@ func restore_checkpoint() -> bool:
 		return false
 	current = index
 	apply_settings()
-	level_scroll.call_deferred("ensure_control_visible", level_buttons[current])
 	return true
 
 func _sync() -> void:
@@ -283,17 +228,13 @@ func _sync() -> void:
 	count_label.text = "%02d" % session.steps
 	var record: Dictionary = progress.records.get(level.id, {})
 	var best := "—" if record.is_empty() else str(record.best)
-	goal_label.text = "目标 %d 步   /   最佳 %s" % [level.optimal_moves, best] if session.hard_mode else "已走步数   /   最佳 %s" % best
+	goal_label.text = "/ %d" % level.optimal_moves if session.hard_mode else "步"
+	count_label.tooltip_text = "个人最佳：" + best
 	_accent(easy_button, not session.hard_mode)
 	_accent(hard_button, session.hard_mode)
-	for i in level_buttons.size():
-		var completed: Dictionary = progress.records.get(levels[i].id, {})
-		level_buttons[i].text = "%02d   %s%s%s" % [i + 1, levels[i].title,
-			"  ○" if completed.get("easy", false) else "", " ◇" if completed.get("hard", false) else ""]
-		_accent(level_buttons[i], i == current)
-	collection_label.text = "简单  %02d / %02d      困难  %02d / %02d" % [progress.completed(false), levels.size(), progress.completed(true), levels.size()]
 	undo_button.disabled = session.history.is_empty()
 	board.present(session.state, session.selected)
+	board.visible = not Puzzle.won(session.state) or board.animating()
 	var over: bool = session.hard_mode and session.steps > int(level.optimal_moves)
 	status_label.text = "已超过最优步数，可撤销或重来；也可以继续探索。" if over else "选中棋子后，小圆点表示可以走入的相邻格。"
 	if save_error:
@@ -301,13 +242,13 @@ func _sync() -> void:
 	var finished := Puzzle.won(session.state)
 	result_panel.visible = finished and not board.animating()
 	if finished:
-		result_title.text = "恰到好处。" if session.cleared() else "相遇了，再少几步。"
+		result_title.text = ("PERFECT" if session.hard_mode else "COMPLETE") if session.cleared() else "TRY AGAIN"
 		if session.hard_mode:
 			result_description.text = "%d 步完成 / 最优 %d 步 · %s" % [session.steps, level.optimal_moves,
 				"困难通关" if session.cleared() else "困难尚未通关"]
 		else:
 			result_description.text = "%d 步完成 · 简单通关，试试困难模式？" % session.steps
-		next_button.text = "返回选关" if current == levels.size() - 1 else "下一关 →"
+		next_button.tooltip_text = "返回选关" if current == levels.size() - 1 else "下一关"
 
 func _click_cell(index: int) -> void:
 	if not input_enabled or board.animating() or Puzzle.won(session.state):

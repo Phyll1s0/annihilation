@@ -5,9 +5,10 @@ signal cell_pressed(index: int)
 signal animation_finished
 
 const Puzzle = preload("res://scripts/puzzle.gd")
-const INK := Color("272a26")
-const PAPER := Color("fffdf7")
-const LINE := Color("d2d2c8")
+const INK := Color("090a0c")
+const PAPER := Color("eef1f4")
+const LINE := Color(1, 1, 1, 0.25)
+const PRIMARY := Color("6af5b9")
 
 var state: Dictionary = {}
 var selected := -1
@@ -22,7 +23,7 @@ var origin := Vector2.ZERO
 var reduce_motion := false
 var show_hints := true
 var padding := Vector2(88, 80)
-var maximum_unit := 94.0
+var maximum_unit := 64.0
 
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -96,33 +97,37 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
-	var tile_size := unit - minf(8, unit * 0.12)
+	var tile_size := unit - 2.0
 	var rect := Rect2(center_of(index) - Vector2.ONE * tile_size / 2.0, Vector2.ONE * tile_size)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("e6e6dc") if portal == 0 else Color("dadcd2")
-	style.bg_color.a = opacity
-	style.border_color = Color(LINE, opacity)
+	var portal_color := PRIMARY if portal % 2 == 1 else Color("9ca8f4")
+	style.bg_color = Color(0.282, 0.302, 0.322, 0.30 * opacity) if portal == 0 else Color(portal_color, 0.15 * opacity)
+	style.border_color = Color(1, 1, 1, 0.25 * opacity) if portal == 0 else Color(portal_color, 0.45 * opacity)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(int(minf(10, unit * 0.14)))
+	style.set_corner_radius_all(3 if portal == 0 else 10)
+	if portal == 0:
+		var up: bool = index >= state.width and state.board[index - state.width] == 0
+		var down: bool = index + state.width < state.board.size() and state.board[index + state.width] == 0
+		var left: bool = index % state.width > 0 and state.board[index - 1] == 0
+		var right: bool = index % state.width < state.width - 1 and state.board[index + 1] == 0
+		style.corner_radius_top_left = 0 if up or left else 3
+		style.corner_radius_top_right = 0 if up or right else 3
+		style.corner_radius_bottom_left = 0 if down or left else 3
+		style.corner_radius_bottom_right = 0 if down or right else 3
 	draw_style_box(style, rect)
 	if portal > 0:
 		var tag := String.chr(64 + portal)
 		var tag_size := clampi(int(unit * 0.16), 8, 12)
-		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(INK, opacity * 0.60))
-		draw_arc(center_of(index), unit * 0.31, 0, TAU, 48, Color(INK, opacity * 0.22), 1.0, true)
-		draw_arc(center_of(index), unit * 0.26, 0, TAU, 48, Color(INK, opacity * 0.12), 1.0, true)
+		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(portal_color, opacity * 0.75))
 
 func _piece(point: Vector2, color: int, radius: float, opacity: float = 1.0, active: bool = false) -> void:
 	if radius < 0.1:
 		return
-	draw_circle(point + Vector2(0, 3), radius + 1, Color(INK, opacity * 0.08), true, -1, true)
 	draw_circle(point, radius, Color(INK if color == -1 else PAPER, opacity), true, -1, true)
-	draw_arc(point, radius, 0, TAU, 64, Color(INK, opacity * (0.9 if color == 1 else 1.0)), 1.5, true)
-	draw_circle(point - Vector2(radius * 0.25, radius * 0.30), radius * 0.14,
-		Color(PAPER if color == -1 else INK, opacity * 0.35), true, -1, true)
+	draw_arc(point, radius, 0, TAU, 64, Color(PAPER, opacity * 0.85) if color == 1 else Color(Color("8d949b"), opacity), 1.0, true)
 	if active:
 		var pulse := 1.0 if reduce_motion else 1.0 + sin(clock * 3.0) * 0.025
-		draw_arc(point, (radius + 7) * pulse, 0, TAU, 64, Color(INK, 0.65), 1.4, true)
+		draw_arc(point, (radius + unit * 0.07) * pulse, 0, TAU, 64, PRIMARY, 2.0, true)
 
 func _draw() -> void:
 	if state.is_empty() or font == null:
@@ -131,7 +136,7 @@ func _draw() -> void:
 	var t := clampf(elapsed / 0.34, 0, 1)
 	for i in state.board.size():
 		if state.board[i] < 0:
-			draw_circle(center_of(i), 1.5, Color("d8d8cf"), true, -1, true)
+			continue
 		else:
 			_tile(i, state.board[i])
 	if animating() and motion.merged:
@@ -140,13 +145,13 @@ func _draw() -> void:
 		for direction in Puzzle.DIRECTIONS:
 			var result := Puzzle.move(state, selected, direction)
 			if not result.is_empty():
-				draw_circle(center_of(result.entry), unit * 0.065, Color(INK, 0.24), true, -1, true)
+				draw_circle(center_of(result.entry), unit * 0.045, Color(PRIMARY, 0.45), true, -1, true)
 	for i in state.pieces.size():
 		if state.pieces[i] == 0 or (animating() and i == int(motion.target)):
 			continue
-		_piece(center_of(i), state.pieces[i], unit * 0.245, 1.0, i == selected)
+		_piece(center_of(i), state.pieces[i], unit * 0.225, 1.0, i == selected)
 		if i == hover and i != selected and not animating():
-			draw_arc(center_of(i), unit * 0.34, 0, TAU, 48, Color(INK, 0.28), 1, true)
+			draw_arc(center_of(i), unit * 0.31, 0, TAU, 48, Color(PAPER, 0.40), 1, true)
 	if animating():
 		var point: Vector2
 		var scale := 1.0
@@ -160,10 +165,10 @@ func _draw() -> void:
 		else:
 			point = center_of(motion.source).lerp(center_of(motion.target), smoothstep(0, 0.7, t))
 		if motion.merged:
-			_piece(center_of(motion.target), -int(motion.color), unit * 0.245 * (1.0 - smoothstep(0.55, 1, t)), 1.0 - t * 0.5)
+			_piece(center_of(motion.target), -int(motion.color), unit * 0.225 * (1.0 - smoothstep(0.55, 1, t)), 1.0 - t * 0.5)
 			scale *= 1.0 - smoothstep(0.65, 1, t)
-		_piece(point, motion.color, unit * 0.245 * scale)
+		_piece(point, motion.color, unit * 0.225 * scale)
 		if motion.merged and t > 0.55:
 			var fade := sin((t - 0.55) / 0.45 * PI)
-			draw_circle(center_of(motion.target), unit * 0.27 * fade, Color("969990", fade), true, -1, true)
-			draw_arc(center_of(motion.target), unit * (0.25 + t * 0.3), 0, TAU, 64, Color(INK, (1 - t) * 0.45), 1, true)
+			draw_circle(center_of(motion.target), unit * 0.27 * fade, Color("92989f", fade), true, -1, true)
+			draw_arc(center_of(motion.target), unit * (0.25 + t * 0.3), 0, TAU, 64, Color(PAPER, (1 - t) * 0.45), 1, true)

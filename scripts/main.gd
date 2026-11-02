@@ -6,6 +6,7 @@ const Settings = preload("res://scripts/settings.gd")
 const Home = preload("res://scenes/home_screen.tscn")
 const Campaign = preload("res://scenes/campaign_screen.tscn")
 const Preferences = preload("res://scenes/settings_screen.tscn")
+const Background = preload("res://scripts/ui/abstract_background.gd")
 var progress = Progress.new()
 var settings = Settings.new()
 var levels: Array = []
@@ -22,10 +23,8 @@ var paused := false
 
 func _ready() -> void:
 	_setup_theme()
-	var background := ColorRect.new()
-	background.color = PAPER
-	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var background := Background.new()
+	background.settings = settings
 	add_child(background)
 	var catalog := Catalog.load_campaign()
 	if not catalog.errors.is_empty():
@@ -95,6 +94,7 @@ func show_screen(destination: String) -> void:
 		"campaign": campaign.refresh()
 		"settings": preferences.refresh()
 		"game": game.apply_settings()
+	pages[destination].enter(settings.reduce_motion)
 
 func start_level(index: int, hard: bool) -> void:
 	settings.hard_mode = hard
@@ -108,7 +108,7 @@ func _build_pause() -> void:
 	pause_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(pause_layer)
 	var scrim := ColorRect.new()
-	scrim.color = Color(0.12, 0.14, 0.12, 0.48)
+	scrim.color = Color(0, 0, 0, 0.64)
 	scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	pause_layer.add_child(scrim)
 	var center := CenterContainer.new()
@@ -117,11 +117,11 @@ func _build_pause() -> void:
 	pause_layer.add_child(center)
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size.x = 360
-	panel.add_theme_stylebox_override("panel", _style(PAPER, INK, 18))
+	panel.add_theme_stylebox_override("panel", _style(Color("262626"), LINE, 4))
 	center.add_child(panel)
 	var box := VBoxContainer.new()
 	panel.add_child(box)
-	var heading := _label("稍作停留。", 30, INK, true)
+	var heading := _title("PAUSED", 30, 4)
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(heading)
 	box.add_child(_button("继续游戏", resume_game))

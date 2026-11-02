@@ -41,6 +41,9 @@ func click(control: Control) -> void:
 func capture(name_value: String) -> void:
 	if DisplayServer.get_name() == "headless":
 		return
+	var page: Control = app.pages[app.screen]
+	if page.entrance != null and page.entrance.is_running():
+		await page.entrance.finished
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("res://builds/" + name_value + ".png")
 
