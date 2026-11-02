@@ -18,22 +18,28 @@ var detail: Label
 var bars: Dictionary = {}
 var previous_button: Button
 var following_button: Button
+var back_button: Button
+var settings_button: Button
+var center: CenterContainer
+var body: VBoxContainer
+var level_area: CenterContainer
+var ui_scale := 1.0
 
 func _ready() -> void:
 	_setup_theme()
-	_back_button(func(): navigation_requested.emit("home"))
-	var settings_button := _icon_button("settings-outline", "Settings", func(): navigation_requested.emit("settings"))
+	back_button = _back_button(func(): navigation_requested.emit("home"))
+	settings_button = _icon_button("settings-outline", "Settings", func(): navigation_requested.emit("settings"))
 	settings_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	settings_button.offset_left = -72
 	settings_button.offset_right = -24
 	settings_button.offset_top = 24
 	settings_button.offset_bottom = 72
 	add_child(settings_button)
-	var center := CenterContainer.new()
+	center = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
-	var body := VBoxContainer.new()
+	body = VBoxContainer.new()
 	body.custom_minimum_size.x = 600
 	body.add_theme_constant_override("separation", 24)
 	center.add_child(body)
@@ -56,10 +62,10 @@ func _ready() -> void:
 	modes.alignment = BoxContainer.ALIGNMENT_CENTER
 	modes.add_theme_constant_override("separation", 12)
 	body.add_child(modes)
-	easy_button = _button("Easy", func(): _mode(false), Vector2(155, 36))
-	hard_button = _button("Hard", func(): _mode(true), Vector2(155, 36))
-	easy_button.add_theme_font_size_override("font_size", 12)
-	hard_button.add_theme_font_size_override("font_size", 12)
+	easy_button = _button("Easy", func(): _mode(false), Vector2(155, 44))
+	hard_button = _button("Hard", func(): _mode(true), Vector2(155, 44))
+	easy_button.add_theme_font_size_override("font_size", 14)
+	hard_button.add_theme_font_size_override("font_size", 14)
 	easy_button.tooltip_text = tr("Clear the board")
 	easy_button.set_meta("hint", "Clear the board")
 	hard_button.tooltip_text = tr("Clear the board in the fewest moves")
@@ -67,6 +73,7 @@ func _ready() -> void:
 	modes.add_child(easy_button)
 	modes.add_child(hard_button)
 	var grid_center := CenterContainer.new()
+	level_area = grid_center
 	grid_center.custom_minimum_size.y = 132
 	body.add_child(grid_center)
 	grid = GridContainer.new()
@@ -107,7 +114,42 @@ func _ready() -> void:
 	following_button.offset_top = -30
 	following_button.offset_bottom = 30
 	add_child(following_button)
+	_remember_layout(self)
+	center.minimum_size_changed.connect(_fit_center)
+	body.item_rect_changed.connect(_place_chapter_arrows)
+	level_area.item_rect_changed.connect(_place_chapter_arrows)
+	grid.item_rect_changed.connect(_place_chapter_arrows)
+	resized.connect(_layout_campaign)
 	refresh()
+
+func _layout_campaign() -> void:
+	if following_button == null:
+		return
+	ui_scale = _screen_scale()
+	_apply_layout(self, ui_scale)
+	back_button.position = Vector2(24, 24) * ui_scale
+	settings_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	settings_button.offset_left = -72 * ui_scale
+	settings_button.offset_right = -24 * ui_scale
+	settings_button.offset_top = 24 * ui_scale
+	settings_button.offset_bottom = 72 * ui_scale
+	_fit_center()
+	call_deferred("_place_chapter_arrows")
+
+func _fit_center() -> void:
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+func _place_chapter_arrows() -> void:
+	if level_area == null or following_button == null:
+		return
+	var middle := level_area.get_global_rect().get_center() - global_position
+	var hit := 60.0 * ui_scale
+	var gap := 40.0 * ui_scale
+	for button in [previous_button, following_button]:
+		button.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		button.size = Vector2.ONE * hit
+	previous_button.position = Vector2(middle.x - grid.size.x / 2.0 - gap - hit, middle.y - hit / 2.0)
+	following_button.position = Vector2(middle.x + grid.size.x / 2.0 + gap, middle.y - hit / 2.0)
 
 func _progress_bar(title: String, color: Color, parent: Container) -> Dictionary:
 	var box := VBoxContainer.new()
@@ -186,12 +228,14 @@ func refresh() -> void:
 		card.mouse_entered.connect(func(): detail.text = caption)
 		card.focus_entered.connect(func(): detail.text = caption)
 		grid.add_child(card)
+		_remember_layout(card)
 		cards.append(card)
 	for key in ["easy", "hard"]:
 		var amount: int = easy_count if key == "easy" else hard_count
 		bars[key].counter.text = "%d / %d" % [amount, total]
 		bars[key].bar.value = float(amount) / total * 100
 	detail.text = ""
+	_layout_campaign()
 
 func _refresh_language() -> void:
 	refresh()

@@ -82,6 +82,24 @@ func _setup_theme() -> void:
 	ui.set_constant("separation", "VBoxContainer", 12)
 	ui.set_constant("separation", "HBoxContainer", 12)
 	theme = ui
+	if not resized.is_connected(_layout_shared_theme):
+		resized.connect(_layout_shared_theme)
+	_layout_shared_theme()
+
+func _screen_scale() -> float:
+	return maxf(1.0, minf(size.x / 1280.0, size.y / 820.0))
+
+func _layout_shared_theme() -> void:
+	if theme == null:
+		return
+	var factor := _screen_scale()
+	theme.set_font_size("font_size", "TooltipLabel", roundi(12 * factor))
+	var panel := _style(Color("080808"), LINE, roundi(3 * factor))
+	panel.content_margin_left *= factor
+	panel.content_margin_right *= factor
+	panel.content_margin_top *= factor
+	panel.content_margin_bottom *= factor
+	theme.set_stylebox("panel", "TooltipPanel", panel)
 
 func _label(text: String, font_size: int = 15, color: Color = INK, bold: bool = false) -> Label:
 	var label := Label.new()
@@ -160,3 +178,49 @@ func enter(reduced: bool) -> void:
 		modulate.a = 0.0
 		entrance = create_tween()
 		entrance.tween_property(self, "modulate:a", 1.0, 0.30).set_trans(Tween.TRANS_SINE)
+
+func _remember_layout(node: Node) -> void:
+	if node is Control:
+		node.set_meta("base_minimum", node.custom_minimum_size)
+	if node is Label or node is Button:
+		node.set_meta("base_font_size", node.get_theme_font_size("font_size"))
+		var font = node.get_theme_font("font")
+		if font is FontVariation:
+			node.set_meta("base_tracking", font.spacing_glyph)
+	if node is Button and node.icon != null:
+		node.set_meta("base_icon_width", node.get_theme_constant("icon_max_width"))
+	if node is BoxContainer:
+		node.set_meta("base_separation", node.get_theme_constant("separation"))
+	if node is MarginContainer:
+		var margins := {}
+		for edge in ["left", "top", "right", "bottom"]:
+			margins[edge] = node.get_theme_constant("margin_" + edge)
+		node.set_meta("base_margins", margins)
+	if node is GridContainer:
+		node.set_meta("base_grid_spacing", Vector2(node.get_theme_constant("h_separation"), node.get_theme_constant("v_separation")))
+	for child in node.get_children():
+		_remember_layout(child)
+
+func _apply_layout(node: Node, factor: float) -> void:
+	if node.has_meta("base_icon_width"):
+		node.add_theme_constant_override("icon_max_width", roundi(node.get_meta("base_icon_width") * factor))
+	if node.has_meta("base_minimum"):
+		node.custom_minimum_size = node.get_meta("base_minimum") * factor
+		if node.has_meta("base_icon_width"):
+			node.size = node.custom_minimum_size
+	if node.has_meta("base_font_size"):
+		node.add_theme_font_size_override("font_size", roundi(node.get_meta("base_font_size") * factor))
+	if node.has_meta("base_tracking"):
+		node.get_theme_font("font").spacing_glyph = roundi(node.get_meta("base_tracking") * factor)
+	if node.has_meta("base_separation"):
+		node.add_theme_constant_override("separation", roundi(node.get_meta("base_separation") * factor))
+	if node.has_meta("base_margins"):
+		var margins: Dictionary = node.get_meta("base_margins")
+		for edge in margins:
+			node.add_theme_constant_override("margin_" + edge, roundi(margins[edge] * factor))
+	if node.has_meta("base_grid_spacing"):
+		var gap: Vector2 = node.get_meta("base_grid_spacing")
+		node.add_theme_constant_override("h_separation", roundi(gap.x * factor))
+		node.add_theme_constant_override("v_separation", roundi(gap.y * factor))
+	for child in node.get_children():
+		_apply_layout(child, factor)

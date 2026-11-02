@@ -29,6 +29,7 @@ func _ready() -> void:
 	back_button = _back_button(func(): navigation_requested.emit("back"))
 	var margin := _margin(self, 82)
 	frame = margin
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 128)
 	margin.add_theme_constant_override("margin_right", 128)
@@ -131,49 +132,15 @@ func _ready() -> void:
 	resized.connect(_layout_settings)
 	_layout_settings()
 
-func _remember_layout(node: Node) -> void:
-	if node is Control:
-		node.set_meta("base_minimum", node.custom_minimum_size)
-	if node is Label or node is Button:
-		node.set_meta("base_font_size", node.get_theme_font_size("font_size"))
-		var font = node.get_theme_font("font")
-		if font is FontVariation:
-			node.set_meta("base_tracking", font.spacing_glyph)
-	if node is BoxContainer:
-		node.set_meta("base_separation", node.get_theme_constant("separation"))
-	if node is MarginContainer:
-		var margins := {}
-		for edge in ["left", "top", "right", "bottom"]:
-			margins[edge] = node.get_theme_constant("margin_" + edge)
-		node.set_meta("base_margins", margins)
-	for child in node.get_children():
-		_remember_layout(child)
-
-func _apply_layout(node: Node) -> void:
-	if node.has_meta("base_minimum"):
-		node.custom_minimum_size = node.get_meta("base_minimum") * ui_scale
-	if node.has_meta("base_font_size"):
-		node.add_theme_font_size_override("font_size", roundi(node.get_meta("base_font_size") * ui_scale))
-	if node.has_meta("base_tracking"):
-		node.get_theme_font("font").spacing_glyph = roundi(node.get_meta("base_tracking") * ui_scale)
-	if node.has_meta("base_separation"):
-		node.add_theme_constant_override("separation", roundi(node.get_meta("base_separation") * ui_scale))
-	if node.has_meta("base_margins"):
-		var margins: Dictionary = node.get_meta("base_margins")
-		for edge in margins:
-			node.add_theme_constant_override("margin_" + edge, roundi(margins[edge] * ui_scale))
-	for child in node.get_children():
-		_apply_layout(child)
-
 func _layout_settings() -> void:
 	if frame == null:
 		return
-	ui_scale = maxf(1.0, minf(size.x / 1280.0, size.y / 820.0))
+	ui_scale = _screen_scale()
 	toggle_on.base_scale = ui_scale
 	toggle_off.base_scale = ui_scale
 	if language_arrow != null:
 		language_arrow.base_scale = language_arrow_scale * ui_scale
-	_apply_layout(self)
+	_apply_layout(self, ui_scale)
 	theme.default_font_size = roundi(15 * ui_scale)
 	back_button.position = Vector2(24, 24) * ui_scale
 	back_button.add_theme_constant_override("icon_max_width", roundi(32 * ui_scale))

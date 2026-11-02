@@ -31,7 +31,8 @@ Each level supports both modes, with separate completion records and a shared pe
 - Automatic saves, resumable games, and undo history restored after restarting.
 - A minimal title screen with scalable text and controls that starts the next unfinished level or resumes the current run.
 - Black-and-white pieces, a pure black background with faint star trails, and an orbital zero mark.
-- Fullscreen, a responsive Settings screen, and reduced-motion controls; background details fade during play.
+- Responsive chapter selection, progress indicators, pause menus, and Settings, with readable controls in fullscreen.
+- Reduced-motion controls; background details fade during play.
 - English by default, with an instant, saved switch to Simplified Chinese in Settings → General → Language.
 - Centered, square-cell boards that resize with the window, without a text footer during play.
 
@@ -73,6 +74,7 @@ python3 tools/check.py --visual
 
 The visual checks open native windows and save screenshots in `builds/`. Tests use isolated saves.
 Layout checks cover all 20 levels at thirteen viewport sizes, including ultrawide, portrait, and 5K layouts. They verify proportional board growth, pointer input, and undo after resizing a live puzzle.
+Navigation checks cover all six chapters in both languages, resizing up to 5K and back, and leaving, pausing, restarting, and resuming a puzzle through the menus.
 
 After changing a level, regenerate its shortest-path certificate and run the checks:
 
