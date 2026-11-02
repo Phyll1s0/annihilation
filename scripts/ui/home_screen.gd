@@ -20,9 +20,10 @@ func _ready() -> void:
 	center.add_child(body)
 	mark = Mark.new()
 	body.add_child(mark)
-	title = _title("NULL", 68, 12)
+	title = _title("NULL", 80, 24)
 	title_font = title.get_theme_font("font")
-	title_font.base_font = preload("res://assets/fonts/Michroma-Regular.ttf")
+	title_font.base_font = preload("res://assets/fonts/Oxanium-Variable.ttf")
+	title_font.variation_opentype = {"wght": 200.0}
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(title)
 	var button_center := CenterContainer.new()
@@ -59,8 +60,8 @@ func _layout_home() -> void:
 	factor = maxf(0.5, minf(factor, fit))
 	body.custom_minimum_size.x = 320.0 * factor
 	body.add_theme_constant_override("separation", roundi(24.0 * factor))
-	title.add_theme_font_size_override("font_size", roundi(68.0 * factor))
-	title_font.spacing_glyph = roundi(12.0 * factor)
+	title.add_theme_font_size_override("font_size", roundi(80.0 * factor))
+	title_font.spacing_glyph = roundi(24.0 * factor)
 	mark.custom_minimum_size = Vector2(96, 90) * factor
 	mark.visual_scale = factor
 	continue_button.add_theme_font_size_override("font_size", roundi(22.0 * factor))

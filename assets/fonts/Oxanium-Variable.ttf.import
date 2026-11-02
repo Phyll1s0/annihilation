@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dy2jgppych6gw"
-path="res://.godot/imported/Michroma-Regular.ttf-928de7d8513fc5249047ef3681175fc2.fontdata"
+uid="uid://bwc5pdv2fxuqm"
+path="res://.godot/imported/Oxanium-Variable.ttf-0312a1cd1c035a029e688df69f334776.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/Michroma-Regular.ttf"
-dest_files=["res://.godot/imported/Michroma-Regular.ttf-928de7d8513fc5249047ef3681175fc2.fontdata"]
+source_file="res://assets/fonts/Oxanium-Variable.ttf"
+dest_files=["res://.godot/imported/Oxanium-Variable.ttf-0312a1cd1c035a029e688df69f334776.fontdata"]
 
 [params]
 
