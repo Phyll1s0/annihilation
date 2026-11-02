@@ -49,19 +49,158 @@
   },
   {
     "id": "03",
-    "title": "Four Corners",
+    "title": "Borrowed Space",
     "chapter": "Encounter",
-    "description": "Matching colors block each other. Opposite colors remove the tile where they meet.",
+    "description": "A small empty pocket changes who can pass.",
     "layout": [
-      "w.b",
-      "...",
-      "b.w"
+      "#.##",
+      "wwbb"
     ],
-    "optimal_moves": 4,
+    "concept": "A side pocket before the first collision",
+    "design_checks": [
+      {
+        "kind": "opening_collision_fatal"
+      }
+    ],
+    "optimal_moves": 6,
+    "solution": [
+      {
+        "source": 5,
+        "direction": "up"
+      },
+      {
+        "source": 6,
+        "direction": "left"
+      },
+      {
+        "source": 5,
+        "direction": "up"
+      },
+      {
+        "source": 4,
+        "direction": "right"
+      },
+      {
+        "source": 5,
+        "direction": "right"
+      },
+      {
+        "source": 6,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 31
+    }
+  },
+  {
+    "id": "04",
+    "title": "Last Crossing",
+    "chapter": "Choices",
+    "description": "Choose where to meet while both shores still need the crossing.",
+    "layout": [
+      "w#b",
+      "...",
+      "w#b"
+    ],
+    "concept": "Preserving the shared crossing",
+    "design_checks": [
+      {
+        "kind": "first_collision_avoids",
+        "cells": [
+          4
+        ]
+      }
+    ],
+    "optimal_moves": 8,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "down"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 4,
+        "direction": "right"
+      },
+      {
+        "source": 5,
+        "direction": "up"
+      },
+      {
+        "source": 6,
+        "direction": "up"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 4,
+        "direction": "right"
+      },
+      {
+        "source": 5,
+        "direction": "down"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 142
+    }
+  },
+  {
+    "id": "05",
+    "title": "Counterflow",
+    "chapter": "Choices",
+    "description": "Three pairs share one loop. Make room before closing a route.",
+    "layout": [
+      "b.w#",
+      "b#.w",
+      "b.w#"
+    ],
+    "concept": "Circulation and matching order",
+    "optimal_moves": 13,
     "solution": [
       {
         "source": 0,
         "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "down"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 4,
+        "direction": "up"
+      },
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 8,
+        "direction": "right"
+      },
+      {
+        "source": 10,
+        "direction": "left"
+      },
+      {
+        "source": 6,
+        "direction": "down"
+      },
+      {
+        "source": 2,
+        "direction": "down"
       },
       {
         "source": 1,
@@ -72,131 +211,97 @@
         "direction": "right"
       },
       {
-        "source": 7,
-        "direction": "right"
-      }
-    ],
-    "proof": {
-      "method": "exhaustive_bfs",
-      "visited": 359
-    }
-  },
-  {
-    "id": "04",
-    "title": "Leave a Path",
-    "chapter": "Choices",
-    "description": "The center is a tempting meeting place. A lost path will not return.",
-    "layout": [
-      "w.bw.b"
-    ],
-    "optimal_moves": 4,
-    "solution": [
-      {
-        "source": 0,
-        "direction": "right"
-      },
-      {
-        "source": 1,
-        "direction": "right"
-      },
-      {
-        "source": 3,
-        "direction": "right"
-      },
-      {
-        "source": 4,
-        "direction": "right"
-      }
-    ],
-    "proof": {
-      "method": "exhaustive_bfs",
-      "visited": 68
-    }
-  },
-  {
-    "id": "05",
-    "title": "Passing By",
-    "chapter": "Choices",
-    "description": "Leave room for the other particle before bringing them together.",
-    "layout": [
-      "ww.b",
-      "....",
-      "b..."
-    ],
-    "optimal_moves": 4,
-    "solution": [
-      {
-        "source": 0,
-        "direction": "down"
-      },
-      {
-        "source": 1,
-        "direction": "right"
-      },
-      {
         "source": 2,
-        "direction": "right"
+        "direction": "down"
       },
       {
-        "source": 4,
+        "source": 6,
         "direction": "down"
       }
     ],
     "proof": {
       "method": "exhaustive_bfs",
-      "visited": 343
+      "visited": 1783
     }
   },
   {
     "id": "06",
-    "title": "Narrow Bridge",
+    "title": "Step Back",
     "chapter": "Choices",
-    "description": "The bridge is narrow. Choose where to meet before taking another step.",
+    "description": "The nearest meeting may be too soon.",
     "layout": [
-      "w...b",
-      ".#.#.",
-      ".....",
-      ".#.#.",
-      "b...w"
+      "bww#",
+      "b#..",
+      "#..."
     ],
-    "optimal_moves": 8,
+    "concept": "Retreating before a collision",
+    "design_checks": [
+      {
+        "kind": "opening_collision_fatal"
+      }
+    ],
+    "optimal_moves": 14,
     "solution": [
       {
-        "source": 0,
-        "direction": "right"
+        "source": 2,
+        "direction": "down"
       },
       {
         "source": 1,
         "direction": "right"
       },
       {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 4,
+        "direction": "up"
+      },
+      {
+        "source": 6,
+        "direction": "right"
+      },
+      {
         "source": 2,
+        "direction": "down"
+      },
+      {
+        "source": 1,
         "direction": "right"
       },
       {
-        "source": 3,
+        "source": 0,
         "direction": "right"
       },
       {
-        "source": 20,
+        "source": 6,
+        "direction": "down"
+      },
+      {
+        "source": 2,
+        "direction": "down"
+      },
+      {
+        "source": 1,
         "direction": "right"
       },
       {
-        "source": 21,
+        "source": 6,
         "direction": "right"
       },
       {
-        "source": 22,
-        "direction": "right"
+        "source": 2,
+        "direction": "down"
       },
       {
-        "source": 23,
-        "direction": "right"
+        "source": 6,
+        "direction": "down"
       }
     ],
     "proof": {
       "method": "exhaustive_bfs",
-      "visited": 6018
+      "visited": 382
     }
   },
   {
@@ -235,133 +340,236 @@
   },
   {
     "id": "08",
-    "title": "Across the Void",
+    "title": "Occupied Orbit",
     "chapter": "Beyond",
-    "description": "An opposite color at the exit merges on arrival. The entrance becomes a normal tile.",
+    "description": "The particle at the far end has a journey of its own.",
     "layout": [
-      "wA##",
-      "####",
-      "##A."
+      "wA#A.b",
+      "###b##"
     ],
     "tokens": [
       [
-        10,
-        -1
+        3,
+        1
       ]
     ],
-    "optimal_moves": 1,
-    "solution": [
+    "concept": "Vacating a portal exit without collapsing it",
+    "design_checks": [
       {
-        "source": 0,
-        "direction": "right"
+        "kind": "mandatory_teleport",
+        "group": "A"
       }
-    ],
-    "proof": {
-      "method": "exhaustive_bfs",
-      "visited": 3
-    }
-  },
-  {
-    "id": "09",
-    "title": "Echo",
-    "chapter": "Beyond",
-    "description": "A portal can be a shortcut, or the place of a final meeting.",
-    "layout": [
-      "wA.b",
-      ".##.",
-      "bA.w"
     ],
     "optimal_moves": 4,
     "solution": [
+      {
+        "source": 3,
+        "direction": "right"
+      },
       {
         "source": 0,
         "direction": "right"
       },
       {
         "source": 3,
-        "direction": "down"
-      },
-      {
-        "source": 7,
-        "direction": "down"
-      },
-      {
-        "source": 8,
-        "direction": "right"
-      }
-    ],
-    "proof": {
-      "method": "exhaustive_bfs",
-      "visited": 275
-    }
-  },
-  {
-    "id": "10",
-    "title": "Double Fold",
-    "chapter": "Beyond",
-    "description": "A links to A, and B links to B. Follow the matching letters.",
-    "layout": [
-      "wA#Bb",
-      "..#..",
-      "bB#Aw"
-    ],
-    "optimal_moves": 4,
-    "solution": [
-      {
-        "source": 0,
         "direction": "down"
       },
       {
         "source": 4,
-        "direction": "down"
-      },
-      {
-        "source": 5,
-        "direction": "down"
-      },
-      {
-        "source": 9,
-        "direction": "down"
+        "direction": "right"
       }
     ],
     "proof": {
       "method": "exhaustive_bfs",
-      "visited": 577
+      "visited": 46
     }
   },
   {
-    "id": "11",
-    "title": "In Due Order",
-    "chapter": "Stillness",
-    "description": "Three pairs, limited paths. The order of collisions is part of the solution.",
+    "id": "09",
+    "title": "Afterimage",
+    "chapter": "Beyond",
+    "description": "A vanished portal can leave a path behind.",
     "layout": [
-      "w...b",
-      "##.##",
-      "w...b",
-      "##.##",
-      "w...b"
+      "#w####",
+      "wwA.bb",
+      "####.#",
+      "###A##"
     ],
-    "optimal_moves": 12,
+    "tokens": [
+      [
+        21,
+        -1
+      ]
+    ],
+    "concept": "Walking a collapsed entrance",
+    "design_checks": [
+      {
+        "kind": "mandatory_teleport",
+        "group": "A"
+      },
+      {
+        "kind": "mandatory_collapsed_tile",
+        "group": "A"
+      }
+    ],
+    "optimal_moves": 10,
     "solution": [
       {
-        "source": 0,
+        "source": 7,
         "direction": "right"
       },
       {
-        "source": 1,
+        "source": 10,
+        "direction": "left"
+      },
+      {
+        "source": 9,
+        "direction": "left"
+      },
+      {
+        "source": 8,
+        "direction": "left"
+      },
+      {
+        "source": 7,
+        "direction": "up"
+      },
+      {
+        "source": 6,
         "direction": "right"
       },
       {
-        "source": 2,
+        "source": 7,
         "direction": "right"
       },
       {
-        "source": 3,
+        "source": 8,
+        "direction": "right"
+      },
+      {
+        "source": 9,
         "direction": "right"
       },
       {
         "source": 10,
         "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 213
+    }
+  },
+  {
+    "id": "10",
+    "title": "Relay",
+    "chapter": "Beyond",
+    "description": "One journey opens the way for the next.",
+    "layout": [
+      "#w####",
+      "w.A.B#",
+      "######",
+      "#A#B.b"
+    ],
+    "tokens": [
+      [
+        19,
+        -1
+      ]
+    ],
+    "concept": "Opening the route from A to B",
+    "design_checks": [
+      {
+        "kind": "mandatory_teleport",
+        "group": "A"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "B"
+      },
+      {
+        "kind": "mandatory_collapsed_tile",
+        "group": "A"
+      }
+    ],
+    "optimal_moves": 8,
+    "solution": [
+      {
+        "source": 1,
+        "direction": "down"
+      },
+      {
+        "source": 7,
+        "direction": "right"
+      },
+      {
+        "source": 6,
+        "direction": "right"
+      },
+      {
+        "source": 7,
+        "direction": "right"
+      },
+      {
+        "source": 8,
+        "direction": "right"
+      },
+      {
+        "source": 9,
+        "direction": "right"
+      },
+      {
+        "source": 21,
+        "direction": "right"
+      },
+      {
+        "source": 22,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 58
+    }
+  },
+  {
+    "id": "11",
+    "title": "Exchange",
+    "chapter": "Stillness",
+    "description": "Four arms share one center. Let each particle find its place.",
+    "layout": [
+      "##w##",
+      "##.##",
+      "ww.bb",
+      "##.##",
+      "##b##"
+    ],
+    "concept": "Exchanging particles through a shared junction",
+    "optimal_moves": 10,
+    "solution": [
+      {
+        "source": 2,
+        "direction": "down"
+      },
+      {
+        "source": 11,
+        "direction": "right"
+      },
+      {
+        "source": 10,
+        "direction": "right"
+      },
+      {
+        "source": 12,
+        "direction": "down"
+      },
+      {
+        "source": 13,
+        "direction": "left"
+      },
+      {
+        "source": 12,
+        "direction": "up"
       },
       {
         "source": 11,
@@ -376,77 +584,103 @@
         "direction": "right"
       },
       {
-        "source": 20,
-        "direction": "right"
-      },
-      {
-        "source": 21,
-        "direction": "right"
-      },
-      {
-        "source": 22,
-        "direction": "right"
-      },
-      {
-        "source": 23,
-        "direction": "right"
+        "source": 17,
+        "direction": "down"
       }
     ],
     "proof": {
       "method": "exhaustive_bfs",
-      "visited": 48537
+      "visited": 2208
     }
   },
   {
     "id": "12",
-    "title": "Negative Space",
+    "title": "Event Horizon",
     "chapter": "Stillness",
-    "description": "Bring every particle to rest, leaving only empty space.",
+    "description": "Traffic can travel in both directions. Keep room for the return.",
     "layout": [
-      "w.A..",
-      ".#.#.",
-      "b.B.w",
-      ".#.#.",
-      "b.A.B"
+      "#w####",
+      "w.A.B#",
+      "######",
+      "#A#Bbb",
+      "###.##"
     ],
-    "optimal_moves": 8,
+    "tokens": [
+      [
+        19,
+        -1
+      ],
+      [
+        21,
+        1
+      ]
+    ],
+    "concept": "Relay, blocked exits, and returning traffic",
+    "design_checks": [
+      {
+        "kind": "mandatory_teleport",
+        "group": "A"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "B",
+        "color": -1
+      },
+      {
+        "kind": "mandatory_collapsed_tile",
+        "group": "A"
+      }
+    ],
+    "optimal_moves": 11,
     "solution": [
       {
-        "source": 0,
-        "direction": "right"
-      },
-      {
         "source": 1,
-        "direction": "right"
-      },
-      {
-        "source": 10,
-        "direction": "right"
-      },
-      {
-        "source": 11,
-        "direction": "right"
-      },
-      {
-        "source": 14,
         "direction": "down"
       },
       {
-        "source": 19,
-        "direction": "down"
+        "source": 7,
+        "direction": "right"
       },
       {
-        "source": 20,
+        "source": 6,
+        "direction": "right"
+      },
+      {
+        "source": 7,
+        "direction": "right"
+      },
+      {
+        "source": 8,
         "direction": "right"
       },
       {
         "source": 21,
+        "direction": "down"
+      },
+      {
+        "source": 22,
+        "direction": "left"
+      },
+      {
+        "source": 9,
         "direction": "right"
+      },
+      {
+        "source": 23,
+        "direction": "left"
+      },
+      {
+        "source": 22,
+        "direction": "left"
+      },
+      {
+        "source": 21,
+        "direction": "down"
       }
     ],
     "proof": {
       "method": "exhaustive_bfs",
-      "visited": 8547
+      "visited": 552
     }
   },
   {

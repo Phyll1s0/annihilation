@@ -27,6 +27,7 @@ Each level supports both modes, with separate completion records and a shared pe
 ## Features
 
 - 20 handcrafted levels across six chapters, all available from level selection.
+- Two short opening lessons, followed by puzzles about making room, retreating, shared crossings, and portal relays.
 - Minimum move counts verified by independent Python and GDScript solvers.
 - Automatic saves, resumable games, and undo history restored after restarting.
 - A minimal title screen with scalable text and controls that starts the next unfinished level or resumes the current run.
@@ -75,6 +76,7 @@ python3 tools/check.py --visual
 The visual checks open native windows and save screenshots in `builds/`. Tests use isolated saves.
 Layout checks cover all 20 levels at thirteen viewport sizes, including ultrawide, portrait, and 5K layouts. They verify proportional board growth, pointer input, and undo after resizing a live puzzle.
 Navigation checks cover all six chapters in both languages, resizing up to 5K and back, and leaving, pausing, restarting, and resuming a puzzle through the menus.
+Design audits search for solutions that bypass key puzzle ideas, checking that specified portal groups and collapsed portal tiles are necessary and that tempting early collisions really lead to dead ends.
 
 After changing a level, regenerate its shortest-path certificate and run the checks:
 

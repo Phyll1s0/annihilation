@@ -181,32 +181,32 @@ msgstr "Closer"
 msgid "Move one tile at a time. Choose which particle takes the next step."
 msgstr "Move one tile at a time. Choose which particle takes the next step."
 
-msgid "Four Corners"
-msgstr "Four Corners"
+msgid "Borrowed Space"
+msgstr "Borrowed Space"
 
-msgid "Matching colors block each other. Opposite colors remove the tile where they meet."
-msgstr "Matching colors block each other. Opposite colors remove the tile where they meet."
+msgid "A small empty pocket changes who can pass."
+msgstr "A small empty pocket changes who can pass."
 
-msgid "Leave a Path"
-msgstr "Leave a Path"
+msgid "Last Crossing"
+msgstr "Last Crossing"
 
 msgid "Choices"
 msgstr "Choices"
 
-msgid "The center is a tempting meeting place. A lost path will not return."
-msgstr "The center is a tempting meeting place. A lost path will not return."
+msgid "Choose where to meet while both shores still need the crossing."
+msgstr "Choose where to meet while both shores still need the crossing."
 
-msgid "Passing By"
-msgstr "Passing By"
+msgid "Counterflow"
+msgstr "Counterflow"
 
-msgid "Leave room for the other particle before bringing them together."
-msgstr "Leave room for the other particle before bringing them together."
+msgid "Three pairs share one loop. Make room before closing a route."
+msgstr "Three pairs share one loop. Make room before closing a route."
 
-msgid "Narrow Bridge"
-msgstr "Narrow Bridge"
+msgid "Step Back"
+msgstr "Step Back"
 
-msgid "The bridge is narrow. Choose where to meet before taking another step."
-msgstr "The bridge is narrow. Choose where to meet before taking another step."
+msgid "The nearest meeting may be too soon."
+msgstr "The nearest meeting may be too soon."
 
 msgid "Fold"
 msgstr "Fold"
@@ -217,38 +217,38 @@ msgstr "Beyond"
 msgid "The two A tiles are linked. A portal move costs one step."
 msgstr "The two A tiles are linked. A portal move costs one step."
 
-msgid "Across the Void"
-msgstr "Across the Void"
+msgid "Occupied Orbit"
+msgstr "Occupied Orbit"
 
-msgid "An opposite color at the exit merges on arrival. The entrance becomes a normal tile."
-msgstr "An opposite color at the exit merges on arrival. The entrance becomes a normal tile."
+msgid "The particle at the far end has a journey of its own."
+msgstr "The particle at the far end has a journey of its own."
 
-msgid "Echo"
-msgstr "Echo"
+msgid "Afterimage"
+msgstr "Afterimage"
 
-msgid "A portal can be a shortcut, or the place of a final meeting."
-msgstr "A portal can be a shortcut, or the place of a final meeting."
+msgid "A vanished portal can leave a path behind."
+msgstr "A vanished portal can leave a path behind."
 
-msgid "Double Fold"
-msgstr "Double Fold"
+msgid "Relay"
+msgstr "Relay"
 
-msgid "A links to A, and B links to B. Follow the matching letters."
-msgstr "A links to A, and B links to B. Follow the matching letters."
+msgid "One journey opens the way for the next."
+msgstr "One journey opens the way for the next."
 
-msgid "In Due Order"
-msgstr "In Due Order"
+msgid "Exchange"
+msgstr "Exchange"
 
 msgid "Stillness"
 msgstr "Stillness"
 
-msgid "Three pairs, limited paths. The order of collisions is part of the solution."
-msgstr "Three pairs, limited paths. The order of collisions is part of the solution."
+msgid "Four arms share one center. Let each particle find its place."
+msgstr "Four arms share one center. Let each particle find its place."
 
-msgid "Negative Space"
-msgstr "Negative Space"
+msgid "Event Horizon"
+msgstr "Event Horizon"
 
-msgid "Bring every particle to rest, leaving only empty space."
-msgstr "Bring every particle to rest, leaving only empty space."
+msgid "Traffic can travel in both directions. Keep room for the return."
+msgstr "Traffic can travel in both directions. Keep room for the return."
 
 msgid "Two Paths"
 msgstr "Two Paths"

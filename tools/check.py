@@ -16,6 +16,7 @@ def main():
     headless = [] if args.visual else ['--headless']
     commands = [
         [sys.executable, 'tools/certify_levels.py'],
+        [sys.executable, 'tools/audit_level_designs.py'],
         ['godot', '--headless', '--path', '.', '--editor', '--import', '--quit'],
         ['godot', '--headless', '--path', '.', '--script', 'tests/run_tests.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/ui_smoke.gd'],

@@ -91,16 +91,21 @@ func _run() -> void:
 		key(code)
 		await create_timer(0.38).timeout
 	check(ui.session.cleared() and ui.progress.records["02"].hard, "Optimal hard solution saves a hard medal")
-	ui._open_level(7)
+	ui._open_level(8)
 	await settle()
-	click_cell(0)
-	await settle()
-	key(KEY_RIGHT)
-	await create_timer(0.42).timeout
-	check(ui.session.state.board[10] == -1 and ui.session.state.board[1] == 0, "Portal animation commits the correct rule state")
+	var before_collapse: Dictionary = {}
+	for action in ui.levels[8].solution:
+		before_collapse = ui.session.state.duplicate(true)
+		click_cell(int(action.source))
+		await settle()
+		key({"up": KEY_UP, "right": KEY_RIGHT, "down": KEY_DOWN, "left": KEY_LEFT}[action.direction])
+		await create_timer(0.42).timeout
+		if ui.session.state.board[21] == -1:
+			break
+	check(ui.session.state.board[21] == -1 and ui.session.state.board[8] == 0, "Portal animation commits the correct rule state")
 	key(KEY_Z)
 	await settle()
-	check(ui.session.state.board[10] == 1 and ui.session.state.board[1] == 1, "Portal undo restores both ends through the UI")
+	check(ui.session.state.board == before_collapse.board and ui.session.state.pieces == before_collapse.pieces, "Portal undo restores both ends and particles through the UI")
 	ui._open_level(11)
 	ui.progress.records.clear()
 	ui._sync()
