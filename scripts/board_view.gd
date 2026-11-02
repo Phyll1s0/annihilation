@@ -9,6 +9,7 @@ const INK := Color("090a0c")
 const PAPER := Color("eef1f4")
 const LINE := Color(1, 1, 1, 0.25)
 const PRIMARY := Color("dce1e5")
+const PORTAL_COLORS := [Color("7bbce5"), Color("cea2df"), Color("8bcbb7"), Color("d9bd83")]
 
 var state: Dictionary = {}
 var selected := -1
@@ -100,15 +101,20 @@ func _gui_input(event: InputEvent) -> void:
 			cell_pressed.emit(index)
 		accept_event()
 
+func _portal_color(group: int) -> Color:
+	if group >= 1 and group <= PORTAL_COLORS.size():
+		return PORTAL_COLORS[group - 1]
+	return Color.from_hsv(fposmod(0.57 + (group - 1) * 0.61803398875, 1.0), 0.36, 0.88)
+
 func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
 	var tile_size := unit - 2.0 * visual_scale
 	var top_left := (center_of(index) - Vector2.ONE * tile_size / 2.0).round()
 	var bottom_right := (center_of(index) + Vector2.ONE * tile_size / 2.0).round()
 	var rect := Rect2(top_left, bottom_right - top_left)
 	var style := StyleBoxFlat.new()
-	var portal_color := Color("b5bec7") if portal % 2 == 1 else Color("7b8a9b")
-	style.bg_color = Color(1, 1, 1, 0.035 * opacity) if portal == 0 else Color(portal_color, 0.09 * opacity)
-	style.border_color = Color(1, 1, 1, 0.25 * opacity) if portal == 0 else Color(portal_color, 0.45 * opacity)
+	var portal_color := _portal_color(portal)
+	style.bg_color = Color(1, 1, 1, 0.035 * opacity) if portal == 0 else Color(portal_color, 0.12 * opacity)
+	style.border_color = Color(1, 1, 1, 0.25 * opacity) if portal == 0 else Color(portal_color, 0.70 * opacity)
 	style.set_border_width_all(maxi(1, roundi(visual_scale)))
 	var corner := roundi((3.0 if portal == 0 else 10.0) * visual_scale)
 	style.set_corner_radius_all(corner)
@@ -127,7 +133,7 @@ func _tile(index: int, portal: int, opacity: float = 1.0) -> void:
 	if portal > 0:
 		var tag := String.chr(64 + portal)
 		var tag_size := maxi(8, roundi(unit * 0.16))
-		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2 * visual_scale), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(portal_color, opacity * 0.75))
+		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2 * visual_scale), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(portal_color, opacity * 0.95))
 
 func _piece(point: Vector2, color: int, radius: float, opacity: float = 1.0, active: bool = false) -> void:
 	if radius < 0.1:

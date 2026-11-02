@@ -13,7 +13,7 @@ Select a particle and move it one tile up, down, left, or right.
 - When opposite colors meet, both particles disappear, along with the tile where they meet.
 - Clear every particle to finish the level.
 
-Portals with matching letters are linked. Entering an empty portal teleports the particle to its partner and costs one move. A same-colored particle at the exit blocks the move. If a collision happens on a portal, that end disappears and its partner becomes a normal tile.
+Linked portals share a letter and color. Entering an empty portal teleports the particle to its partner and costs one move. A same-colored particle at the exit blocks the move. If a collision happens on a portal, that end disappears and its partner becomes a normal tile.
 
 ## Modes
 
