@@ -1,10 +1,11 @@
 Still Orbit — NULL original soundtrack
 
 Original composition, arrangement, and production for NULL.
-Both score revisions are in tools/music_score.py.
+All three score revisions are in tools/music_score.py.
 The reproducible sampled-piano renderer is in tools/render_music.py.
-96 seconds, stereo, 60 BPM; a repeating piano arrangement with a quiet room tail.
-The original composition and arrangement use the project's MIT license.
+96 seconds, stereo, 60 BPM; a sparse piano arrangement with an original, very soft synthesized organ bed.
+The organ layer uses original additive synthesis, not sampled recordings.
+The original composition, arrangement, and synthesis use the project's MIT license.
 
 Piano instrument: VSCO 2 Community Edition, Upright Piano.
 Sampled by Simon Dalzell / Ivy Audio, distributed by Sam Gossner / Versilian Studios.

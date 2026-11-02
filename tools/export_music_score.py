@@ -8,6 +8,7 @@ the MIDI files and timing charts retain the renderer's longer note gates.
 from collections import defaultdict
 from io import BytesIO
 from pathlib import Path
+import argparse
 import csv
 import json
 import xml.etree.ElementTree as ET
@@ -64,8 +65,8 @@ def reading_xml(revision, first=0, count=24):
                 attrs = ET.SubElement(measure, 'attributes')
                 text(attrs, 'divisions', 2)
                 key = ET.SubElement(attrs, 'key')
-                text(key, 'fifths', -1)
-                text(key, 'mode', 'minor')
+                text(key, 'fifths', 2 if revision == 'air' else -1)
+                text(key, 'mode', 'major' if revision == 'air' else 'minor')
                 meter = ET.SubElement(attrs, 'time')
                 text(meter, 'beats', 4)
                 text(meter, 'beat-type', 4)
@@ -102,7 +103,7 @@ def reading_xml(revision, first=0, count=24):
                 text(note, 'type', {4: 'half', 2: 'quarter', 1: 'eighth'}[duration])
                 if name == 'Eb':
                     text(note, 'accidental', 'flat')
-                if name == 'B':
+                if name == 'B' and revision != 'air':
                     text(note, 'accidental', 'natural')
                 if part_id == 'melody':
                     lyric = ET.SubElement(note, 'lyric')
@@ -161,9 +162,9 @@ def statistics(revision):
     return dict(melody_notes=len(melody), large_leaps=int(sum(abs(intervals) >= 5)), intervals=len(intervals), peak_gates=peak)
 
 
-def roll():
+def roll(after='revised'):
     fig, axes = plt.subplots(2, 1, figsize=(8.4, 5.3), sharex=True, sharey=True)
-    for ax, revision in zip(axes, ['original', 'revised']):
+    for ax, revision in zip(axes, ['original', after]):
         for block in range(3):
             if block % 2 == 0:
                 ax.axvspan(block*8, (block+1)*8, color='#f2f4f5', zorder=0)
@@ -175,7 +176,7 @@ def roll():
                     continue
                 ax.broken_barh([(max(0, start), min(24, end)-max(0, start))], (event['pitch']-.35, .7),
                                facecolors=COLORS[event['role']], alpha=.85 if event['role']=='melody' else .5)
-        ax.set_title('Before - original gates' if revision=='original' else 'After - revised gates', loc='left', fontsize=11, pad=8)
+        ax.set_title('Before - original gates' if revision=='original' else ('After - airy piano gates' if after=='air' else 'After - revised gates'), loc='left', fontsize=11, pad=8)
         ax.set_yticks([36, 48, 60, 72], ['C2', 'C3', 'C4', 'C5'])
         ax.set_ylim(30, 80)
         ax.set_xlim(0, 24)
@@ -192,14 +193,20 @@ def roll():
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--air', action='store_true', help='Export the current airy piano arrangement and its comparison')
+    args = parser.parse_args()
+    revisions = ['air'] if args.air else ['original', 'revised']
+    after = 'air' if args.air else 'revised'
+    page_count = len(revisions)*2+1
     OUT.mkdir(parents=True, exist_ok=True)
     WORK.mkdir(parents=True, exist_ok=True)
     pdfmetrics.registerFont(TTFont('Poppins', str(ROOT/'assets/fonts/Poppins-Regular.ttf')))
     pdfmetrics.registerFont(TTFont('PoppinsLight', str(ROOT/'assets/fonts/Poppins-ExtraLight.ttf')))
-    stats = {revision: statistics(revision) for revision in ['original', 'revised']}
+    stats = {revision: statistics(revision) for revision in ['original', after]}
     (WORK/'statistics.json').write_text(json.dumps(stats, indent=2))
     figures = []
-    for revision in ['original', 'revised']:
+    for revision in revisions:
         (OUT/f'still-orbit-{revision}.musicxml').write_text(reading_xml(revision))
         midi_and_csv(revision)
         for first in range(0, 24, 4):
@@ -214,26 +221,27 @@ def main():
             (WORK/f'{revision}-{first+1:02d}.svg').write_text(svg)
             data = cairosvg.svg2pdf(bytestring=svg.encode())
             figures.append(PdfReader(BytesIO(data)).pages[0])
-    roll()
+    roll(after)
     width, height = A4
     document = BytesIO()
     doc = canvas.Canvas(document, pagesize=A4)
-    doc.setTitle('Still Orbit - original and revised scores')
+    title = 'Still Orbit - airy piano arrangement' if args.air else 'Still Orbit - original and revised scores'
+    doc.setTitle(title)
     doc.setAuthor('NULL')
     placement = []
-    for page in range(4):
-        revision = 'original' if page < 2 else 'revised'
+    for page in range(len(revisions)*2):
+        revision = revisions[page//2]
         local_page = page % 2
         doc.setFillColorRGB(.12, .14, .16)
         doc.setFont('PoppinsLight', 27)
         doc.drawString(42, height-57, 'Still Orbit')
         doc.setFont('Poppins', 11)
-        doc.drawRightString(width-42, height-54, 'BEFORE' if revision=='original' else 'AFTER')
+        doc.drawRightString(width-42, height-54, 'CURRENT AIR' if args.air else ('BEFORE' if revision=='original' else 'AFTER'))
         doc.setFont('Poppins', 8)
         doc.setFillColorRGB(.38, .41, .44)
         doc.drawString(42, height-81, 'NULL  |  Piano study score  |  4/4  |  Quarter note = 60  |  96-second loop')
         doc.drawString(42, height-97, 'Reading reduction: original onsets rounded to eighth notes; written lengths shortened.')
-        doc.drawString(42, height-110, 'Pitch names below the melody. MIDI and the final-page timing map preserve longer gates.')
+        doc.drawString(42, height-110, 'Piano notes shown; the current mix also has a soft organ bed.' if args.air else 'Pitch names below the melody. MIDI and the final-page timing map preserve longer gates.')
         for index in range(3):
             first = local_page*12 + index*4
             top = height-145-index*207
@@ -241,13 +249,13 @@ def main():
             doc.setFont('Poppins', 9)
             doc.setFillColorRGB(.17, .23, .29)
             doc.drawString(42, top, f'Bars {first+1}-{first+4}  |  {first*4+origin:.2f}-{(first+4)*4+origin:.2f} s')
-            source = figures[(0 if revision=='original' else 6) + first//4]
+            source = figures[revisions.index(revision)*6 + first//4]
             scale = min((width-84)/float(source.mediabox.width), 178/float(source.mediabox.height))
             placement.append((page, source, scale, 42, top-14-float(source.mediabox.height)*scale))
         doc.setFont('Poppins', 7)
         doc.setFillColorRGB(.45, .48, .51)
-        doc.drawString(42, 28, 'Reference signature: D minor; chromatic pitches in the original are retained.')
-        doc.drawRightString(width-42, 28, str(page+1)+' / 5')
+        doc.drawString(42, 28, 'Reference signature: D major; soft organ tones are documented in the renderer.' if args.air else 'Reference signature: D minor; chromatic pitches in the original are retained.')
+        doc.drawRightString(width-42, 28, f'{page+1} / {page_count}')
         doc.showPage()
     doc.setFont('PoppinsLight', 25)
     doc.setFillColorRGB(.12, .14, .16)
@@ -259,17 +267,17 @@ def main():
     doc.drawString(42, height-100, 'Bars show nominal note gates before acoustic decay/reverb. Earlier-loop tails are included.')
     timing = PdfReader(WORK/'timing-map.pdf').pages[0]
     scale = (width-84)/float(timing.mediabox.width)
-    placement.append((4, timing, scale, 42, height-120-float(timing.mediabox.height)*scale))
+    placement.append((page_count-1, timing, scale, 42, height-120-float(timing.mediabox.height)*scale))
     y = 350
     explanations = [
         ('Melodic shape', f"Before: {stats['original']['large_leaps']} of {stats['original']['intervals']} melody intervals jump at least five semitones.",
-         f"After: {stats['revised']['large_leaps']} of {stats['revised']['intervals']}; the A-G-F-E motif returns with small variations."),
+         f"After: {stats[after]['large_leaps']} of {stats[after]['intervals']}; " + ('the A-B-E arch returns with small variations.' if args.air else 'the A-G-F-E motif returns with small variations.')),
         ('Room between notes', 'Before: melody gates last 4.8 s, with up to three melody notes overlapping.',
-         f"After: 1.8 s gates on a regular 2 s pulse. Peak combined gates: {stats['original']['peak_gates']} -> {stats['revised']['peak_gates']}."),
+         f"After: {'2.5 s gates with a shorter final note' if args.air else '1.8 s gates on a 2 s pulse'}. Peak piano gates: {stats['original']['peak_gates']} -> {stats[after]['peak_gates']}."),
         ('Harmonic continuity', 'Before: D / Bb / F / C / G / A / Eb / A / D / Bb / F / C bass roots.',
-         'After: D / Bb / F / C repeated three times; no sudden Eb bass or B-natural detour.'),
+         'After: D / G / B / A repeated three times, with a common A3 piano pulse.' if args.air else 'After: D / Bb / F / C repeated three times; no sudden Eb bass or B-natural detour.'),
         ('Reverb', 'Before: 6.5 s impulse buffer; exponential decay factor 1.2; wet mix 0.23.',
-         'After: 4.0 s buffer; faster decay factor 2.6; lower wet mix 0.14.'),
+         'After: bass-filtered reverb at 0.13; soft organ bed at 12% of piano RMS.' if args.air else 'After: 4.0 s buffer; faster decay factor 2.6; lower wet mix 0.14.'),
     ]
     for heading, before, after in explanations:
         doc.setFillColorRGB(.15, .20, .25)
@@ -281,20 +289,21 @@ def main():
         doc.drawString(42, y-32, after)
         y -= 79
     doc.setFont('Poppins', 7)
-    doc.drawString(42, 28, 'Gate counts describe synthesis scheduling, not equally loud sustained notes.')
-    doc.drawRightString(width-42, 28, '5 / 5')
+    doc.drawString(42, 28, 'Gate counts describe piano scheduling; organ tones and acoustic reverb are not counted.' if args.air else 'Gate counts describe synthesis scheduling, not equally loud sustained notes.')
+    doc.drawRightString(width-42, 28, f'{page_count} / {page_count}')
     doc.save()
     writer = PdfWriter()
     for page in PdfReader(BytesIO(document.getvalue())).pages:
         writer.add_page(page)
     for page_index, source, scale, x, y in placement:
         writer.pages[page_index].merge_transformed_page(source, Transformation().scale(scale).translate(x, y))
-    writer.add_metadata({'/Title': 'Still Orbit - original and revised scores', '/Author': 'NULL'})
-    target = OUT/'still-orbit-score.pdf'
+    writer.add_metadata({'/Title': title, '/Author': 'NULL'})
+    target = OUT/('still-orbit-air-score.pdf' if args.air else 'still-orbit-score.pdf')
     writer.write(target)
     result = PdfReader(target)
-    assert len(result.pages)==5 and 'What changed' in result.pages[4].extract_text()
-    for revision, expected in [('original', 35), ('revised', 48)]:
+    assert len(result.pages)==page_count and 'What changed' in result.pages[-1].extract_text()
+    for revision in revisions:
+        expected = len([e for e in events(revision) if e['role']=='melody'])
         root = ET.parse(OUT/f'still-orbit-{revision}.musicxml').getroot()
         assert len(root.find("part[@id='melody']").findall('measure')) == 24
         assert len(root.find("part[@id='melody']").findall('.//pitch')) == expected

@@ -21,12 +21,12 @@ func _ready() -> void:
 	# Stream playback preserves fades and loop behavior on desktop and Web.
 	player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	add_child(player)
-	apply_settings(1.8)
+	apply_settings(4.0)
 
 func unlock() -> void:
 	if not awaiting_gesture: return
 	awaiting_gesture = false
-	apply_settings(1.8)
+	apply_settings(4.0)
 
 func set_page(destination: String) -> void:
 	if page == destination: return
