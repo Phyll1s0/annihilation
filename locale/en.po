@@ -350,3 +350,231 @@ msgstr "Singularity"
 
 msgid "Four pairs, three gates, and very little room to say goodbye."
 msgstr "Four pairs, three gates, and very little room to say goodbye."
+
+msgid "Constellation"
+msgstr "Constellation"
+
+msgid "Interchange"
+msgstr "Interchange"
+
+msgid "Cross Traffic"
+msgstr "Cross Traffic"
+
+msgid "Deep Field"
+msgstr "Deep Field"
+
+msgid "Supercluster"
+msgstr "Supercluster"
+
+msgid "Four linked routes share one narrow passage."
+msgstr "Four linked routes share one narrow passage."
+
+msgid "Occupied exits and six gates leave little room for a wrong turn."
+msgstr "Occupied exits and six gates leave little room for a wrong turn."
+
+msgid "The two distant ends can change the center of the network."
+msgstr "The two distant ends can change the center of the network."
+
+msgid "Twelve particles share six gates. Keep the whole network in mind."
+msgstr "Twelve particles share six gates. Keep the whole network in mind."
+
+msgid "Developer"
+msgstr "Developer"
+
+msgid "Developer mode"
+msgstr "Developer mode"
+
+msgid "Create, save, and play your own levels."
+msgstr "Create, save, and play your own levels."
+
+msgid "Level editor"
+msgstr "Level editor"
+
+msgid "Level name"
+msgstr "Level name"
+
+msgid "Redo"
+msgstr "Redo"
+
+msgid "New"
+msgstr "New"
+
+msgid "Resize"
+msgstr "Resize"
+
+msgid "Brush"
+msgstr "Brush"
+
+msgid "Floor"
+msgstr "Floor"
+
+msgid "Void"
+msgstr "Void"
+
+msgid "White"
+msgstr "White"
+
+msgid "Black"
+msgstr "Black"
+
+msgid "Clear"
+msgstr "Clear"
+
+msgid "Portal"
+msgstr "Portal"
+
+msgid "Playtest"
+msgstr "Playtest"
+
+msgid "Find minimum"
+msgstr "Find minimum"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Import"
+msgstr "Import"
+
+msgid "Export"
+msgstr "Export"
+
+msgid "Custom"
+msgstr "Custom"
+
+msgid "Custom level"
+msgstr "Custom level"
+
+msgid "Back to editor"
+msgstr "Back to editor"
+
+msgid "Verify the minimum in the editor to enable Hard."
+msgstr "Verify the minimum in the editor to enable Hard."
+
+msgid "%d / 2 ends"
+msgstr "%d / 2 ends"
+
+msgid "White %d · Black %d · Portal ends %d"
+msgstr "White %d · Black %d · Portal ends %d"
+
+msgid "Minimum not verified"
+msgstr "Minimum not verified"
+
+msgid "Verified minimum: %d"
+msgstr "Verified minimum: %d"
+
+msgid "Drag to paint. Right click to erase."
+msgstr "Drag to paint. Right click to erase."
+
+msgid "Could not save the draft."
+msgstr "Could not save the draft."
+
+msgid "Could not save the current draft."
+msgstr "Could not save the current draft."
+
+msgid "Could not save the level."
+msgstr "Could not save the level."
+
+msgid "Level saved."
+msgstr "Level saved."
+
+msgid "Open a level…"
+msgstr "Open a level…"
+
+msgid "My levels"
+msgstr "My levels"
+
+msgid "Campaign"
+msgstr "Campaign"
+
+msgid "Could not start verification."
+msgstr "Could not start verification."
+
+msgid "Searching… %d states"
+msgstr "Searching… %d states"
+
+msgid "Minimum verified."
+msgstr "Minimum verified."
+
+msgid "No solution. Try changing the map."
+msgstr "No solution. Try changing the map."
+
+msgid "Search limit reached. Easy playtest is still available."
+msgstr "Search limit reached. Easy playtest is still available."
+
+msgid "Verification cancelled."
+msgstr "Verification cancelled."
+
+msgid "Level JSON"
+msgstr "Level JSON"
+
+msgid "Import JSON"
+msgstr "Import JSON"
+
+msgid "Copy JSON"
+msgstr "Copy JSON"
+
+msgid "Open file"
+msgstr "Open file"
+
+msgid "Save file"
+msgstr "Save file"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "The level file is too large."
+msgstr "The level file is too large."
+
+msgid "The file is not valid JSON."
+msgstr "The file is not valid JSON."
+
+msgid "Level imported. Verify its minimum to enable Hard."
+msgstr "Level imported. Verify its minimum to enable Hard."
+
+msgid "Could not open the level file."
+msgstr "Could not open the level file."
+
+msgid "Level exported."
+msgstr "Level exported."
+
+msgid "This portal already has two ends."
+msgstr "This portal already has two ends."
+
+msgid "Place at least one black and one white particle."
+msgstr "Place at least one black and one white particle."
+
+msgid "Black and white counts must match."
+msgstr "Black and white counts must match."
+
+msgid "Every portal group needs exactly two ends."
+msgstr "Every portal group needs exactly two ends."
+
+msgid "Choose a NULL level JSON file."
+msgstr "Choose a NULL level JSON file."
+
+msgid "Unsupported level file version."
+msgstr "Unsupported level file version."
+
+msgid "Maps can be up to 12 by 12 tiles."
+msgstr "Maps can be up to 12 by 12 tiles."
+
+msgid "All rows must have the same width."
+msgstr "All rows must have the same width."
+
+msgid "The map contains an unknown tile."
+msgstr "The map contains an unknown tile."
+
+msgid "Invalid particle positions."
+msgstr "Invalid particle positions."
+
+msgid "A particle overlaps another particle or a missing tile."
+msgstr "A particle overlaps another particle or a missing tile."
+
+msgid "Draft"
+msgstr "Draft"
+
+msgid "Could not verify the minimum."
+msgstr "Could not verify the minimum."
+
+msgid "Undo · Ctrl/Cmd Z"
+msgstr "Undo · Ctrl/Cmd Z"

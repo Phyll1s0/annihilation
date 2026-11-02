@@ -3,6 +3,9 @@ extends Control
 
 signal cell_pressed(index: int)
 signal animation_finished
+signal paint_started
+signal paint_finished
+signal cell_painted(index: int, erase: bool)
 
 const Puzzle = preload("res://scripts/puzzle.gd")
 const INK := Color("090a0c")
@@ -26,9 +29,12 @@ var show_hints := true
 var padding := Vector2(40, 40)
 var maximum_unit := 112.0
 var visual_scale := 1.0
+var edit_mode := false
+var paint_button := 0
+var last_painted := -1
 
 func _ready() -> void:
-	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	mouse_default_cursor_shape = Control.CURSOR_CROSS if edit_mode else Control.CURSOR_POINTING_HAND
 	clip_contents = true
 	resized.connect(func(): _layout_board(); queue_redraw())
 	mouse_exited.connect(func(): hover = -1; queue_redraw())
@@ -87,6 +93,9 @@ func _cell_at(point: Vector2) -> int:
 func _gui_input(event: InputEvent) -> void:
 	if state.is_empty():
 		return
+	if edit_mode:
+		_edit_input(event)
+		return
 	if event is InputEventMouseMotion:
 		hover = _cell_at(event.position)
 		queue_redraw()
@@ -100,6 +109,45 @@ func _gui_input(event: InputEvent) -> void:
 		if index >= 0:
 			cell_pressed.emit(index)
 		accept_event()
+
+func _edit_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
+		if event.pressed:
+			paint_button = event.button_index
+			last_painted = -1
+			paint_started.emit()
+			_paint_at(event.position)
+		else:
+			paint_button = 0
+			paint_finished.emit()
+		accept_event()
+	elif event is InputEventMouseMotion and paint_button != 0:
+		var mask := MOUSE_BUTTON_MASK_LEFT if paint_button == MOUSE_BUTTON_LEFT else MOUSE_BUTTON_MASK_RIGHT
+		if (event.button_mask & mask) == 0:
+			paint_button = 0
+			paint_finished.emit()
+			return
+		_paint_at(event.position)
+		accept_event()
+	elif event is InputEventScreenTouch:
+		if event.pressed:
+			paint_button = MOUSE_BUTTON_LEFT
+			last_painted = -1
+			paint_started.emit()
+			_paint_at(event.position)
+		else:
+			paint_button = 0
+			paint_finished.emit()
+		accept_event()
+	elif event is InputEventScreenDrag:
+		_paint_at(event.position)
+		accept_event()
+
+func _paint_at(point: Vector2) -> void:
+	var cell := _cell_at(point)
+	if cell >= 0 and cell != last_painted:
+		last_painted = cell
+		cell_painted.emit(cell, paint_button == MOUSE_BUTTON_RIGHT)
 
 func _portal_color(group: int) -> Color:
 	if group >= 1 and group <= PORTAL_COLORS.size():
@@ -155,6 +203,7 @@ func _draw() -> void:
 	var t := clampf(elapsed / 0.34, 0, 1)
 	for i in state.board.size():
 		if state.board[i] < 0:
+			if edit_mode: _tile(i, 0, 0.22)
 			continue
 		else:
 			_tile(i, state.board[i])

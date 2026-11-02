@@ -24,6 +24,11 @@ var paused := false
 var pause_panel: PanelContainer
 var pause_center: CenterContainer
 var pause_actions: Dictionary = {}
+var editor
+var test_game
+var editor_directory := ""
+var editor_origin_screen := "home"
+var editor_origin_paused := false
 
 func _ready() -> void:
 	settings.apply_language()
@@ -60,6 +65,7 @@ func _ready() -> void:
 	campaign.level_requested.connect(start_level)
 	preferences.settings_changed.connect(func():
 		game.apply_settings()
+		if test_game != null: test_game.apply_settings()
 		background.apply_settings())
 	game.pause_requested.connect(pause_game)
 	game.state_changed.connect(func(): home.refresh())
@@ -87,23 +93,37 @@ func _navigate(destination: String) -> void:
 			show_screen(settings_return)
 			if settings_return_paused:
 				pause_game()
+		"editor":
+			if not settings.developer_mode and screen != "editor_test": return
+			if screen == "settings" and settings_return not in ["editor", "editor_test"]:
+				editor_origin_screen = settings_return
+				editor_origin_paused = settings_return_paused
+			_ensure_editor()
+			show_screen("editor")
+		"editor_back":
+			settings_return = editor_origin_screen
+			settings_return_paused = editor_origin_paused
+			show_screen("settings")
+			preferences._developer_tab()
 		_: show_screen(destination)
 
 func show_screen(destination: String) -> void:
 	if not pages.has(destination):
 		return
 	screen = destination
-	background.set_page(destination)
+	background.set_page("game" if destination == "editor_test" else destination)
 	paused = false
 	pause_layer.hide()
 	for key in pages:
 		pages[key].visible = key == destination
 	game.input_enabled = destination == "game"
+	if test_game != null: test_game.input_enabled = destination == "editor_test"
 	match destination:
 		"home": home.refresh()
 		"campaign": campaign.refresh()
 		"settings": preferences.refresh()
 		"game": game.apply_settings()
+		"editor_test": test_game.apply_settings()
 	pages[destination].enter(settings.reduce_motion)
 
 func start_level(index: int, hard: bool) -> void:
@@ -112,6 +132,43 @@ func start_level(index: int, hard: bool) -> void:
 	game.session.hard_mode = hard
 	game._open_level(index)
 	show_screen("game")
+
+func _ensure_editor() -> void:
+	if editor != null: return
+	if editor_directory.is_empty():
+		editor_directory = "user://editor" if settings.path == "user://settings.cfg" else settings.path + ".editor"
+	editor = preload("res://scripts/ui/editor_screen.gd").new()
+	editor.directory = editor_directory
+	editor.levels = levels
+	editor.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	editor.navigation_requested.connect(_navigate)
+	editor.playtest_requested.connect(_start_test)
+	pages.editor = editor
+	add_child(editor)
+	move_child(pause_layer, get_child_count() - 1)
+
+func _start_test(definition: Dictionary, certified: bool) -> void:
+	if test_game == null:
+		test_game = preload("res://scenes/game_screen.tscn").instantiate()
+		test_game.custom_run = true
+		test_game.levels = [definition]
+		test_game.progress = Progress.new(editor_directory.path_join("playtest.json"))
+		test_game.settings = settings
+		test_game.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		test_game.navigation_requested.connect(_navigate)
+		test_game.pause_requested.connect(pause_game)
+		pages.editor_test = test_game
+		add_child(test_game)
+		move_child(pause_layer, get_child_count() - 1)
+	test_game.levels = [definition]
+	test_game.progress.bind_catalog(test_game.levels)
+	test_game.hard_available = certified
+	test_game.session.hard_mode = false
+	test_game._open_level(0)
+	show_screen("editor_test")
+
+func _active_game():
+	return test_game if screen == "editor_test" else game
 
 func _build_pause() -> void:
 	pause_layer = Control.new()
@@ -138,9 +195,9 @@ func _build_pause() -> void:
 	box.add_child(heading)
 	var entries := [
 		["resume", "Resume", resume_game],
-		["restart", "Restart level", func(): resume_game(); game._restart()],
+		["restart", "Restart level", func(): resume_game(); _active_game()._restart()],
 		["settings", "Settings", func(): _navigate("settings")],
-		["levels", "Back to levels", func(): show_screen("campaign")],
+		["levels", "Back to levels", func(): _navigate("editor") if screen == "editor_test" else show_screen("campaign")],
 		["home", "Home", func(): show_screen("home")],
 	]
 	for entry in entries:
@@ -169,19 +226,23 @@ func _fit_pause_center() -> void:
 	pause_center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func pause_game() -> void:
-	if screen != "game":
+	if screen not in ["game", "editor_test"]:
 		return
 	paused = true
-	game.input_enabled = false
-	game.board.cancel_animation()
-	game._sync()
+	var active = _active_game()
+	active.input_enabled = false
+	active.board.cancel_animation()
+	active._sync()
+	var return_message := "Back to editor" if screen == "editor_test" else "Back to levels"
+	pause_actions.levels.set_meta("message", return_message)
+	pause_actions.levels.text = tr(return_message)
 	pause_layer.show()
 	pause_actions.resume.grab_focus()
 
 func resume_game() -> void:
 	paused = false
 	pause_layer.hide()
-	game.input_enabled = true
+	_active_game().input_enabled = true
 
 func _input(event: InputEvent) -> void:
 	if pages.is_empty() or not event is InputEventKey or not event.pressed or event.echo:
@@ -199,6 +260,9 @@ func _input(event: InputEvent) -> void:
 			_navigate("back")
 		elif screen == "campaign":
 			show_screen("home")
+		elif screen == "editor" and not editor.exchange_layer.visible:
+			editor._persist()
+			_navigate("editor_back")
 		else:
 			return
 		get_viewport().set_input_as_handled()

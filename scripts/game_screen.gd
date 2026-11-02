@@ -39,6 +39,11 @@ var notice: Tween
 var restart_button: Button
 var result_box: VBoxContainer
 var result_buttons: HBoxContainer
+var custom_run := false
+var hard_available := true
+
+func _return_page() -> String:
+	return "editor" if custom_run else "campaign"
 
 func _ready() -> void:
 	settings.apply_language()
@@ -69,7 +74,7 @@ func _build_ui() -> void:
 		standalone_background.settings = settings
 		add_child(standalone_background)
 		standalone_background.set_page("game")
-	back_button = _back_button(func(): navigation_requested.emit("campaign"))
+	back_button = _back_button(func(): navigation_requested.emit(_return_page()))
 	pause_button = _icon_button("pause-outline", "Pause · Esc", func(): pause_requested.emit(), 28)
 	add_child(pause_button)
 	chapter_label = _label("", 11, MUTED)
@@ -145,9 +150,13 @@ func _layout_ui() -> void:
 	toolbar.position = Vector2((size.x - 320 * factor) / 2.0, toolbar_top)
 	toolbar.size = Vector2(320, 46) * factor
 	var clearance := minf(toolbar_top + 68.0 * factor, size.y * 0.30)
+	var rows: int = board.state.get("height", 1)
+	var columns: int = board.state.get("width", 1)
+	clearance = minf(clearance, maxf(toolbar_top + 58.0 * factor, (size.y - rows * 28.0 - 8.0) / 2.0))
 	board.position = Vector2(edge, clearance)
 	board.size = Vector2(maxf(1.0, size.x - edge * 2.0), maxf(1.0, size.y - clearance * 2.0))
-	board.padding = Vector2(40, 40) * factor
+	board.padding = Vector2(minf(40 * factor, maxf(8, board.size.x - columns * 28.0)),
+		minf(40 * factor, maxf(8, board.size.y - rows * 28.0)))
 	board.visual_scale = factor
 	# Keep cell proportions as the viewport grows; fit the entire level to its safe area.
 	board.maximum_unit = maxf(56.0, minf(size.x, size.y) * 0.14)
@@ -205,7 +214,7 @@ func _build_result(canvas: Control) -> void:
 	buttons.add_theme_constant_override("separation", 28)
 	box.add_child(buttons)
 	buttons.add_child(_icon_button("refresh-outline", "Try again", _restart, 29))
-	buttons.add_child(_icon_button("grid-outline", "Levels", func(): navigation_requested.emit("campaign"), 29))
+	buttons.add_child(_icon_button("grid-outline", "Levels", func(): navigation_requested.emit(_return_page()), 29))
 	next_button = _icon_button("chevron-forward-outline", "Next level", _next, 31)
 	buttons.add_child(next_button)
 	result_panel.hide()
@@ -218,13 +227,16 @@ func _open_level(index: int, persist: bool = true) -> void:
 	if persist:
 		_save_checkpoint()
 	apply_settings()
+	_layout_ui()
 
 func _change_mode(hard: bool) -> void:
+	if hard and not hard_available: return
 	if hard == session.hard_mode:
 		return
 	session.hard_mode = hard
-	settings.hard_mode = hard
-	settings.save()
+	if not custom_run:
+		settings.hard_mode = hard
+		settings.save()
 	_restart()
 
 func _restart() -> void:
@@ -241,6 +253,9 @@ func _undo() -> void:
 	_sync()
 
 func _next() -> void:
+	if custom_run:
+		navigation_requested.emit("editor")
+		return
 	if current == levels.size() - 1:
 		navigation_requested.emit("campaign")
 	else:
@@ -259,14 +274,15 @@ func restore_checkpoint() -> bool:
 		return false
 	current = index
 	apply_settings()
+	_layout_ui()
 	return true
 
 func _sync() -> void:
 	if levels.is_empty():
 		return
 	var level: Dictionary = levels[current]
-	chapter_label.text = "%02d" % [current + 1]
-	chapter_label.tooltip_text = "%s / %s" % [tr(level.chapter), tr(level.title)]
+	chapter_label.text = tr("Playtest") if custom_run else "%02d" % [current + 1]
+	chapter_label.tooltip_text = "%s / %s" % [tr(level.chapter), level.title if custom_run else tr(level.title)]
 	count_label.text = str(session.steps)
 	var record: Dictionary = progress.records.get(level.id, {})
 	var best := "—" if record.is_empty() else str(record.best)
@@ -274,6 +290,9 @@ func _sync() -> void:
 	count_label.tooltip_text = tr("Moves · Personal best: %s") % best
 	_accent(easy_button, not session.hard_mode)
 	_accent(hard_button, session.hard_mode)
+	hard_button.disabled = not hard_available
+	if custom_run:
+		hard_button.tooltip_text = "" if hard_available else tr("Verify the minimum in the editor to enable Hard.")
 	undo_button.disabled = session.history.is_empty()
 	board.present(session.state, session.selected)
 	board.visible = not Puzzle.won(session.state) or board.animating()
@@ -293,7 +312,7 @@ func _sync() -> void:
 			result_description.text = tr("Moves: %d / %d") % [session.steps, level.optimal_moves]
 		else:
 			result_description.text = tr("Moves: %d") % session.steps
-		next_button.tooltip_text = tr("Back to levels") if current == levels.size() - 1 else tr("Next level")
+		next_button.tooltip_text = tr("Back to editor") if custom_run else (tr("Back to levels") if current == levels.size() - 1 else tr("Next level"))
 
 func _refresh_language() -> void:
 	_sync()

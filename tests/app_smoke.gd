@@ -239,7 +239,7 @@ func _run() -> void:
 	app.progress.records.clear()
 	app.campaign.refresh()
 	await settle()
-	check(app.campaign.cards.size() == 3, "The final chapter renders three advanced puzzles")
+	check(app.campaign.cards.size() == 4, "The final chapter renders four constellation puzzles")
 	await capture("campaign-1280")
 	root.size = Vector2i(960, 680)
 	app.show_screen("home")

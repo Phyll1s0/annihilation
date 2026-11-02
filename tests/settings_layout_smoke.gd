@@ -57,10 +57,11 @@ func _run() -> void:
 			settings.language = language
 			settings.apply_language()
 			await settle()
-			for show_controls in [false, true]:
-				ui._tab(show_controls)
+			for page in ["general", "controls", "developer"]:
+				if page == "developer": ui._developer_tab()
+				else: ui._tab(page == "controls")
 				await settle()
-				var tag := "%s %dx%d tab %s" % [language, dimensions.x, dimensions.y, show_controls]
+				var tag := "%s %dx%d tab %s" % [language, dimensions.x, dimensions.y, page]
 				check_controls(ui, screen, tag)
 				check(ui.frame.size.distance_to(Vector2(dimensions)) < 1.0, tag + ": the settings frame restores its viewport size")
 				if dimensions.x >= 1920 and dimensions.y >= 1080:
@@ -71,7 +72,7 @@ func _run() -> void:
 					redraw(viewport)
 					await process_frame
 					RenderingServer.force_draw()
-					viewport.get_texture().get_image().save_png("res://builds/settings-layout-%s-%dx%d-%s.png" % [language, dimensions.x, dimensions.y, "controls" if show_controls else "general"])
+					viewport.get_texture().get_image().save_png("res://builds/settings-layout-%s-%dx%d-%s.png" % [language, dimensions.x, dimensions.y, page])
 		ui._tab(false)
 		await settle()
 		var previous: bool = settings.show_hints

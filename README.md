@@ -26,8 +26,9 @@ Each level supports both modes, with separate completion records and a shared pe
 
 ## Features
 
-- 26 handcrafted levels across eight chapters, all available from level selection.
-- Six advanced puzzles after level 20, featuring crowded queues, repeated portal traffic, and three-group routing.
+- 30 handcrafted levels across nine chapters, all available from level selection.
+- Advanced chapters after level 20, including dense maps with six portal groups and twelve particles.
+- An optional level editor with drawing tools, undo/redo, automatic drafts, a personal library, JSON import/export, and isolated playtesting.
 - Minimum move counts verified by independent Python and GDScript solvers.
 - Automatic saves, resumable games, and undo history restored after restarting.
 - A minimal title screen with scalable text and controls that starts the next unfinished level or resumes the current run.
@@ -53,6 +54,15 @@ Each level supports both modes, with separate completion records and a shared pe
 Level selection is available from the back button during play or the pause menu. Switching modes restarts the current level.
 Optional controls and a short rules reference are available under Settings → Controls.
 
+## Make your own levels
+
+Open **Settings → Developer**, enable **Developer mode**, and choose **Level editor**.
+Start with a blank map or copy a campaign level, paint tiles and particles, then press **F5** to playtest.
+Maps support up to **12 × 12** tiles and portal groups **A–Z**.
+
+Use **Find minimum** to enable Hard mode for a verified draft. Search is cancellable and bounded; a search limit does not count as a proof.
+Save maps to your local library or import/export JSON files. See the [editor guide](docs/editor.md).
+
 ## Run locally
 
 Open the project with **Godot 4.6** and press **F5**, or run:
@@ -74,8 +84,9 @@ python3 tools/check.py --visual
 ~~~
 
 The visual checks open native windows and save screenshots in `builds/`. Tests use isolated saves.
-Layout checks cover all 26 levels at thirteen viewport sizes, including ultrawide, portrait, and 5K layouts. They verify proportional board growth, pointer input, and undo after resizing a live puzzle.
-Navigation checks cover all eight chapters in both languages, resizing up to 5K and back, and leaving, pausing, restarting, and resuming a puzzle through the menus.
+Layout checks cover all 30 levels at thirteen viewport sizes, including ultrawide, portrait, and 5K layouts. They verify proportional board growth, pointer input, and undo after resizing a live puzzle.
+Navigation checks cover all nine chapters in both languages, resizing up to 5K and back, and leaving, pausing, restarting, and resuming a puzzle through the menus.
+Editor checks cover pointer strokes, draft recovery, saved-original protection, import validation, minimum verification, custom playtests, and preserving the campaign checkpoint.
 Design audits search for solutions that bypass key puzzle ideas, checking that specified portal groups and collapsed portal tiles are necessary and that tempting early collisions really lead to dead ends.
 
 After changing a level, regenerate its shortest-path certificate and run the checks:

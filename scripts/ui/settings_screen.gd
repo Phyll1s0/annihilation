@@ -18,6 +18,9 @@ var toggle_off: DPITexture
 var language_arrow: DPITexture
 var language_arrow_scale := 1.0
 var ui_scale := 1.0
+var developer: VBoxContainer
+var developer_button: Button
+var editor_button: Button
 
 func _ready() -> void:
 	settings.apply_language()
@@ -44,8 +47,10 @@ func _ready() -> void:
 	navigation.add_child(gap)
 	general_button = _button("General", func(): _tab(false), Vector2(160, 48))
 	controls_button = _button("Controls", func(): _tab(true), Vector2(160, 48))
+	developer_button = _button("Developer", _developer_tab, Vector2(160, 48))
 	navigation.add_child(general_button)
 	navigation.add_child(controls_button)
+	navigation.add_child(developer_button)
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	navigation.add_child(spacer)
@@ -120,6 +125,25 @@ func _ready() -> void:
 	var rules := _label("Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked.", 12, MUTED)
 	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	controls.add_child(rules)
+	developer = VBoxContainer.new()
+	developer.add_theme_constant_override("separation", 20)
+	page.add_child(developer)
+	var developer_row := HBoxContainer.new()
+	developer.add_child(developer_row)
+	developer_row.add_child(_label("Developer mode", 18))
+	_spacer(developer_row)
+	var developer_toggle := CheckButton.new()
+	developer_toggle.custom_minimum_size = Vector2(56, 40)
+	developer_toggle.toggled.connect(func(enabled: bool):
+		_set_option("developer_mode", enabled)
+		editor_button.disabled = not enabled)
+	developer_row.add_child(developer_toggle)
+	switches.developer_mode = developer_toggle
+	var developer_copy := _label("Create, save, and play your own levels.", 14, MUTED)
+	developer_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	developer.add_child(developer_copy)
+	editor_button = _button("Level editor", func(): navigation_requested.emit("editor"), Vector2(180, 48))
+	developer.add_child(editor_button)
 	var remaining := Control.new()
 	remaining.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	page.add_child(remaining)
@@ -159,14 +183,25 @@ func _fit_frame() -> void:
 func _tab(show_controls: bool) -> void:
 	general.visible = not show_controls
 	controls.visible = show_controls
+	developer.hide()
 	heading.text = tr("Controls") if show_controls else tr("Settings")
 	_accent(general_button, not show_controls)
 	_accent(controls_button, show_controls)
+	_accent(developer_button, false)
 	var active := controls_button if show_controls else general_button
 	var marker: StyleBoxFlat = active.get_theme_stylebox("normal").duplicate()
 	marker.set_border_width_all(0)
 	marker.border_width_left = 2
 	active.add_theme_stylebox_override("normal", marker)
+
+func _developer_tab() -> void:
+	general.hide()
+	controls.hide()
+	developer.show()
+	heading.text = tr("Developer")
+	_accent(general_button, false)
+	_accent(controls_button, false)
+	_accent(developer_button, true)
 
 func _set_option(key: String, enabled: bool) -> void:
 	settings.set(key, enabled)
@@ -189,10 +224,11 @@ func _set_language(index: int) -> void:
 
 func _refresh_language() -> void:
 	if heading != null:
-		heading.text = tr("Controls") if controls.visible else tr("Settings")
+		heading.text = tr("Developer") if developer.visible else (tr("Controls") if controls.visible else tr("Settings"))
 		status.text = tr(status_message)
 
 func refresh() -> void:
 	language_selector.select(settings.LANGUAGES.find(settings.language))
 	for key in switches:
 		switches[key].set_pressed_no_signal(settings.get(key))
+	editor_button.disabled = not settings.developer_mode

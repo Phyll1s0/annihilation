@@ -1495,5 +1495,909 @@
       "method": "exhaustive_bfs",
       "visited": 15406
     }
+  },
+  {
+    "id": "27",
+    "title": "Interchange",
+    "chapter": "Constellation",
+    "description": "Four linked routes share one narrow passage.",
+    "layout": [
+      "wwwwA#",
+      "######",
+      "ABCD##",
+      "######",
+      "B.#C.#",
+      "######",
+      "Dbbbb#"
+    ],
+    "concept": "Dense portal routing and exit scheduling",
+    "design_checks": [
+      {
+        "kind": "mandatory_teleport",
+        "group": "A"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "B"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "C"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "D"
+      }
+    ],
+    "optimal_moves": 36,
+    "solution": [
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 12,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 24,
+        "direction": "right"
+      },
+      {
+        "source": 25,
+        "direction": "left"
+      },
+      {
+        "source": 13,
+        "direction": "right"
+      },
+      {
+        "source": 12,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 24,
+        "direction": "right"
+      },
+      {
+        "source": 37,
+        "direction": "left"
+      },
+      {
+        "source": 15,
+        "direction": "left"
+      },
+      {
+        "source": 38,
+        "direction": "left"
+      },
+      {
+        "source": 37,
+        "direction": "left"
+      },
+      {
+        "source": 15,
+        "direction": "left"
+      },
+      {
+        "source": 14,
+        "direction": "left"
+      },
+      {
+        "source": 24,
+        "direction": "right"
+      },
+      {
+        "source": 12,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 39,
+        "direction": "left"
+      },
+      {
+        "source": 38,
+        "direction": "left"
+      },
+      {
+        "source": 37,
+        "direction": "left"
+      },
+      {
+        "source": 15,
+        "direction": "left"
+      },
+      {
+        "source": 14,
+        "direction": "left"
+      },
+      {
+        "source": 12,
+        "direction": "right"
+      },
+      {
+        "source": 13,
+        "direction": "right"
+      },
+      {
+        "source": 14,
+        "direction": "right"
+      },
+      {
+        "source": 36,
+        "direction": "right"
+      },
+      {
+        "source": 37,
+        "direction": "right"
+      },
+      {
+        "source": 38,
+        "direction": "right"
+      },
+      {
+        "source": 39,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 59533
+    }
+  },
+  {
+    "id": "28",
+    "title": "Cross Traffic",
+    "chapter": "Constellation",
+    "description": "Occupied exits and six gates leave little room for a wrong turn.",
+    "layout": [
+      "wwwA##CD",
+      "########",
+      "ABCDEF##",
+      "########",
+      "B.#E.###",
+      "########",
+      "Fbbb####"
+    ],
+    "tokens": [
+      [
+        6,
+        -1
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        32,
+        1
+      ],
+      [
+        35,
+        -1
+      ]
+    ],
+    "concept": "Dense portal routing and exit scheduling",
+    "design_checks": [
+      {
+        "kind": "mandatory_teleport",
+        "group": "A"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "B"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "E"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "F"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "C",
+        "optimal_only": true
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "D",
+        "optimal_only": true
+      }
+    ],
+    "optimal_moves": 35,
+    "solution": [
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 32,
+        "direction": "right"
+      },
+      {
+        "source": 33,
+        "direction": "left"
+      },
+      {
+        "source": 17,
+        "direction": "right"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 32,
+        "direction": "right"
+      },
+      {
+        "source": 33,
+        "direction": "left"
+      },
+      {
+        "source": 17,
+        "direction": "right"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 35,
+        "direction": "right"
+      },
+      {
+        "source": 36,
+        "direction": "left"
+      },
+      {
+        "source": 20,
+        "direction": "left"
+      },
+      {
+        "source": 18,
+        "direction": "right"
+      },
+      {
+        "source": 19,
+        "direction": "right"
+      },
+      {
+        "source": 49,
+        "direction": "left"
+      },
+      {
+        "source": 21,
+        "direction": "left"
+      },
+      {
+        "source": 50,
+        "direction": "left"
+      },
+      {
+        "source": 49,
+        "direction": "left"
+      },
+      {
+        "source": 21,
+        "direction": "left"
+      },
+      {
+        "source": 20,
+        "direction": "left"
+      },
+      {
+        "source": 19,
+        "direction": "left"
+      },
+      {
+        "source": 18,
+        "direction": "left"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 17,
+        "direction": "right"
+      },
+      {
+        "source": 18,
+        "direction": "right"
+      },
+      {
+        "source": 19,
+        "direction": "right"
+      },
+      {
+        "source": 20,
+        "direction": "right"
+      },
+      {
+        "source": 48,
+        "direction": "right"
+      },
+      {
+        "source": 49,
+        "direction": "right"
+      },
+      {
+        "source": 50,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 27488
+    }
+  },
+  {
+    "id": "29",
+    "title": "Deep Field",
+    "chapter": "Constellation",
+    "description": "The two distant ends can change the center of the network.",
+    "layout": [
+      "wwwwA#CD",
+      "########",
+      "ABCDEF##",
+      "########",
+      "B.#E.###",
+      "########",
+      "Fbbbb###"
+    ],
+    "tokens": [
+      [
+        6,
+        -1
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "concept": "Dense portal routing and exit scheduling",
+    "design_checks": [
+      {
+        "kind": "mandatory_teleport",
+        "group": "A"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "B"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "E"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "F"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "C",
+        "optimal_only": true
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "D",
+        "optimal_only": true
+      }
+    ],
+    "optimal_moves": 45,
+    "solution": [
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 32,
+        "direction": "right"
+      },
+      {
+        "source": 33,
+        "direction": "left"
+      },
+      {
+        "source": 17,
+        "direction": "right"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 32,
+        "direction": "right"
+      },
+      {
+        "source": 33,
+        "direction": "left"
+      },
+      {
+        "source": 17,
+        "direction": "right"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 49,
+        "direction": "left"
+      },
+      {
+        "source": 21,
+        "direction": "left"
+      },
+      {
+        "source": 35,
+        "direction": "right"
+      },
+      {
+        "source": 36,
+        "direction": "left"
+      },
+      {
+        "source": 20,
+        "direction": "left"
+      },
+      {
+        "source": 18,
+        "direction": "right"
+      },
+      {
+        "source": 19,
+        "direction": "right"
+      },
+      {
+        "source": 50,
+        "direction": "left"
+      },
+      {
+        "source": 49,
+        "direction": "left"
+      },
+      {
+        "source": 21,
+        "direction": "left"
+      },
+      {
+        "source": 51,
+        "direction": "left"
+      },
+      {
+        "source": 50,
+        "direction": "left"
+      },
+      {
+        "source": 49,
+        "direction": "left"
+      },
+      {
+        "source": 21,
+        "direction": "left"
+      },
+      {
+        "source": 20,
+        "direction": "left"
+      },
+      {
+        "source": 19,
+        "direction": "left"
+      },
+      {
+        "source": 18,
+        "direction": "left"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 17,
+        "direction": "right"
+      },
+      {
+        "source": 18,
+        "direction": "right"
+      },
+      {
+        "source": 19,
+        "direction": "right"
+      },
+      {
+        "source": 20,
+        "direction": "right"
+      },
+      {
+        "source": 48,
+        "direction": "right"
+      },
+      {
+        "source": 49,
+        "direction": "right"
+      },
+      {
+        "source": 50,
+        "direction": "right"
+      },
+      {
+        "source": 51,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 77209
+    }
+  },
+  {
+    "id": "30",
+    "title": "Supercluster",
+    "chapter": "Constellation",
+    "description": "Twelve particles share six gates. Keep the whole network in mind.",
+    "layout": [
+      "wwwwA#CD",
+      "########",
+      "ABCDEF##",
+      "########",
+      "B.#E.###",
+      "########",
+      "Fbbbb###"
+    ],
+    "tokens": [
+      [
+        6,
+        -1
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        32,
+        1
+      ],
+      [
+        35,
+        -1
+      ]
+    ],
+    "concept": "Dense portal routing and exit scheduling",
+    "design_checks": [
+      {
+        "kind": "mandatory_teleport",
+        "group": "A"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "B"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "C",
+        "optimal_only": true
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "D",
+        "optimal_only": true
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "E"
+      },
+      {
+        "kind": "mandatory_teleport",
+        "group": "F"
+      }
+    ],
+    "optimal_moves": 50,
+    "solution": [
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 32,
+        "direction": "right"
+      },
+      {
+        "source": 33,
+        "direction": "left"
+      },
+      {
+        "source": 17,
+        "direction": "right"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 32,
+        "direction": "right"
+      },
+      {
+        "source": 33,
+        "direction": "left"
+      },
+      {
+        "source": 17,
+        "direction": "right"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 32,
+        "direction": "right"
+      },
+      {
+        "source": 35,
+        "direction": "right"
+      },
+      {
+        "source": 36,
+        "direction": "left"
+      },
+      {
+        "source": 20,
+        "direction": "left"
+      },
+      {
+        "source": 18,
+        "direction": "right"
+      },
+      {
+        "source": 19,
+        "direction": "right"
+      },
+      {
+        "source": 49,
+        "direction": "left"
+      },
+      {
+        "source": 21,
+        "direction": "left"
+      },
+      {
+        "source": 50,
+        "direction": "left"
+      },
+      {
+        "source": 49,
+        "direction": "left"
+      },
+      {
+        "source": 21,
+        "direction": "left"
+      },
+      {
+        "source": 20,
+        "direction": "left"
+      },
+      {
+        "source": 19,
+        "direction": "left"
+      },
+      {
+        "source": 18,
+        "direction": "left"
+      },
+      {
+        "source": 32,
+        "direction": "right"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 51,
+        "direction": "left"
+      },
+      {
+        "source": 50,
+        "direction": "left"
+      },
+      {
+        "source": 49,
+        "direction": "left"
+      },
+      {
+        "source": 21,
+        "direction": "left"
+      },
+      {
+        "source": 20,
+        "direction": "left"
+      },
+      {
+        "source": 19,
+        "direction": "left"
+      },
+      {
+        "source": 18,
+        "direction": "left"
+      },
+      {
+        "source": 16,
+        "direction": "right"
+      },
+      {
+        "source": 17,
+        "direction": "right"
+      },
+      {
+        "source": 18,
+        "direction": "right"
+      },
+      {
+        "source": 19,
+        "direction": "right"
+      },
+      {
+        "source": 20,
+        "direction": "right"
+      },
+      {
+        "source": 48,
+        "direction": "right"
+      },
+      {
+        "source": 49,
+        "direction": "right"
+      },
+      {
+        "source": 50,
+        "direction": "right"
+      },
+      {
+        "source": 51,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 185748
+    }
   }
 ]
