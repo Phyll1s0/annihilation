@@ -37,6 +37,12 @@ func _ready() -> void:
 		})
 	for i in 74:
 		stars.append(Vector4(random.randf(), random.randf(), random.randf_range(0.16, 0.52), random.randf_range(0.5, 1.1)))
+	# A few composed arcs frame the title, especially on the quieter right side.
+	for arc in [Vector4(0.57, 3.63, 0.36, 0.17), Vector4(0.63, 3.45, 0.24, 0.15),
+		Vector4(0.43, -0.42, 0.40, 0.18), Vector4(0.35, 0.25, 0.48, 0.15),
+		Vector4(0.36, 0.90, 0.38, 0.20), Vector4(0.48, 1.30, 0.40, 0.14)]:
+		trails.append({"radius": arc.x, "angle": arc.y, "length": arc.z,
+			"alpha": arc.w, "pin": false, "home_only": true})
 	apply_settings()
 
 func set_page(destination: String) -> void:
@@ -76,6 +82,8 @@ func _draw_field() -> void:
 		var alpha := star.z * _clear_center(point) * detail
 		field.draw_circle(point, star.w, Color(SILVER, alpha), true, -1, true)
 	for trail in trails:
+		if trail.get("home_only", false) and page != "home":
+			continue
 		var points := PackedVector2Array()
 		var colors := PackedColorArray()
 		for i in 37:

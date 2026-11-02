@@ -14,13 +14,13 @@ func _ready() -> void:
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
 	var body := VBoxContainer.new()
-	body.custom_minimum_size.x = 220
-	body.add_theme_constant_override("separation", 18)
+	body.custom_minimum_size.x = 280
+	body.add_theme_constant_override("separation", 20)
 	center.add_child(body)
 	mark = Mark.new()
 	mark.custom_minimum_size = Vector2(96, 76)
 	body.add_child(mark)
-	var title := _title("NULL", 42, 8)
+	var title := _title("NULL", 68, 12)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(title)
 	var button_center := CenterContainer.new()
