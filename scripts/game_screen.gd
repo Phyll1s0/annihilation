@@ -32,6 +32,7 @@ var result_title: Label
 var result_description: Label
 var next_button: Button
 var save_error := false
+var standalone_background
 
 func _ready() -> void:
 	if levels.is_empty():
@@ -45,6 +46,8 @@ func _ready() -> void:
 	_open_level(0, false)
 
 func apply_settings() -> void:
+	if standalone_background != null:
+		standalone_background.apply_settings()
 	board.reduce_motion = settings.reduce_motion
 	board.show_hints = settings.show_hints
 	if settings.reduce_motion:
@@ -53,9 +56,10 @@ func apply_settings() -> void:
 
 func _build_ui() -> void:
 	if get_parent() == get_tree().root:
-		var background := preload("res://scripts/ui/abstract_background.gd").new()
-		background.settings = settings
-		add_child(background)
+		standalone_background = preload("res://scripts/ui/void_background.gd").new()
+		standalone_background.settings = settings
+		add_child(standalone_background)
+		standalone_background.set_page("game")
 	_back_button(func(): navigation_requested.emit("campaign"))
 	var pause := _icon_button("pause-outline", "暂停 · Esc", func(): pause_requested.emit(), 28)
 	pause.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)

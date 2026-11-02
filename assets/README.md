@@ -1,8 +1,9 @@
 # Visual assets
 
-NULL uses a grayscale palette, a black-and-white intersection mark, and a quiet shader background.
+NULL uses black-and-white pieces against a cool night sky, with sparse orbital trails and an empty zero as its mark.
 
-- The mark in scripts/ui/merge_mark.gd is drawn with native vectors. Its gray intersection expands slightly when the start button is hovered or focused.
+- The mark in scripts/ui/zero_mark.gd is a native vector oval with a softly varying edge. It responds to start-button hover and keyboard focus.
+- scripts/ui/void_background.gd combines a subtle shader gradient with vector stars, slowly drifting trails, and an occasional meteor. Details fade during play. Reduced motion freezes the trails and disables meteors.
 - icon.svg and toggle-*.svg are project-specific vector assets.
 - Poppins-ExtraLight.ttf and Poppins-Regular.ttf come from the Google Fonts repository. The bundled OFL license is retained in source and export packages. Chinese text uses system font fallbacks.
 - General interface icons use Ionicons 7.1.0, with grayscale tinting applied by Godot. Their license is included in icons/LICENSE.txt.

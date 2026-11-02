@@ -6,7 +6,7 @@ const Settings = preload("res://scripts/settings.gd")
 const Home = preload("res://scenes/home_screen.tscn")
 const Campaign = preload("res://scenes/campaign_screen.tscn")
 const Preferences = preload("res://scenes/settings_screen.tscn")
-const Background = preload("res://scripts/ui/abstract_background.gd")
+const Background = preload("res://scripts/ui/void_background.gd")
 var progress = Progress.new()
 var settings = Settings.new()
 var levels: Array = []
@@ -14,6 +14,7 @@ var game
 var home
 var campaign
 var preferences
+var background
 var pages: Dictionary = {}
 var screen := "home"
 var settings_return := "home"
@@ -23,7 +24,7 @@ var paused := false
 
 func _ready() -> void:
 	_setup_theme()
-	var background := Background.new()
+	background = Background.new()
 	background.settings = settings
 	add_child(background)
 	var catalog := Catalog.load_campaign()
@@ -53,7 +54,9 @@ func _ready() -> void:
 		page.navigation_requested.connect(_navigate)
 		add_child(page)
 	campaign.level_requested.connect(start_level)
-	preferences.settings_changed.connect(func(): game.apply_settings())
+	preferences.settings_changed.connect(func():
+		game.apply_settings()
+		background.apply_settings())
 	game.pause_requested.connect(pause_game)
 	game.state_changed.connect(func(): home.refresh())
 	_build_pause()
@@ -84,6 +87,7 @@ func show_screen(destination: String) -> void:
 	if not pages.has(destination):
 		return
 	screen = destination
+	background.set_page(destination)
 	paused = false
 	pause_layer.hide()
 	for key in pages:

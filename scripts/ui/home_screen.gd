@@ -1,6 +1,6 @@
 extends "res://scripts/ui/screen_base.gd"
 signal navigation_requested(destination: String)
-const Mark = preload("res://scripts/ui/merge_mark.gd")
+const Mark = preload("res://scripts/ui/zero_mark.gd")
 var levels: Array = []
 var progress
 var settings
@@ -18,9 +18,9 @@ func _ready() -> void:
 	body.add_theme_constant_override("separation", 18)
 	center.add_child(body)
 	mark = Mark.new()
-	mark.custom_minimum_size = Vector2(96, 42)
+	mark.custom_minimum_size = Vector2(96, 76)
 	body.add_child(mark)
-	var title := _label("NULL", 48, INK)
+	var title := _title("NULL", 42, 8)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(title)
 	var button_center := CenterContainer.new()

@@ -30,7 +30,8 @@ Each level supports both modes, with separate completion records and a shared pe
 - Minimum move counts verified by independent Python and GDScript solvers.
 - Automatic saves, resumable games, and undo history restored after restarting.
 - A minimal title screen that starts the next unfinished level or resumes the current run.
-- Grayscale visuals, an interactive black-and-white mark, fullscreen, and reduced-motion settings.
+- Black-and-white pieces, a quiet star-trail background, and an orbital zero mark.
+- Fullscreen and reduced-motion settings; background details fade during play.
 
 ## Controls
 

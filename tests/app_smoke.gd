@@ -46,6 +46,8 @@ func capture(name_value: String) -> void:
 	var page: Control = app.pages[app.screen]
 	if page.entrance != null and page.entrance.is_running():
 		await create_timer(0.35).timeout
+	if app.background.transition != null and app.background.transition.is_running():
+		await create_timer(0.65).timeout
 	await process_frame
 	RenderingServer.force_draw()
 	root.get_texture().get_image().save_png("res://builds/" + name_value + ".png")
@@ -109,6 +111,10 @@ func _run() -> void:
 	app.preferences.switches.reduce_motion.button_pressed = true
 	await settle()
 	check(not app.game.board.show_hints and app.game.board.reduce_motion, "Settings apply to the live board")
+	check(not app.background.is_processing(), "Reduced motion stops orbital drift and meteors immediately")
+	var frozen_clock: float = app.background.clock
+	await settle()
+	check(app.background.clock == frozen_clock, "The background stays still with reduced motion enabled")
 	await capture("settings-1280")
 	app._navigate("back")
 	check(app.paused and app.screen == "game", "Returning from pause settings restores the pause menu")
