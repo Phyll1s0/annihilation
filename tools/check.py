@@ -23,12 +23,19 @@ def main():
     ]
     for command in commands:
         print('Running:', ' '.join(command), flush=True)
-        result = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT, timeout=120)
+        try:
+            result = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, timeout=120)
+        except subprocess.TimeoutExpired as error:
+            output = error.stdout or ''
+            print(output.decode(errors='replace') if isinstance(output, bytes) else output,
+                  end='', flush=True)
+            print('Check timed out:', ' '.join(command), flush=True)
+            raise SystemExit(1) from None
         print(result.stdout, end='', flush=True)
         if result.returncode or re.search(r'(?m)^(?:SCRIPT ERROR|ERROR):', result.stdout):
             raise SystemExit(1)
-    print('All GRAY checks passed.')
+    print('All NULL checks passed.')
 
 
 if __name__ == '__main__':

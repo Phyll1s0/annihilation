@@ -1,4 +1,4 @@
-class_name GrayPuzzle
+class_name NullPuzzle
 extends RefCounted
 ## Pure, deterministic rules. No animation, input, or save state lives here.
 
@@ -44,7 +44,7 @@ static func move(state: Dictionary, source: int, direction: String) -> Dictionar
 	if state.board[entry] < 0 or state.pieces[entry] == color:
 		return {}
 	var exit := other_portal(state.board, entry)
-	# Match Neutronic's validation order, including occupied portal entrances.
+	# Validate the paired exit before resolving a collision at the entrance.
 	if exit >= 0 and exit != source and state.pieces[exit] == color:
 		return {}
 	var next: Dictionary = state.duplicate(true)

@@ -5,6 +5,7 @@ const Session = preload("res://scripts/session.gd")
 const Progress = preload("res://scripts/progress.gd")
 const Catalog = preload("res://scripts/catalog.gd")
 const Settings = preload("res://scripts/settings.gd")
+const UserData = preload("res://scripts/user_data.gd")
 var failures := 0
 var checks := 0
 
@@ -25,8 +26,9 @@ func _run() -> void:
 	_test_session()
 	_test_progress()
 	_test_framework()
+	_test_user_data_migration()
 	_test_catalog()
-	print("GRAY: %d checks, %d failures" % [checks, failures])
+	print("NULL: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
 
 func _test_rules() -> void:
@@ -51,7 +53,7 @@ func _test_rules() -> void:
 	var entry_hit := Puzzle.move(Puzzle.from_level(level(["wA#A"], [[1, -1]])), 0, "right")
 	check(entry_hit.merged and not entry_hit.teleported and entry_hit.state.board == [0, -1, -1, 0], "Occupied entry merges before teleporting")
 	check(Puzzle.move(Puzzle.from_level(level(["wA#A"], [[3, 1]])), 0, "right").is_empty(), "Same color at exit blocks")
-	check(Puzzle.move(Puzzle.from_level(level(["wA#A"], [[1, -1], [3, 1]])), 0, "right").is_empty(), "Exit validation happens before entry collision, matching reference")
+	check(Puzzle.move(Puzzle.from_level(level(["wA#A"], [[1, -1], [3, 1]])), 0, "right").is_empty(), "Exit validation happens before entry collision, using the portal validation order")
 	var adjacent := Puzzle.from_level(level(["AA"], [[0, 1]]))
 	var return_trip := Puzzle.move(adjacent, 0, "right")
 	check(not return_trip.is_empty() and Puzzle.key(return_trip.state) == Puzzle.key(adjacent), "Adjacent portals may return to source without recursion")
@@ -166,6 +168,37 @@ func _test_framework() -> void:
 	check(not config.show_hints and config.reduce_motion and config.hard_mode, "Preferences survive reload")
 	DirAccess.remove_absolute(path)
 	DirAccess.remove_absolute(path + ".cfg")
+
+func _test_user_data_migration() -> void:
+	var directory := "user://rename_test_%d" % OS.get_process_id()
+	var legacy := directory.path_join("GRAY")
+	var current := directory.path_join("NULL")
+	DirAccess.make_dir_recursive_absolute(legacy)
+	var source := legacy.path_join("progress.json")
+	var contents := "{\"version\":2,\"records\":{}}"
+	var file := FileAccess.open(source, FileAccess.WRITE)
+	file.store_string(contents)
+	file.close()
+	check(UserData.migrate_file("progress.json", current) == OK, "Existing progress migrates to the renamed application directory")
+	check(FileAccess.get_file_as_string(current.path_join("progress.json")) == contents, "Migration preserves progress contents")
+	check(FileAccess.get_file_as_string(source) == contents, "Migration preserves the original save")
+	file = FileAccess.open(current.path_join("progress.json"), FileAccess.WRITE)
+	file.store_string("current progress")
+	file.close()
+	check(UserData.migrate_file("progress.json", current) == OK, "Migration is safe to run repeatedly")
+	check(FileAccess.get_file_as_string(current.path_join("progress.json")) == "current progress", "Existing NULL saves are never replaced by older saves")
+	var preferences := "[preferences]\nshow_hints=false\n"
+	file = FileAccess.open(legacy.path_join("settings.cfg"), FileAccess.WRITE)
+	file.store_string(preferences)
+	file.close()
+	check(UserData.migrate_file("settings.cfg", current) == OK, "Settings migrate alongside progress")
+	check(FileAccess.get_file_as_string(current.path_join("settings.cfg")) == preferences, "Migration preserves preferences")
+	check(UserData.migrate_file("missing.json", current) == OK and not FileAccess.file_exists(current.path_join("missing.json")), "A missing legacy file needs no migration")
+	for base in [legacy, current]:
+		for name_value in ["progress.json", "settings.cfg"]:
+			DirAccess.remove_absolute(base.path_join(name_value))
+		DirAccess.remove_absolute(base)
+	DirAccess.remove_absolute(directory)
 
 func _test_catalog() -> void:
 	var catalog: Array = JSON.parse_string(FileAccess.get_file_as_string("res://data/levels.json"))

@@ -1,72 +1,94 @@
-# GRAY
+# NULL
 
-用 **Godot 4 + GDScript** 重写作者自己的 Neutronic。沿用移动、异色消融、地板消失和传送门规则，重新组织游戏流程、架构、黑白视觉与关卡。暂定中文名「灰」，英文名 **GRAY**。
+NULL is a minimalist grid puzzle about black and white particles, disappearing paths, and finding the shortest solution. Built with Godot 4 and GDScript.
 
-![GRAY 首页](docs/images/home.png)
+![NULL title screen](docs/images/home.png)
 
-当前为 **0.4 极简版**：冷灰留白、黑白交叠标记、小写 gray 字标和一个开始入口。无断点时直接进入当前模式下一关，有断点时继续对局。选关和设置在游戏中随时可用，包含 6 个章节、20 个原创关卡。
+## Gameplay
 
-## 开始游戏
+Select a particle and move it one tile up, down, left, or right.
 
-使用 Godot **4.6 或更新的 4.x 版本**导入 `project.godot`，按 **F5** 运行整个项目。当前验证版本为 **4.6.2**。
+- Particles must stay on the remaining tiles.
+- Particles of the same color block each other.
+- When opposite colors meet, both particles disappear, along with the tile where they meet.
+- Clear every particle to finish the level.
 
-```bash
+Portals with matching letters are linked. Entering an empty portal teleports the particle to its partner and costs one move. A same-colored particle at the exit blocks the move. If a collision happens on a portal, that end disappears and its partner becomes a normal tile.
+
+## Modes
+
+| Mode | Goal |
+| --- | --- |
+| Easy | Clear the board in any number of moves. |
+| Hard | Clear the board in the verified minimum number of moves. |
+
+Each level supports both modes, with separate completion records and a shared personal best. Invalid moves and selection changes do not count. Undo restores particles, tiles, portals, and the move counter.
+
+## Features
+
+- 20 handcrafted levels across six chapters, all available from level selection.
+- Minimum move counts verified by independent Python and GDScript solvers.
+- Automatic saves, resumable games, and undo history restored after restarting.
+- A minimal title screen that starts the next unfinished level or resumes the current run.
+- Grayscale visuals, an interactive black-and-white mark, fullscreen, and reduced-motion settings.
+
+## Controls
+
+| Input | Action |
+| --- | --- |
+| Click a particle, then an adjacent tile | Select and move |
+| Arrow keys / WASD | Move the selected particle |
+| Tab / Shift+Tab | Cycle through particles |
+| Z | Undo |
+| R | Restart the level |
+| Esc | Deselect, then pause |
+| Enter / Space on the title screen | Start or continue |
+| F11 | Toggle fullscreen |
+
+Level selection is available from the back button during play or the pause menu. Switching modes restarts the current level.
+
+## Run locally
+
+Open the project with **Godot 4.6** and press **F5**, or run:
+
+~~~bash
 godot --path .
-```
+~~~
 
-- 点选棋子，再点相邻格；也可以用方向键或 WASD 移动。
-- Tab / Shift Tab 切换棋子，Esc 取消选择。
-- Z 撤销，R 重开。无效移动不计步，选择棋子不计步。
-- 20 个原创关卡全部开放，每关可切换简单和困难模式。切换模式会重开当前关卡。
-- 未完成的对局自动保存，重新启动后可从首页继续，撤销历史也会恢复。
-- 首页点击「开始」或按 Enter 直接进入首个未完成的关卡，有断点时改为「继续」。
-- 游戏左上角返回选关；左右箭头或底部圆点切换章节。首页右下角可调整设置。
-- Esc 先取消棋子选择，再打开暂停菜单；F11 切换全屏。
-- 设置支持显示可走邻格、减少动态效果和全屏，偏好会自动保存。
+Tested with Godot **4.6.2**. The game runs locally, with progress and preferences stored on your device.
 
-## 玩法
+## Development
 
-每次将一颗棋子向上下左右移动一格。棋子不能走出地板，也不能进入同色棋子所在的格子。黑白相遇时，两颗棋子消失，**相遇位置的地板也消失**；起点地板保留。清空所有棋子即可完成棋盘。
+Levels live in `data/levels.json`. The rules, session history, rendering, navigation, and persistence are separate modules.
 
-带相同字母的两个传送门相连。进入空传送门后，立即到达另一端，整次行动只算一步。出口同色棋子会阻挡；出口异色棋子会与移动的棋子合并。若入口已有异色棋子，则在入口先合并。传送门上发生合并后，该格消失，另一端变为普通地板。
-
-| 模式 | 通过条件 | 记录 |
-| --- | --- | --- |
-| 简单 | 清空棋子，步数不限 | ○ 简单通关与个人最佳 |
-| 困难 | 清空棋子，步数等于已验证的全局最少步数 | ◇ 困难通关与个人最佳 |
-
-困难模式超步后可以继续探索、撤销或重开；清空棋盘会保留简单通关记录，但不会获得困难标记。简单模式即使走出最优解，也需要切换到困难模式完成一次，才会获得困难标记。撤销会恢复地板、传送门、棋子、选择和步数。
-
-进度保存在 Godot 的 `user://progress.json`，设置保存在 `user://settings.cfg`。简单／困难标记独立，个人最佳跨模式共享。存档包含关卡内容哈希；改变布局、棋子、传送门或最优步数后，旧记录不会错误地套用到新关卡。首版 12 关的旧存档支持迁移。
-
-## 实现与验证
-
-应用导航、独立页面、规则层、会话层、渲染层和存档层分离。关卡保存在 `data/levels.json`；每关附带最优步数、合法解和 BFS 搜索记录。Python 与 GDScript 两套独立求解器会交叉验证最优步数，搜索超限不会生成「最优」结论。
-
-```bash
+~~~bash
 python3 tools/check.py
 python3 tools/check.py --visual
-```
+~~~
 
-检查包含关卡认证、规则、存档迁移、版本失效、断点恢复、偏好保存，以及实际鼠标和键盘操作。`--visual` 会打开原生窗口，在 `builds/` 生成首页、选关、设置和游戏的截图。测试使用独立存档，不影响游戏进度。检查入口也会识别 Godot 日志中的脚本异常，防止引擎退出码为 0 时漏报。
+The visual checks open native windows and save screenshots in `builds/`. Tests use isolated saves.
 
-修改或增加关卡后，运行 `python3 tools/certify_levels.py --write` 重新认证，再运行检查。当前最优解为 **1～12 步**。后八关重点训练通路保留、同色借位、传送门退化与出口疏通；正式难度曲线还需试玩调整。
+After changing a level, regenerate its shortest-path certificate and run the checks:
 
-## 导出
+~~~bash
+python3 tools/certify_levels.py --write
+python3 tools/check.py
+~~~
 
-已配置 macOS 和 Web 预设，需安装与 Godot 版本匹配的导出模板。`data/*.json` 已显式包含在导出资源中。
+See [design notes](docs/design.md) and [level authoring](docs/levels.md) for implementation details. Both documents are in Chinese.
 
-```bash
+## Export
+
+Install the export templates matching your Godot version. macOS and Web presets are included.
+
+~~~bash
 mkdir -p builds/macos builds/web
-godot --headless --path . --export-release macOS builds/macos/GRAY.zip
+godot --headless --path . --export-release macOS builds/macos/NULL.zip
 godot --headless --path . --export-release Web builds/web/index.html
-```
+~~~
 
-构建产物和 `.godot/` 缓存不进入 Git。仓库保存源码、关卡、测试和设计文档。Web 导出应通过 HTTP 服务打开。
+Serve the Web build over HTTP. Build outputs and editor caches are excluded from Git.
 
-## 设计文档
+## License
 
-- [原项目分析和 Godot 实现方案](docs/design.md)
-- [关卡编写与最优步数认证](docs/levels.md)
-
-原作 [Neutronic](https://github.com/RayZh-hs/neutronic) 同样由本项目作者开发，成熟的规则、交互和关卡思路可以继续复用。当前界面以黑白消融与空位为自己的视觉方向，关卡采用重新设计的主线。字体与图标来源见 [资源说明](assets/README.md)，仓库保留原有 MIT License。
+[MIT](LICENSE). Font and icon licenses are included with their [assets](assets/README.md).

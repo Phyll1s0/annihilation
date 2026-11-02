@@ -20,7 +20,7 @@ func _ready() -> void:
 	mark = Mark.new()
 	mark.custom_minimum_size = Vector2(96, 42)
 	body.add_child(mark)
-	var title := _label("gray", 52, INK)
+	var title := _label("NULL", 48, INK)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(title)
 	var button_center := CenterContainer.new()

@@ -1,4 +1,4 @@
-class_name GrayCatalog
+class_name NullCatalog
 extends RefCounted
 const Puzzle = preload("res://scripts/puzzle.gd")
 const RULES_VERSION := 1

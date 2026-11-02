@@ -1,5 +1,6 @@
-class_name GraySettings
+class_name NullSettings
 extends RefCounted
+const UserData = preload("res://scripts/user_data.gd")
 
 var path: String
 var reduce_motion := false
@@ -9,6 +10,10 @@ var hard_mode := false
 
 func _init(config_path: String = "user://settings.cfg") -> void:
 	path = config_path
+	if config_path == "user://settings.cfg":
+		var error := UserData.migrate_file("settings.cfg")
+		if error != OK:
+			push_warning("NULL: could not migrate existing settings (error %d)." % error)
 	var config := ConfigFile.new()
 	if config.load(path) != OK:
 		return

@@ -1,4 +1,4 @@
-class_name GraySession
+class_name NullSession
 extends RefCounted
 
 const Puzzle = preload("res://scripts/puzzle.gd")

@@ -42,7 +42,8 @@ func settle() -> void:
 func capture(name: String) -> void:
 	if DisplayServer.get_name() == "headless":
 		return
-	await RenderingServer.frame_post_draw
+	await process_frame
+	RenderingServer.force_draw()
 	root.get_texture().get_image().save_png("res://builds/" + name + ".png")
 
 func _run() -> void:
@@ -104,13 +105,13 @@ func _run() -> void:
 	ui.progress.records.clear()
 	ui._sync()
 	await settle()
-	await capture("gray-1280")
+	await capture("null-1280")
 	root.size = Vector2i(960, 680)
 	await settle()
 	check(ui.hard_button.get_global_rect().end.x <= root.size.x, "Mode controls fit the minimum window width")
 	check(ui.board.size.y >= 220 and ui.board.get_global_rect().end.y < 680, "Board fits the minimum window height")
-	await capture("gray-960")
+	await capture("null-960")
 	DirAccess.remove_absolute(save_path)
 	DirAccess.remove_absolute(save_path + ".cfg")
-	print("GRAY UI smoke: %d failures; screenshots in builds/" % failures)
+	print("NULL UI smoke: %d failures; screenshots in builds/" % failures)
 	quit(1 if failures else 0)

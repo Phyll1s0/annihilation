@@ -45,8 +45,9 @@ func capture(name_value: String) -> void:
 		return
 	var page: Control = app.pages[app.screen]
 	if page.entrance != null and page.entrance.is_running():
-		await page.entrance.finished
-	await RenderingServer.frame_post_draw
+		await create_timer(0.35).timeout
+	await process_frame
+	RenderingServer.force_draw()
 	root.get_texture().get_image().save_png("res://builds/" + name_value + ".png")
 
 func make_app() -> void:
@@ -161,5 +162,5 @@ func _run() -> void:
 	await capture("settings-960")
 	DirAccess.remove_absolute(save_path)
 	DirAccess.remove_absolute(save_path + ".cfg")
-	print("GRAY application: %d checks, %d failures" % [checks, failures])
+	print("NULL application: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

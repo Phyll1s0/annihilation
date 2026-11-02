@@ -1,8 +1,9 @@
-class_name GrayProgress
+class_name NullProgress
 extends RefCounted
 
 const Catalog = preload("res://scripts/catalog.gd")
 const Puzzle = preload("res://scripts/puzzle.gd")
+const UserData = preload("res://scripts/user_data.gd")
 var path: String
 var records: Dictionary = {}
 var resume: Dictionary = {}
@@ -10,6 +11,10 @@ var loaded_version := 2
 
 func _init(save_path: String = "user://progress.json") -> void:
 	path = save_path
+	if save_path == "user://progress.json":
+		var error := UserData.migrate_file("progress.json")
+		if error != OK:
+			push_warning("NULL: could not migrate existing progress (error %d)." % error)
 	load_records()
 
 func load_records() -> void:
@@ -17,7 +22,7 @@ func load_records() -> void:
 		return
 	var data = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not data is Dictionary or (data.get("version") != 1 and data.get("version") != 2) or not data.get("records") is Dictionary:
-		push_warning("GRAY: unreadable progress file; starting with empty records.")
+		push_warning("NULL: unreadable progress file; starting with empty records.")
 		return
 	loaded_version = int(data.version)
 	for id in data.records:
