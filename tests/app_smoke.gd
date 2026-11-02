@@ -73,6 +73,19 @@ func _run() -> void:
 	check(app.screen == "home" and app.home.visible and not app.game.visible, "Startup opens the home screen")
 	check(app.home.continue_button.text == "Start" and app.game.easy_button.text == "Easy", "The default UI is English regardless of system language")
 	await capture("home-1280")
+	if DisplayServer.get_name() != "headless":
+		key(KEY_F11)
+		await create_timer(0.8).timeout
+		await settle()
+		check(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN, "F11 enters native fullscreen")
+		print("Fullscreen home: %s, title %d, start %d" % [app.home.size,
+			app.home.title.get_theme_font_size("font_size"), app.home.continue_button.get_theme_font_size("font_size")])
+		await capture("home-fullscreen")
+		key(KEY_F11)
+		await create_timer(0.8).timeout
+		root.size = Vector2i(1280, 820)
+		await settle()
+		check(DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED, "F11 returns to the ordinary window")
 	app.home.settings_button.grab_focus()
 	await settle()
 	key(KEY_ENTER)

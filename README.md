@@ -29,7 +29,7 @@ Each level supports both modes, with separate completion records and a shared pe
 - 20 handcrafted levels across six chapters, all available from level selection.
 - Minimum move counts verified by independent Python and GDScript solvers.
 - Automatic saves, resumable games, and undo history restored after restarting.
-- A minimal title screen that starts the next unfinished level or resumes the current run.
+- A minimal title screen with scalable text and controls that starts the next unfinished level or resumes the current run.
 - Black-and-white pieces, a pure black background with faint star trails, and an orbital zero mark.
 - Fullscreen and reduced-motion settings; background details fade during play.
 - English by default, with an instant, saved switch to Simplified Chinese in Settings → General → Language.
