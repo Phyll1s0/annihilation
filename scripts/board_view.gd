@@ -174,9 +174,6 @@ func _tile(index: int, terrain: int, opacity: float = 1.0) -> void:
 	var portal_color := _portal_color(portal)
 	style.bg_color = Color(1, 1, 1, 0.035 * opacity) if portal == 0 else Color(portal_color, 0.12 * opacity)
 	style.border_color = Color(1, 1, 1, 0.25 * opacity) if portal == 0 else Color(portal_color, 0.70 * opacity)
-	if not direction.is_empty():
-		style.bg_color = Color(PRIMARY, 0.06 * opacity)
-		style.border_color = Color(PRIMARY, 0.43 * opacity)
 	style.set_border_width_all(maxi(1, roundi(visual_scale)))
 	var corner := roundi((3.0 if portal == 0 else 10.0) * visual_scale)
 	style.set_corner_radius_all(corner)
@@ -197,10 +194,10 @@ func _tile(index: int, terrain: int, opacity: float = 1.0) -> void:
 		var tag_size := maxi(8, roundi(unit * 0.16))
 		draw_string(font, rect.position + Vector2(maxf(2, unit * 0.09), tag_size + 2 * visual_scale), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, tag_size, Color(portal_color, opacity * 0.95))
 	if not direction.is_empty():
-		# Mark the departure edge so a particle cannot cover the direction.
+		# A quiet, centered mark sits beneath the particles.
 		var axis := Vector2(Puzzle.DIRECTIONS[direction])
-		DirectionGlyph.draw_mark(self, center_of(index) + axis * unit * 0.28,
-			axis, unit * 0.40, Color(PRIMARY, opacity * 0.88), maxf(1.4, unit * 0.020))
+		DirectionGlyph.draw_mark(self, center_of(index), axis, unit * 0.72,
+			Color(PRIMARY, opacity * 0.20), maxf(1.0, unit * 0.016))
 
 func _piece(point: Vector2, color: int, radius: float, opacity: float = 1.0, active: bool = false) -> void:
 	if radius < 0.1:

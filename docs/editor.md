@@ -21,7 +21,7 @@ The editor is designed for desktop windows, including fullscreen and high-resolu
 | Portal | Place the selected A–Z portal group, keeping any particle. |
 | ↑ / → / ↓ / ← | Place a one-way field; keep any particle. Departure is allowed only in the indicated direction. |
 
-Choose the labeled **One-way field** tool, then select one of the four large chevron buttons and paint the board. The last selected direction is remembered when switching brushes. **Playtest**, **Save**, and file actions stay visible below the scrollable tool panel.
+Choose the labeled **One-way field** tool, then select one of the four large arrow buttons and paint the board. The last selected direction is remembered when switching brushes. **Playtest**, **Save**, and file actions stay visible below the scrollable tool panel.
 
 Particles can enter a field from any direction and remain there until moved. Fields do not slide particles automatically. **Floor** replaces a field with an ordinary tile; **Erase piece** keeps its direction. Undo, drafts, saved maps, and JSON sharing preserve directions.
 

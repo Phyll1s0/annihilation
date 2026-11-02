@@ -1,5 +1,5 @@
 extends Control
-## The same vector chevrons label field tiles and their editor tools.
+## A single vector arrow shared by field tiles and editor tools.
 var direction := "right"
 
 func _ready() -> void:
@@ -15,8 +15,8 @@ func _draw() -> void:
 static func draw_mark(canvas: CanvasItem, center: Vector2, axis: Vector2,
 		span: float, tint: Color, stroke: float) -> void:
 	var side := axis.orthogonal()
-	for offset in [-0.25, 0.25]:
-		var tip: Vector2 = center + axis * (offset + 0.20) * span
-		var base: Vector2 = center + axis * (offset - 0.20) * span
-		canvas.draw_polyline(PackedVector2Array([base + side * span * 0.30,
-			tip, base - side * span * 0.30]), tint, stroke, true)
+	var tip := center + axis * span * 0.45
+	var base := center + axis * span * 0.04
+	canvas.draw_line(center - axis * span * 0.45, tip, tint, stroke, true)
+	canvas.draw_polyline(PackedVector2Array([base + side * span * 0.33,
+		tip, base - side * span * 0.33]), tint, stroke, true)

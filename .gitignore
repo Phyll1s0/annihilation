@@ -3,3 +3,4 @@ builds/
 .DS_Store
 *.tmp
 __pycache__/
+output/audio/

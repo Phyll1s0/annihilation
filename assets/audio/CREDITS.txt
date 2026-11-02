@@ -1,7 +1,8 @@
 Still Orbit — NULL original soundtrack
 
 Original composition, arrangement, and production for NULL.
-The score and reproducible renderer are in tools/render_music.py.
+Both score revisions are in tools/music_score.py.
+The reproducible sampled-piano renderer is in tools/render_music.py.
 96 seconds, stereo, 60 BPM; a repeating piano arrangement with a quiet room tail.
 The original composition and arrangement use the project's MIT license.
 
