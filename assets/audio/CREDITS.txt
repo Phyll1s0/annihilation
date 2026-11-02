@@ -1,0 +1,14 @@
+Still Orbit — NULL original soundtrack
+
+Original composition, arrangement, and production for NULL.
+The score and reproducible renderer are in tools/render_music.py.
+96 seconds, stereo, 60 BPM; a repeating piano arrangement with a quiet room tail.
+The original composition and arrangement use the project's MIT license.
+
+Piano instrument: VSCO 2 Community Edition, Upright Piano.
+Sampled by Simon Dalzell / Ivy Audio, distributed by Sam Gossner / Versilian Studios.
+Source: https://github.com/sgossner/VSCO-2-CE
+Pinned revision: 440300901dfe9275fd84e0b7763af1f8443ae62e
+Instrument samples are dedicated to the public domain under CC0 1.0 Universal.
+See VSCO-CC0-LICENSE.txt for the source library's license.
+The unmodified source samples are cached locally by the renderer, not bundled separately.

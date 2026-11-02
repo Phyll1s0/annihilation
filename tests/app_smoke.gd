@@ -68,6 +68,7 @@ func make_app() -> void:
 	app = load("res://scenes/main.tscn").instantiate()
 	app.progress = Progress.new(save_path)
 	app.settings = Settings.new(save_path + ".cfg")
+	app.settings.music_enabled = false
 	root.add_child(app)
 
 func _run() -> void:

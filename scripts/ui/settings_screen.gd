@@ -21,6 +21,11 @@ var ui_scale := 1.0
 var developer: VBoxContainer
 var developer_button: Button
 var editor_button: Button
+var audio: VBoxContainer
+var audio_button: Button
+var volume_slider: HSlider
+var volume_value: Label
+var volume_knob: DPITexture
 
 func _ready() -> void:
 	settings.apply_language()
@@ -29,6 +34,17 @@ func _ready() -> void:
 	toggle_off = preload("res://assets/icons/toggle-off.svg").duplicate()
 	theme.set_icon("checked", "CheckButton", toggle_on)
 	theme.set_icon("unchecked", "CheckButton", toggle_off)
+	volume_knob = preload("res://assets/icons/slider-knob.svg").duplicate()
+	theme.set_icon("grabber", "HSlider", volume_knob)
+	theme.set_icon("grabber_highlight", "HSlider", volume_knob)
+	for style_name in ["slider", "grabber_area", "grabber_area_highlight"]:
+		var track := StyleBoxFlat.new()
+		track.bg_color = Color("292d32") if style_name == "slider" else Color("b8c1cc")
+		track.set_corner_radius_all(2)
+		track.content_margin_top = 2
+		track.content_margin_bottom = 2
+		theme.set_stylebox(style_name, "HSlider", track)
+	theme.set_stylebox("focus", "HSlider", _style(Color.TRANSPARENT, LINE, 3))
 	back_button = _back_button(func(): navigation_requested.emit("back"))
 	var margin := _margin(self, 82)
 	frame = margin
@@ -49,6 +65,8 @@ func _ready() -> void:
 	controls_button = _button("Controls", func(): _tab(true), Vector2(160, 48))
 	developer_button = _button("Developer", _developer_tab, Vector2(160, 48))
 	navigation.add_child(general_button)
+	audio_button = _button("Audio", _audio_tab, Vector2(160, 48))
+	navigation.add_child(audio_button)
 	navigation.add_child(controls_button)
 	navigation.add_child(developer_button)
 	var spacer := Control.new()
@@ -108,6 +126,37 @@ func _ready() -> void:
 		toggle.toggled.connect(func(enabled: bool): _set_option(key, enabled))
 		row.add_child(toggle)
 		switches[key] = toggle
+	audio = VBoxContainer.new()
+	audio.add_theme_constant_override("separation", 24)
+	page.add_child(audio)
+	var music_row := HBoxContainer.new()
+	audio.add_child(music_row)
+	music_row.add_child(_label("Music", 18))
+	_spacer(music_row)
+	var music_toggle := CheckButton.new()
+	music_toggle.custom_minimum_size = Vector2(56, 40)
+	music_toggle.toggled.connect(func(enabled: bool): _set_option("music_enabled", enabled); _refresh_audio())
+	music_row.add_child(music_toggle)
+	switches.music_enabled = music_toggle
+	var volume_row := HBoxContainer.new()
+	audio.add_child(volume_row)
+	volume_row.add_child(_label("Volume", 18))
+	_spacer(volume_row)
+	volume_value = _label("", 14, MUTED)
+	volume_row.add_child(volume_value)
+	volume_slider = HSlider.new()
+	volume_slider.min_value = 0
+	volume_slider.max_value = 100
+	volume_slider.step = 1
+	volume_slider.custom_minimum_size = Vector2(200, 40)
+	volume_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	volume_slider.value_changed.connect(func(value: float):
+		settings.music_volume = value / 100.0
+		_save_settings()
+		_refresh_audio()
+		settings_changed.emit())
+	audio.add_child(volume_slider)
+	audio.add_child(_label("Still Orbit", 14, MUTED))
 	controls = VBoxContainer.new()
 	controls.add_theme_constant_override("separation", 16)
 	page.add_child(controls)
@@ -160,6 +209,7 @@ func _layout_settings() -> void:
 	if frame == null:
 		return
 	ui_scale = _screen_scale()
+	volume_knob.base_scale = ui_scale
 	toggle_on.base_scale = ui_scale
 	toggle_off.base_scale = ui_scale
 	if language_arrow != null:
@@ -184,6 +234,8 @@ func _tab(show_controls: bool) -> void:
 	general.visible = not show_controls
 	controls.visible = show_controls
 	developer.hide()
+	audio.hide()
+	_accent(audio_button, false)
 	heading.text = tr("Controls") if show_controls else tr("Settings")
 	_accent(general_button, not show_controls)
 	_accent(controls_button, show_controls)
@@ -195,6 +247,8 @@ func _tab(show_controls: bool) -> void:
 	active.add_theme_stylebox_override("normal", marker)
 
 func _developer_tab() -> void:
+	audio.hide()
+	_accent(audio_button, false)
 	general.hide()
 	controls.hide()
 	developer.show()
@@ -202,6 +256,22 @@ func _developer_tab() -> void:
 	_accent(general_button, false)
 	_accent(controls_button, false)
 	_accent(developer_button, true)
+
+func _audio_tab() -> void:
+	general.hide()
+	controls.hide()
+	developer.hide()
+	audio.show()
+	heading.text = tr("Audio")
+	for button in [general_button, controls_button, developer_button]: _accent(button, false)
+	_accent(audio_button, true)
+	_refresh_audio()
+
+func _refresh_audio() -> void:
+	volume_slider.set_value_no_signal(roundi(settings.music_volume * 100))
+	volume_value.text = "%d%%" % roundi(settings.music_volume * 100)
+	volume_slider.editable = settings.music_enabled
+	volume_slider.modulate.a = 1.0 if settings.music_enabled else 0.4
 
 func _set_option(key: String, enabled: bool) -> void:
 	settings.set(key, enabled)
@@ -224,7 +294,7 @@ func _set_language(index: int) -> void:
 
 func _refresh_language() -> void:
 	if heading != null:
-		heading.text = tr("Developer") if developer.visible else (tr("Controls") if controls.visible else tr("Settings"))
+		heading.text = tr("Audio") if audio.visible else (tr("Developer") if developer.visible else (tr("Controls") if controls.visible else tr("Settings")))
 		status.text = tr(status_message)
 
 func refresh() -> void:
@@ -232,3 +302,4 @@ func refresh() -> void:
 	for key in switches:
 		switches[key].set_pressed_no_signal(settings.get(key))
 	editor_button.disabled = not settings.developer_mode
+	_refresh_audio()

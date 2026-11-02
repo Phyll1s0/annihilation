@@ -15,6 +15,7 @@ var home
 var campaign
 var preferences
 var background
+var music
 var pages: Dictionary = {}
 var screen := "home"
 var settings_return := "home"
@@ -47,6 +48,9 @@ func _ready() -> void:
 		return
 	levels = catalog.levels
 	progress.bind_catalog(levels)
+	music = preload("res://scripts/music.gd").new()
+	music.settings = settings
+	add_child(music)
 	home = Home.instantiate()
 	home.levels = levels
 	home.progress = progress
@@ -70,7 +74,8 @@ func _ready() -> void:
 	preferences.settings_changed.connect(func():
 		game.apply_settings()
 		if test_game != null: test_game.apply_settings()
-		background.apply_settings())
+		background.apply_settings()
+		music.apply_settings())
 	game.pause_requested.connect(pause_game)
 	game.state_changed.connect(func(): home.refresh())
 	_build_pause()
@@ -84,6 +89,7 @@ func _ready() -> void:
 	if "--create" in OS.get_cmdline_user_args(): _navigate("editor")
 
 func _navigate(destination: String) -> void:
+	if music != null: music.unlock()
 	match destination:
 		"continue":
 			if not progress.resume.is_empty():
@@ -123,6 +129,7 @@ func show_screen(destination: String) -> void:
 	if not pages.has(destination):
 		return
 	screen = destination
+	music.set_page(destination)
 	background.set_page("game" if destination == "editor_test" else destination)
 	paused = false
 	pause_layer.hide()

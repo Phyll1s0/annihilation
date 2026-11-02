@@ -36,6 +36,7 @@ Each campaign level supports both modes, with separate completion records and a 
 - A My levels tab for playing, editing, and viewing the records of saved custom maps.
 - Black-and-white pieces, a pure black background with faint star trails, and an orbital zero mark.
 - Responsive chapter selection, progress indicators, pause menus, and Settings, with readable controls in fullscreen.
+- Soft original piano music with smooth looping, quieter playback during puzzles, and saved music/volume controls under Settings → Audio.
 - Reduced-motion controls; background details fade during play.
 - English by default, with an instant, saved switch to Simplified Chinese in Settings → General → Language.
 - Centered, square-cell boards that resize with the window, without a text footer during play.
@@ -119,4 +120,4 @@ Serve the Web build over HTTP. Build outputs and editor caches are excluded from
 
 ## License
 
-[MIT](LICENSE). Font and icon licenses are included with their [assets](assets/README.md).
+[MIT](LICENSE). Font, icon, and piano sample credits and licenses are included with their [assets](assets/README.md).

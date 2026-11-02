@@ -58,6 +58,7 @@ func _run() -> void:
 	root.add_child(viewport)
 	app = load("res://scenes/main.tscn").instantiate()
 	app.settings = Settings.new(save_path + ".cfg")
+	app.settings.music_enabled = false
 	app.settings.reduce_motion = true
 	app.progress = Progress.new(save_path)
 	viewport.add_child(app)

@@ -57,8 +57,9 @@ func _run() -> void:
 			settings.language = language
 			settings.apply_language()
 			await settle()
-			for page in ["general", "controls", "developer"]:
+			for page in ["general", "audio", "controls", "developer"]:
 				if page == "developer": ui._developer_tab()
+				elif page == "audio": ui._audio_tab()
 				else: ui._tab(page == "controls")
 				await settle()
 				var tag := "%s %dx%d tab %s" % [language, dimensions.x, dimensions.y, page]

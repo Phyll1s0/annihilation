@@ -662,3 +662,12 @@ msgstr "暂无已保存关卡。创作关卡并点击保存，即可添加到这
 
 msgid "Level saved to My levels."
 msgstr "已保存到我的关卡。"
+
+msgid "Audio"
+msgstr "音频"
+
+msgid "Music"
+msgstr "背景音乐"
+
+msgid "Volume"
+msgstr "音量"
