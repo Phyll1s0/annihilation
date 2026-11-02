@@ -1,0 +1,452 @@
+[
+  {
+    "id": "01",
+    "title": "初见",
+    "chapter": "相遇",
+    "description": "点选一颗棋子，再点相邻格。让黑与白相遇。",
+    "layout": [
+      "wb"
+    ],
+    "optimal_moves": 1,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 3
+    }
+  },
+  {
+    "id": "02",
+    "title": "靠近一点",
+    "chapter": "相遇",
+    "description": "每次只走一格。选择哪一颗移动，由你决定。",
+    "layout": [
+      "w..b"
+    ],
+    "optimal_moves": 3,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 10
+    }
+  },
+  {
+    "id": "03",
+    "title": "四角",
+    "chapter": "相遇",
+    "description": "同色不能重叠，异色相遇会带走脚下的地板。",
+    "layout": [
+      "w.b",
+      "...",
+      "b.w"
+    ],
+    "optimal_moves": 4,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 6,
+        "direction": "right"
+      },
+      {
+        "source": 7,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 359
+    }
+  },
+  {
+    "id": "04",
+    "title": "留一条路",
+    "chapter": "取舍",
+    "description": "中间的相遇很诱人。但路一旦消失，就不会回来。",
+    "layout": [
+      "w.bw.b"
+    ],
+    "optimal_moves": 4,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 4,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 68
+    }
+  },
+  {
+    "id": "05",
+    "title": "错身",
+    "chapter": "取舍",
+    "description": "为另一颗棋子保留位置，再完成合并。",
+    "layout": [
+      "ww.b",
+      "....",
+      "b..."
+    ],
+    "optimal_moves": 4,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "down"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 4,
+        "direction": "down"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 343
+    }
+  },
+  {
+    "id": "06",
+    "title": "窄桥",
+    "chapter": "取舍",
+    "description": "桥很窄。先想好在哪里相遇，再迈出下一步。",
+    "layout": [
+      "w...b",
+      ".#.#.",
+      ".....",
+      ".#.#.",
+      "b...w"
+    ],
+    "optimal_moves": 8,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 20,
+        "direction": "right"
+      },
+      {
+        "source": 21,
+        "direction": "right"
+      },
+      {
+        "source": 22,
+        "direction": "right"
+      },
+      {
+        "source": 23,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 6018
+    }
+  },
+  {
+    "id": "07",
+    "title": "折叠",
+    "chapter": "另一端",
+    "description": "带 A 的两个格子相连。走入传送门，只计一步。",
+    "layout": [
+      "w.A##",
+      "#####",
+      "##A.b"
+    ],
+    "optimal_moves": 4,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 12,
+        "direction": "right"
+      },
+      {
+        "source": 13,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 18
+    }
+  },
+  {
+    "id": "08",
+    "title": "隔空相拥",
+    "chapter": "另一端",
+    "description": "另一端已有异色棋子？传送后直接合并，入口变为普通地板。",
+    "layout": [
+      "wA##",
+      "####",
+      "##A."
+    ],
+    "tokens": [
+      [
+        10,
+        -1
+      ]
+    ],
+    "optimal_moves": 1,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 3
+    }
+  },
+  {
+    "id": "09",
+    "title": "回声",
+    "chapter": "另一端",
+    "description": "传送门既是捷径，也可能成为最后一次相遇的地方。",
+    "layout": [
+      "wA.b",
+      ".##.",
+      "bA.w"
+    ],
+    "optimal_moves": 4,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "down"
+      },
+      {
+        "source": 7,
+        "direction": "down"
+      },
+      {
+        "source": 8,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 275
+    }
+  },
+  {
+    "id": "10",
+    "title": "双重折叠",
+    "chapter": "另一端",
+    "description": "A 与 A 相连，B 与 B 相连。相同字母，不会认错路。",
+    "layout": [
+      "wA#Bb",
+      "..#..",
+      "bB#Aw"
+    ],
+    "optimal_moves": 4,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "down"
+      },
+      {
+        "source": 4,
+        "direction": "down"
+      },
+      {
+        "source": 5,
+        "direction": "down"
+      },
+      {
+        "source": 9,
+        "direction": "down"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 577
+    }
+  },
+  {
+    "id": "11",
+    "title": "先后之间",
+    "chapter": "归于灰",
+    "description": "三对黑白，有限的路。合并的顺序也是答案的一部分。",
+    "layout": [
+      "w...b",
+      "##.##",
+      "w...b",
+      "##.##",
+      "w...b"
+    ],
+    "optimal_moves": 12,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 2,
+        "direction": "right"
+      },
+      {
+        "source": 3,
+        "direction": "right"
+      },
+      {
+        "source": 10,
+        "direction": "right"
+      },
+      {
+        "source": 11,
+        "direction": "right"
+      },
+      {
+        "source": 12,
+        "direction": "right"
+      },
+      {
+        "source": 13,
+        "direction": "right"
+      },
+      {
+        "source": 20,
+        "direction": "right"
+      },
+      {
+        "source": 21,
+        "direction": "right"
+      },
+      {
+        "source": 22,
+        "direction": "right"
+      },
+      {
+        "source": 23,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 48537
+    }
+  },
+  {
+    "id": "12",
+    "title": "余白",
+    "chapter": "归于灰",
+    "description": "让所有黑白归于寂静，留下恰到好处的余白。",
+    "layout": [
+      "w.A..",
+      ".#.#.",
+      "b.B.w",
+      ".#.#.",
+      "b.A.B"
+    ],
+    "optimal_moves": 8,
+    "solution": [
+      {
+        "source": 0,
+        "direction": "right"
+      },
+      {
+        "source": 1,
+        "direction": "right"
+      },
+      {
+        "source": 10,
+        "direction": "right"
+      },
+      {
+        "source": 11,
+        "direction": "right"
+      },
+      {
+        "source": 14,
+        "direction": "down"
+      },
+      {
+        "source": 19,
+        "direction": "down"
+      },
+      {
+        "source": 20,
+        "direction": "right"
+      },
+      {
+        "source": 21,
+        "direction": "right"
+      }
+    ],
+    "proof": {
+      "method": "exhaustive_bfs",
+      "visited": 8547
+    }
+  }
+]
