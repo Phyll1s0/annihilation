@@ -2,7 +2,7 @@
 
 NULL uses black-and-white pieces against a pure black background (#000000), with sparse orbital trails and an empty zero as its mark.
 
-- The mark in scripts/ui/zero_mark.gd is a native vector oval with a softly varying edge. It responds to start-button hover and keyboard focus.
+- The mark in scripts/ui/zero_mark.gd is a native vector oval with a softly varying edge. It turns slowly while a silver highlight travels around its edge, and responds to start-button hover and keyboard focus. Reduced motion freezes it; it stops updating while the title screen is hidden.
 - scripts/ui/void_background.gd draws vector stars, slowly drifting trails, and an occasional meteor over solid black. Details fade during play. Reduced motion freezes the trails and disables meteors.
 - icon.svg and toggle-*.svg are project-specific vector assets.
 - Settings toggles use DPITexture resources, rasterized from their SVG source at the current UI size. Interface icons retain their full source resolution and use mipmaps when reduced.

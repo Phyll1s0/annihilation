@@ -91,7 +91,7 @@ func refresh() -> void:
 		return
 	continue_button.text = tr("Start")
 	continue_button.tooltip_text = tr("Choose a level · Enter")
-	mark.respond(false, true)
+	mark.respond(false, settings.reduce_motion)
 
 func _refresh_language() -> void:
 	refresh()
