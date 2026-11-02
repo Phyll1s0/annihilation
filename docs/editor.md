@@ -1,6 +1,6 @@
 # Level editor
 
-Open **Settings → Developer**, enable **Developer mode**, then choose **Level editor**.
+Choose **Create** on the title screen. The original **Settings → Developer → Developer mode → Level editor** route is also available.
 The editor is designed for desktop windows, including fullscreen and high-resolution displays.
 
 ## Make a map
@@ -9,14 +9,14 @@ The editor is designed for desktop windows, including fullscreen and high-resolu
 2. Enter a name. Set the width and height, then choose **Resize**. Maps can be 1–12 tiles in each direction.
 3. Select a brush and click or drag across the board. Right-click removes a tile and its particle.
 4. Choose **Playtest**, or press **F5**, to try the map immediately.
-5. Choose **Find minimum** to search for the shortest solution, then **Save** to keep the level in **My levels**.
+5. Choose **Save** to keep the level in **My levels**. Complete playtests to establish and improve its records.
 
 | Brush | Effect |
 | --- | --- |
 | Floor | Place a normal tile; keep any particle. |
 | Void | Remove the tile and its particle. |
 | White / Black | Place a particle, adding a floor if needed. |
-| Clear | Remove a particle while keeping the terrain. |
+| Erase piece | Remove a particle while keeping the terrain. |
 | Portal | Place the selected A–Z portal group, keeping any particle. |
 
 Each portal group has two ends. Remove an existing end before placing a third.
@@ -33,25 +33,29 @@ The current draft is saved automatically. Reopening the editor restores it.
 
 Campaign maps are copied into custom levels. Editing or playtesting them does not change the campaign, its completion records, or its current checkpoint.
 
-## Playtest and verify
+## Playtest and records
 
-An unverified map can be tested in **Easy**. **Hard** becomes available after its minimum is verified.
-Playtests use the regular movement, teleport, undo, restart, and pause controls; return to the editor to continue drawing.
+Playtest maps immediately. Custom levels have no Easy/Hard split or automatic shortest-path search.
+Use the regular movement, teleport, undo, restart, and pause controls; return to the editor to continue drawing.
+Only the completed walk remaining after undo is counted. Restart clears the current walk.
 
-The shortest-path search runs in the background on desktop and in small frame-sized batches on Web.
-You can cancel it or keep editing. Results from an older draft cannot certify a changed map.
+Choose **Leaderboard** to set a player name and see the local ranking. Each name keeps its best completed walk; fewer moves rank first, with names breaking ties. The first completion sets the **best known** record. A shorter completion replaces it without claiming a theoretical minimum.
 
-Search has time and memory limits. Reaching a limit is different from proving that a map has no solution; Easy playtesting remains available.
-Campaign copies retain their existing certificate until their terrain or particles change. Renaming a level preserves its certificate, and undoing a change restores the certificate with the matching map.
+Records belong to the map's terrain, particles, and portal connections. Renaming a map or importing it under a new identity preserves the matching ranking. Changing its geometry starts a different ranking; undoing that change restores the original ranking. Relabeling portals without changing their connections also keeps the ranking.
+
+Names are local labels, not authenticated accounts. There is no automatic online synchronization. Up to 100 personal bests are retained per map.
 
 ## Import and export
 
 **Import** and **Export** open the level JSON panel. You can paste or copy JSON, open a file, or save a file. Web exports download through the browser.
 
-Imported files receive a new custom identity. External minimum-move claims are treated as unverified until the editor searches the map itself.
-Locally saved, verified maps retain their certificate when reopened.
+Exports contain the map and its leaderboard under the optional `records` field. Send the JSON to another player, then import their exported JSON to merge improved scores. Repeated imports do not duplicate names or replace a better score with a worse one.
 
-Example of an unverified level:
+Imported maps receive a new custom identity, while matching maps share records. Every submitted or imported score is replayed using the game rules and must finish the map. Claimed move counts are ignored; the completed walk determines the score. Invalid scores are skipped without discarding the map. This verifies a particular completion, not the shortest possible solution.
+
+Imports accept files up to 8 MB and walks up to 10,000 moves. Exports include the highest-ranked records that fit the sharing budget. Old files with minimum-move certificates still import; those certificates are ignored for custom play.
+
+Example of a shareable level and completed walk:
 
 ```json
 {
@@ -64,11 +68,20 @@ Example of an unverified level:
     "description": "Custom level",
     "layout": ["wA#Ab"],
     "optimal_moves": 0
-  }
+  },
+  "records": [
+    {
+      "player": "Player",
+      "actions": [
+        {"source": 0, "direction": "right"},
+        {"source": 3, "direction": "right"}
+      ]
+    }
+  ]
 }
 ```
 
 Raw campaign-format level objects can also be imported. Particle positions on portals use the optional `tokens` array described in [level authoring](levels.md).
 
-Custom content is stored under `user://editor/`: `draft.json` for the active draft, `levels/` for saved maps, and `playtest.json` for test runs.
+Custom content is stored under `user://editor/`: `draft.json` for the active draft, `levels/` for saved maps, `records.json` for player names and best walks, and `playtest.json` for test runs.
 Export JSON files to share them or keep them under version control.

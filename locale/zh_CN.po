@@ -577,3 +577,66 @@ msgstr "未能验证最少步数。"
 
 msgid "Undo · Ctrl/Cmd Z"
 msgstr "撤销 · Ctrl/Cmd Z"
+
+msgid "Create"
+msgstr "创作"
+
+msgid "Erase piece"
+msgstr "擦除棋子"
+
+msgid "Place a floor; keep the particle."
+msgstr "放置普通格子，保留棋子。"
+
+msgid "Remove the tile and its particle. Right click also does this."
+msgstr "删除格子及其棋子，右键也有同样效果。"
+
+msgid "Place a white particle."
+msgstr "放置白色棋子。"
+
+msgid "Place a black particle."
+msgstr "放置黑色棋子。"
+
+msgid "Remove only the particle; keep the floor or portal."
+msgstr "只擦除棋子，保留普通格子或传送阵。"
+
+msgid "Place one end of the selected portal group."
+msgstr "放置所选传送阵组的一个端点。"
+
+msgid "Leaderboard"
+msgstr "排行榜"
+
+msgid "Local leaderboard"
+msgstr "本地排行榜"
+
+msgid "Player name"
+msgstr "玩家名称"
+
+msgid "No records yet"
+msgstr "暂无纪录"
+
+msgid "Best known: %d moves"
+msgstr "当前纪录：%d 步"
+
+msgid "Drag to paint. Right click removes tiles."
+msgstr "拖动绘制；右键删除整个格子。"
+
+msgid "Best run per name."
+msgstr "每个名称保留最佳成绩。"
+
+msgid "Best run per name. Export JSON to share this map and its records; import a friend's JSON to merge their scores."
+msgstr "每个名称保留最佳成绩。导出 JSON 分享关卡和纪录；导入朋友的 JSON 合并成绩。"
+
+msgid "Could not save records."
+msgstr "纪录保存失败。"
+
+msgid "Level imported. Invalid scores were skipped."
+msgstr "关卡已导入，无效成绩已跳过。"
+
+msgid "Level and records imported."
+msgstr "关卡和纪录已导入。"
+
+msgid "New record"
+msgstr "新纪录"
+
+msgid "Moves: %d · Best known: %d"
+msgstr "本次：%d 步 · 当前纪录：%d 步"

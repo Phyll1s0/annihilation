@@ -9,7 +9,6 @@ var width := 7
 var height := 7
 var board: Array[int] = []
 var pieces: Array[int] = []
-var certificate: Dictionary = {}
 var revision := 0
 var dirty := false
 var last_error := ""
@@ -29,7 +28,7 @@ func state() -> Dictionary:
 
 func snapshot() -> Dictionary:
 	return {"width": width, "height": height, "board": board.duplicate(), "pieces": pieces.duplicate(),
-		"title": title, "certificate": certificate.duplicate(true)}
+		"title": title}
 
 func begin_edit() -> void:
 	if before.is_empty():
@@ -45,9 +44,7 @@ func commit_edit() -> void:
 		future.clear()
 	before = {}
 
-func _changed(structural: bool = true) -> void:
-	if structural:
-		certificate = {}
+func _changed() -> void:
 	revision += 1
 	dirty = true
 
@@ -115,7 +112,7 @@ func rename(value: String) -> void:
 	commit_edit()
 	begin_edit()
 	title = value
-	_changed(false)
+	_changed()
 	commit_edit()
 
 func _restore(value: Dictionary) -> void:
@@ -124,7 +121,6 @@ func _restore(value: Dictionary) -> void:
 	board.assign(value.board)
 	pieces.assign(value.pieces)
 	title = value.title
-	certificate = value.certificate.duplicate(true)
 	revision += 1
 	dirty = true
 
@@ -167,24 +163,12 @@ func definition() -> Dictionary:
 	var level := {"id": id, "title": title, "chapter": "Custom", "description": "Custom level", "layout": rows,
 		"optimal_moves": 0}
 	if not tokens.is_empty(): level.tokens = tokens
-	if not certificate.is_empty(): level.merge(certificate, true)
 	return level
 
 func document() -> Dictionary:
 	return {"format": "null-level", "version": 1, "level": definition()}
 
-func accept_solution(result: Dictionary) -> bool:
-	if result.get("status") != "solved": return false
-	var verified := {"optimal_moves": int(result.moves), "solution": result.solution.duplicate(true),
-		"proof": {"method": "exhaustive_bfs", "visited": int(result.visited)}}
-	var candidate := definition()
-	candidate.merge(verified, true)
-	if not Catalog.validate(candidate).is_empty(): return false
-	certificate = verified
-	dirty = true
-	return true
-
-static func parse(value, trusted: bool = false, new_identity: bool = true) -> Dictionary:
+static func parse(value, new_identity: bool = true) -> Dictionary:
 	if not value is Dictionary:
 		return {"error": "Choose a NULL level JSON file."}
 	if value.has("format"):
@@ -226,6 +210,4 @@ static func parse(value, trusted: bool = false, new_identity: bool = true) -> Di
 	if not new_identity and value.get("id") is String:
 		var pattern := RegEx.create_from_string("^custom_[a-zA-Z0-9_]+$")
 		if pattern.search(value.id) != null: model.id = value.id
-	if trusted and Catalog.validate(value).is_empty():
-		model.certificate = {"optimal_moves": int(value.optimal_moves), "solution": value.solution.duplicate(true), "proof": value.proof.duplicate(true)}
 	return {"model": model, "error": ""}

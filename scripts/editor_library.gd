@@ -28,23 +28,23 @@ func save_level(model) -> Error:
 func archive_draft(model) -> Error:
 	var target = model
 	if FileAccess.file_exists(directory.path_join("levels").path_join(model.id + ".json")):
-		target = Model.parse(model.document(), true, true).model
+		target = Model.parse(model.document()).model
 		target.title = model.title.left(54) + " · " + tr("Draft")
 	return save_level(target)
 
-func load_file(path: String, trusted: bool = false, new_identity: bool = true) -> Dictionary:
+func load_file(path: String, new_identity: bool = true) -> Dictionary:
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null: return {"error": "Could not open the level file."}
 	if file.get_length() > 1000000: return {"error": "The level file is too large."}
 	var json := JSON.new()
 	if json.parse(file.get_as_text()) != OK: return {"error": "The file is not valid JSON."}
-	return Model.parse(json.data, trusted, new_identity)
+	return Model.parse(json.data, new_identity)
 
 func load_draft():
-	var result := load_file(directory.path_join("draft.json"), true, false)
+	var result := load_file(directory.path_join("draft.json"), false)
 	if not result.has("model"): return Model.new()
 	var model = result.model
-	var saved := load_file(directory.path_join("levels").path_join(model.id + ".json"), true, false)
+	var saved := load_file(directory.path_join("levels").path_join(model.id + ".json"), false)
 	model.dirty = not saved.has("model") or saved.model.definition() != model.definition()
 	return model
 
@@ -55,7 +55,7 @@ func list_levels() -> Array:
 	for name in folder.get_files():
 		if not name.ends_with(".json"): continue
 		var path := directory.path_join("levels").path_join(name)
-		var parsed := load_file(path, true, false)
+		var parsed := load_file(path, false)
 		if parsed.has("model"):
 			result.append({"title": parsed.model.title, "path": path})
 	return result

@@ -1,7 +1,7 @@
 extends SceneTree
 const Model = preload("res://scripts/editor_model.gd")
 const Library = preload("res://scripts/editor_library.gd")
-const Solver = preload("res://scripts/editor_solver.gd")
+const Records = preload("res://scripts/custom_records.gd")
 const Puzzle = preload("res://scripts/puzzle.gd")
 const Catalog = preload("res://scripts/catalog.gd")
 const Settings = preload("res://scripts/settings.gd")
@@ -40,17 +40,6 @@ func click_cell(board, index: int) -> void:
 		event.pressed = pressed
 		viewport.push_input(event, true)
 
-func solve_async(state: Dictionary, limit: int = 100000, background: bool = true) -> Dictionary:
-	var job := Solver.new()
-	check(job.start(state, limit, 10000, background) == OK, "The authoring solver starts")
-	for i in 2000:
-		var result := job.poll()
-		if not result.is_empty(): return result
-		await process_frame
-	job.shutdown()
-	check(false, "The authoring solver finishes within its deadline")
-	return {}
-
 func remove_tree(path: String) -> void:
 	var folder := DirAccess.open(path)
 	if folder == null: return
@@ -88,17 +77,6 @@ func _run() -> void:
 	check(library.save_level(model) == OK and library.save_draft(model) == OK, "Incomplete drafts and levels save locally")
 	check(library.load_draft().state() == model.state(), "Drafts restore after restarting")
 	var catalog: Array = Catalog.load_campaign().levels
-	for index in [0, 2, 7]:
-		var result := await solve_async(Puzzle.from_level(catalog[index]))
-		check(result.get("status") == "solved" and result.get("moves") == catalog[index].optimal_moves, "Packed solver agrees with certified campaign minimum")
-	var impossible := Puzzle.from_level({"layout": ["w#b"]})
-	check((await solve_async(impossible)).get("status") == "unsolvable", "An impossible draft is distinguished from a search limit")
-	check((await solve_async(Puzzle.from_level(catalog[1]), 1)).get("status") == "limit", "A limited search never certifies a minimum")
-	check((await solve_async(Puzzle.from_level(catalog[1]), 100000, false)).get("moves") == 3, "Frame-batched Web searches produce the same minimum")
-	var cancelled := Solver.new()
-	cancelled.start(Puzzle.from_level(catalog[-1]))
-	cancelled.cancel()
-	cancelled.shutdown()
 	viewport = SubViewport.new()
 	viewport.size = Vector2i(1280, 820)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -151,7 +129,7 @@ func _run() -> void:
 	click(editor.undo_button)
 	check(editor.model.pieces.count(1) == 0, "One undo removes the full pointer stroke")
 	check(editor.import_text(JSON.stringify(catalog[0])), "An existing level can be imported")
-	check(editor.model.certificate.is_empty(), "An imported certificate is not trusted")
+	check(editor.model.definition().optimal_moves == 0, "Campaign minimum claims are absent from custom maps")
 	var imported_id: String = editor.model.id
 	check(not editor.import_text("{broken") and editor.model.id == imported_id, "Failed import preserves the current draft")
 	editor._save()
@@ -165,42 +143,48 @@ func _run() -> void:
 	editor.import_text(JSON.stringify(catalog[0]))
 	editor._playtest()
 	await settle()
-	check(app.screen == "editor_test" and app.test_game.hard_button.disabled, "Unverified maps can be played in Easy while Hard remains unavailable")
+	check(app.screen == "editor_test" and not app.test_game.modes.visible, "Custom maps play immediately without minimum verification or mode gates")
 	app.test_game.session.selected = 0
 	app.test_game._try_move("right")
 	await settle()
 	check(app.test_game.session.cleared(), "A custom map can be completed")
+	check(editor.records.best(editor.model.definition()) == 1 and app.test_game.custom_new_record, "A completed playtest adds a best known record")
+	check(app.test_game.result_title.text == "New record", "Completion shows the new record")
 	app.test_game._next()
 	await settle()
 	check(app.screen == "editor", "Completing a playtest returns to the editor")
 	check(Puzzle.key(app.game.session.state) == campaign_state and FileAccess.get_file_as_string(app.progress.path) == campaign_save,
 		"Editor playtests preserve the live campaign and its saved checkpoint")
-	editor._verify()
-	for i in 1000:
+	editor._show_records()
+	await settle()
+	check(editor.records_layer.visible and editor.records_table.get_child_count() == 1, "The local leaderboard lists the completed run")
+	if DisplayServer.get_name() != "headless":
+		redraw(viewport)
 		await process_frame
-		if editor.job == null: break
-	check(not editor.model.certificate.is_empty() and Catalog.validate(editor.model.definition()).is_empty(), "Verification supplies a replayable minimum certificate")
+		RenderingServer.force_draw()
+		viewport.get_texture().get_image().save_png("res://builds/records-1280.png")
+	editor.player_input.text = "Guest"
+	editor._save_player()
+	check(Records.new(editor.directory).player == "Guest", "The player name persists")
+	var escape := InputEventKey.new()
+	escape.physical_keycode = KEY_ESCAPE
+	escape.pressed = true
+	viewport.push_input(escape, true)
+	await settle()
+	check(app.screen == "editor" and not editor.records_layer.visible, "Escape closes records without leaving the editor")
+	editor._exchange(true)
+	var shared: String = editor.exchange_text.text
+	check(JSON.parse_string(shared).records.size() == 1, "JSON exports include the completed walk")
+	check(editor.import_text(shared), "A shared map and score can be imported")
+	check(editor.records.best(editor.model.definition()) == 1, "Importing under a new identity keeps matching-map records")
+	var broken_share: Dictionary = JSON.parse_string(shared)
+	broken_share.records.append({"player": "Cheater", "moves": 0, "actions": []})
+	check(editor.import_text(JSON.stringify(broken_share)) and editor.records.entries(editor.model.definition()).size() == 1,
+		"Invalid imported scores are skipped while preserving the map and valid records")
 	editor._save()
-	var reopened: Dictionary = editor.library.load_file(editor.directory.path_join("levels").path_join(editor.model.id + ".json"), true, false)
-	check(reopened.model.certificate.optimal_moves == 1, "Locally verified minima persist across reopening")
-	var certified: Dictionary = editor.model.document()
-	check(Model.parse(certified).model.certificate.is_empty(), "Exported minimum claims are checked again on import")
-	editor._playtest()
-	await settle()
-	check(not app.test_game.hard_button.disabled, "Verified maps enable Hard playtesting")
-	app.test_game._change_mode(true)
-	app.test_game.session.selected = 0
-	app.test_game._try_move("right")
-	check(app.test_game.session.cleared(), "A custom map completes in verified Hard mode")
-	app.test_game._next()
-	await settle()
-	editor._verify()
-	editor._replace(Model.new())
-	for i in 1000:
-		await process_frame
-		if editor.job == null: break
-	check(editor.model.certificate.is_empty(), "A stale search cannot certify a replacement document")
-	editor._replace(Model.parse(catalog[-1], true, true).model)
+	var reopened: Dictionary = editor.library.load_file(editor.directory.path_join("levels").path_join(editor.model.id + ".json"), false)
+	check(reopened.model.state() == editor.model.state(), "Saved custom maps reopen without a minimum certificate")
+	editor._replace(Model.parse(catalog[-1]).model)
 	for dimensions in [Vector2i(960,680), Vector2i(2940,1846), Vector2i(5120,2880), Vector2i(1280,820)]:
 		viewport.size = dimensions
 		await settle()
@@ -209,8 +193,18 @@ func _run() -> void:
 			app.settings.language = language
 			app.settings.apply_language()
 			await settle()
-			for control in [editor.board, editor.play_button, editor.verify_button, editor.title_input, editor.status]:
+			for control in [editor.board, editor.play_button, editor.records_button, editor.title_input, editor.status]:
 				check(screen.encloses(control.get_global_rect()), "Authoring controls fit after resizing and translating")
+			editor._show_records()
+			await settle()
+			for control in [editor.records_panel, editor.player_input, editor.records_table]:
+				check(screen.encloses(control.get_global_rect()), "Leaderboard controls fit after resizing and translating")
+			if DisplayServer.get_name() != "headless" and dimensions.x == 960:
+				redraw(viewport)
+				await process_frame
+				RenderingServer.force_draw()
+				viewport.get_texture().get_image().save_png("res://builds/records-960-%s.png" % language)
+			editor.records_layer.hide()
 		if DisplayServer.get_name() != "headless" and dimensions.x in [960, 2940]:
 			redraw(viewport)
 			await process_frame
@@ -224,7 +218,7 @@ func _run() -> void:
 	var test_board = app.test_game.board
 	var test_grid := Rect2(test_board.global_position + test_board.origin, Vector2(12,12) * test_board.unit)
 	check(test_board.unit >= 28 and Rect2(Vector2.ZERO,Vector2(960,680)).encloses(test_grid), "A 12 by 12 custom map fits the minimum desktop window")
-	check(not app.test_game.hard_available, "Resizing invalidates a previous minimum certificate")
+	check(app.test_game.custom_best == 0, "Resizing starts a separate leaderboard for the changed map")
 	app.pause_game()
 	app._navigate("settings")
 	app._navigate("back")
@@ -233,6 +227,16 @@ func _run() -> void:
 	app._navigate("editor_back")
 	app._navigate("back")
 	check(app.screen == "game" and app.paused and Puzzle.key(app.game.session.state) == campaign_state, "Leaving the editor restores the original paused campaign")
+	app.show_screen("home")
+	app.home.create_button.grab_focus()
+	var enter := InputEventKey.new()
+	enter.physical_keycode = KEY_ENTER
+	enter.pressed = true
+	viewport.push_input(enter, true)
+	await settle()
+	check(app.screen == "editor", "Enter on the home Create shortcut opens the editor")
+	app._navigate("editor_back")
+	check(app.screen == "home", "The home shortcut returns directly to Home")
 	viewport.queue_free()
 	await settle()
 	remove_tree(directory)

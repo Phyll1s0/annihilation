@@ -1,18 +1,21 @@
 extends "res://scripts/ui/screen_base.gd"
 signal navigation_requested(destination: String)
-signal playtest_requested(level: Dictionary, certified: bool)
+signal playtest_requested(level: Dictionary)
 const Model = preload("res://scripts/editor_model.gd")
 const Library = preload("res://scripts/editor_library.gd")
-const Solver = preload("res://scripts/editor_solver.gd")
+const Records = preload("res://scripts/custom_records.gd")
 const Board = preload("res://scripts/board_view.gd")
 var directory := "user://editor"
 var levels: Array = []
 var model
 var library
 var board
-var job
-var job_revision := -1
-var job_model
+var records
+var records_layer: Control
+var records_panel: PanelContainer
+var records_table: VBoxContainer
+var player_input: LineEdit
+var records_heading: Label
 var brush := "floor"
 var group := 1
 var frame: MarginContainer
@@ -28,10 +31,10 @@ var brushes := {}
 var undo_button: Button
 var redo_button: Button
 var play_button: Button
-var verify_button: Button
+var records_button: Button
 var status: Label
 var statistics: Label
-var verification: Label
+var best_label: Label
 var autosave: Timer
 var exchange_layer: Control
 var exchange_panel: PanelContainer
@@ -47,6 +50,7 @@ func _ready() -> void:
 	theme.set_stylebox("focus", "LineEdit", _style(Color("080808"), Color(1, 1, 1, 0.4)))
 	theme.set_stylebox("normal", "TextEdit", _style(Color("080808"), LINE))
 	library = Library.new(directory)
+	records = Records.new(directory)
 	model = library.load_draft()
 	_build_ui()
 	autosave = Timer.new()
@@ -56,6 +60,7 @@ func _ready() -> void:
 	add_child(autosave)
 	_remember_layout(frame)
 	_remember_layout(exchange_panel)
+	_remember_layout(records_panel)
 	frame.minimum_size_changed.connect(_fit_frame)
 	resized.connect(_layout_editor)
 	_layout_editor()
@@ -122,12 +127,17 @@ func _build_ui() -> void:
 	tools.add_theme_constant_override("h_separation", 6)
 	tools.add_theme_constant_override("v_separation", 6)
 	sidebar.add_child(tools)
-	for entry in [["floor", "Floor"], ["void", "Void"], ["white", "White"], ["black", "Black"], ["clear", "Clear"], ["portal", "Portal"]]:
+	for entry in [["floor", "Floor"], ["void", "Void"], ["white", "White"], ["black", "Black"], ["clear", "Erase piece"], ["portal", "Portal"]]:
 		var name_value: String = entry[0]
 		var button := _button(entry[1], func(): _brush(name_value), Vector2(80, 36))
 		button.add_theme_font_size_override("font_size", 12)
 		tools.add_child(button)
 		brushes[name_value] = button
+		var hint: String = {"floor": "Place a floor; keep the particle.", "void": "Remove the tile and its particle. Right click also does this.",
+			"white": "Place a white particle.", "black": "Place a black particle.", "clear": "Remove only the particle; keep the floor or portal.",
+			"portal": "Place one end of the selected portal group."}[name_value]
+		button.set_meta("hint", hint)
+		button.tooltip_text = tr(hint)
 	var portal_row := HBoxContainer.new()
 	sidebar.add_child(portal_row)
 	portal_menu = OptionButton.new()
@@ -141,8 +151,8 @@ func _build_ui() -> void:
 	var actions := HBoxContainer.new()
 	sidebar.add_child(actions)
 	play_button = _button("Playtest", _playtest, Vector2(122, 44))
-	verify_button = _button("Find minimum", _verify, Vector2(122, 44))
-	for button in [play_button, verify_button]:
+	records_button = _button("Leaderboard", _show_records, Vector2(122, 44))
+	for button in [play_button, records_button]:
 		button.add_theme_font_size_override("font_size", 12)
 		actions.add_child(button)
 	var files := HBoxContainer.new()
@@ -151,10 +161,10 @@ func _build_ui() -> void:
 		var button := _button(entry[0], entry[1], Vector2(80, 36))
 		button.add_theme_font_size_override("font_size", 12)
 		files.add_child(button)
-	verification = _label("", 12, MUTED)
-	verification.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sidebar.add_child(verification)
-	status = _label("Drag to paint. Right click to erase.", 12, MUTED)
+	best_label = _label("", 12, MUTED)
+	best_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sidebar.add_child(best_label)
+	status = _label("Drag to paint. Right click removes tiles.", 12, MUTED)
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status.custom_minimum_size.y = 48
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -177,6 +187,7 @@ func _build_ui() -> void:
 	drawing.add_child(statistics)
 	drawing.add_child(status)
 	_build_exchange()
+	_build_records()
 
 func _dimension(parent: Node) -> SpinBox:
 	var input := SpinBox.new()
@@ -191,6 +202,7 @@ func _layout_editor() -> void:
 	var factor := _screen_scale()
 	_apply_layout(frame, factor)
 	_apply_layout(exchange_panel, factor)
+	_apply_layout(records_panel, factor)
 	theme.default_font_size = roundi(14 * factor)
 	for selector in [level_menu, portal_menu]:
 		var popup: PopupMenu = selector.get_popup()
@@ -207,6 +219,11 @@ func _layout_editor() -> void:
 	exchange_panel.offset_top = margin
 	exchange_panel.offset_right = -margin
 	exchange_panel.offset_bottom = -margin
+	records_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	records_panel.offset_left = margin
+	records_panel.offset_top = margin
+	records_panel.offset_right = -margin
+	records_panel.offset_bottom = -margin
 
 func _fit_frame() -> void:
 	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -222,8 +239,7 @@ func _paint(cell: int, erase: bool) -> void:
 	elif not model.last_error.is_empty(): _status(model.last_error)
 
 func _edited() -> void:
-	if job != null and model.revision != job_revision: job.cancel()
-	if model.dirty: _status("Drag to paint. Right click to erase.")
+	if model.dirty: _status("Drag to paint. Right click removes tiles.")
 	_sync()
 	if is_instance_valid(autosave) and autosave.is_inside_tree(): autosave.start()
 
@@ -241,8 +257,8 @@ func _sync() -> void:
 	portal_count.add_theme_color_override("font_color", tint)
 	portal_count.text = tr("%d / 2 ends") % model.board.count(group)
 	statistics.text = tr("White %d · Black %d · Portal ends %d") % [model.pieces.count(1), model.pieces.count(-1), model.board.filter(func(tag): return tag > 0).size()]
-	verification.text = tr("Minimum not verified") if model.certificate.is_empty() else tr("Verified minimum: %d") % model.certificate.optimal_moves
-	verify_button.text = tr("Cancel") if job != null else tr("Find minimum")
+	var best: int = records.best(model.definition())
+	best_label.text = tr("No records yet") if best == 0 else tr("Best known: %d moves") % best
 
 func _status(message: String) -> void:
 	if not is_instance_valid(status): return
@@ -262,11 +278,10 @@ func _stash() -> bool:
 	return true
 
 func _replace(next_model, unsaved: bool = true) -> void:
-	if job != null: job.cancel()
 	title_input.release_focus()
 	model = next_model
 	model.dirty = unsaved
-	_status("Drag to paint. Right click to erase.")
+	_status("Drag to paint. Right click removes tiles.")
 	_sync()
 	_persist()
 	_refresh_menu()
@@ -304,9 +319,9 @@ func _open_selection(index: int) -> void:
 	if not _stash(): return
 	var parsed: Dictionary
 	if item.has("path"):
-		parsed = library.load_file(item.path, true, false)
+		parsed = library.load_file(item.path, false)
 	else:
-		parsed = Model.parse(levels[int(item.index)], true, true)
+		parsed = Model.parse(levels[int(item.index)])
 	if parsed.has("model"): _replace(parsed.model, not item.has("path"))
 	else: _status(parsed.error)
 
@@ -315,42 +330,82 @@ func _playtest() -> void:
 	model.commit_edit()
 	var error: String = model.validation_error()
 	if not error.is_empty(): _status(error); return
-	if job != null: job.cancel()
 	_persist()
-	playtest_requested.emit(model.definition(), not model.certificate.is_empty())
+	playtest_requested.emit(model.definition())
 
-func _verify() -> void:
-	if job != null:
-		job.cancel()
-		return
+func _build_records() -> void:
+	records_layer = Control.new()
+	records_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(records_layer)
+	var shade := ColorRect.new()
+	shade.color = Color(0, 0, 0, 0.9)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	records_layer.add_child(shade)
+	records_panel = PanelContainer.new()
+	records_panel.add_theme_stylebox_override("panel", _style(Color("080808"), LINE, 4))
+	records_layer.add_child(records_panel)
+	var contents := VBoxContainer.new()
+	contents.add_theme_constant_override("separation", 16)
+	records_panel.add_child(contents)
+	var header := HBoxContainer.new()
+	contents.add_child(header)
+	header.add_child(_title("Local leaderboard", 24, 1))
+	_spacer(header)
+	header.add_child(_button("Close", func(): _save_player(); records_layer.hide(), Vector2(100, 40)))
+	records_heading = _label("", 16, MUTED)
+	records_heading.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	records_heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	contents.add_child(records_heading)
+	var profile := HBoxContainer.new()
+	profile.add_child(_label("Player name", 14, MUTED))
+	player_input = LineEdit.new()
+	player_input.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	player_input.max_length = 32
+	player_input.custom_minimum_size = Vector2(240, 40)
+	player_input.text_submitted.connect(func(_value: String): _save_player())
+	player_input.focus_exited.connect(_save_player)
+	profile.add_child(player_input)
+	contents.add_child(profile)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	contents.add_child(scroll)
+	records_table = VBoxContainer.new()
+	records_table.add_theme_constant_override("separation", 12)
+	records_table.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(records_table)
+	var hint := _label("Best run per name. Export JSON to share this map and its records; import a friend's JSON to merge their scores.", 12, MUTED)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	contents.add_child(hint)
+	records_layer.hide()
+
+func _save_player() -> void:
+	if records.set_player(player_input.text) != OK: _status("Could not save records.")
+	player_input.text = records.player
+
+func _show_records() -> void:
 	model.rename(title_input.text)
-	model.commit_edit()
-	var error: String = model.validation_error()
-	if not error.is_empty(): _status(error); return
-	job = Solver.new()
-	job_revision = model.revision
-	job_model = model
-	if job.start(model.state()) != OK:
-		job = null
-		_status("Could not start verification.")
-	_sync()
-
-func _process(_delta: float) -> void:
-	if job == null: return
-	var result: Dictionary = job.poll()
-	if result.is_empty():
-		verification.text = tr("Searching… %d states") % job.count()
-		return
-	job = null
-	if job_model == model and job_revision == model.revision:
-		match result.status:
-			"solved":
-				if model.accept_solution(result): _persist(); _status("Minimum verified.")
-				else: _status("Could not verify the minimum.")
-			"unsolvable": _status("No solution. Try changing the map.")
-			"limit": _status("Search limit reached. Easy playtest is still available.")
-			_: _status("Verification cancelled.")
-	_sync()
+	records_heading.text = model.title
+	player_input.text = records.player
+	for child in records_table.get_children():
+		records_table.remove_child(child)
+		child.queue_free()
+	var rows: Array = records.entries(model.definition())
+	if rows.is_empty(): records_table.add_child(_label("No records yet", 16, MUTED))
+	for i in rows.size():
+		var row := HBoxContainer.new()
+		records_table.add_child(row)
+		row.add_child(_label("%02d" % (i + 1), 16, MUTED))
+		var name_label := _label("", 16)
+		name_label.text = rows[i].player
+		name_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		row.add_child(name_label)
+		row.add_child(_label(tr("Moves: %d") % rows[i].moves, 16, PRIMARY))
+	for child in records_table.get_children(): _remember_layout(child)
+	_apply_layout(records_table, _screen_scale())
+	records_layer.show()
 
 func _build_exchange() -> void:
 	exchange_layer = Control.new()
@@ -392,20 +447,26 @@ func _build_exchange() -> void:
 func _exchange(exporting: bool) -> void:
 	model.rename(title_input.text)
 	exchange_status.text = ""
-	exchange_text.text = JSON.stringify(model.document(), "\t") if exporting else ""
+	exchange_text.text = JSON.stringify(records.document(model), "\t") if exporting else ""
 	exchange_layer.show()
 	exchange_text.grab_focus()
 
 func import_text(text: String) -> bool:
-	if text.length() > 1000000: _status("The level file is too large."); return false
+	if text.to_utf8_buffer().size() > 8000000: _status("The level file is too large."); return false
 	var json := JSON.new()
 	if json.parse(text) != OK: _status("The file is not valid JSON."); return false
 	var parsed := Model.parse(json.data)
 	if not parsed.has("model"): _status(parsed.error); return false
 	if not _stash(): return false
 	_replace(parsed.model)
+	var outcome := {"rejected": 0, "saved": true}
+	if json.data is Dictionary and json.data.has("records"):
+		outcome = records.merge(model.definition(), json.data.records)
+	_sync()
 	exchange_layer.hide()
-	_status("Level imported. Verify its minimum to enable Hard.")
+	if not outcome.get("saved", true): _status("Could not save records.")
+	elif outcome.rejected > 0: _status("Level imported. Invalid scores were skipped.")
+	else: _status("Level and records imported.")
 	return true
 
 func _open_file() -> void:
@@ -435,7 +496,7 @@ func _export_file() -> void:
 func _file_selected(path: String) -> void:
 	if file_action == "import":
 		var file := FileAccess.open(path, FileAccess.READ)
-		if file == null or file.get_length() > 1000000: _status("Could not open the level file."); return
+		if file == null or file.get_length() > 8000000: _status("Could not open the level file."); return
 		import_text(file.get_as_text())
 	else:
 		var file := FileAccess.open(path, FileAccess.WRITE)
@@ -451,6 +512,10 @@ func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree() or not event is InputEventKey or not event.pressed or event.echo: return
 	if exchange_layer.visible:
 		if event.physical_keycode == KEY_ESCAPE: exchange_layer.hide(); get_viewport().set_input_as_handled()
+		return
+	if records_layer.visible:
+		if event.physical_keycode == KEY_ESCAPE:
+			_save_player(); records_layer.hide(); get_viewport().set_input_as_handled()
 		return
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus is LineEdit or focus is TextEdit: return
@@ -472,9 +537,12 @@ func _refresh_language() -> void:
 	title_input.placeholder_text = tr("Level name")
 	_refresh_menu()
 	_sync()
+	if records_layer.visible: _show_records()
+
+func refresh() -> void:
+	_sync()
 
 func _exit_tree() -> void:
-	if job != null: job.shutdown()
 	if library != null and model != null:
 		if is_instance_valid(title_input): model.rename(title_input.text)
 		model.commit_edit()

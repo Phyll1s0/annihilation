@@ -52,7 +52,7 @@ func _run() -> void:
 		await settle()
 		var screen := Rect2(Vector2.ZERO, Vector2(dimensions))
 		var tag := "%dx%d" % [dimensions.x, dimensions.y]
-		for control in [home.body, home.mark, home.title, home.continue_button, home.settings_button]:
+		for control in [home.body, home.mark, home.title, home.continue_button, home.create_button, home.settings_button]:
 			check(screen.encloses(control.get_global_rect()), tag + ": home controls fit the viewport")
 		check(home.continue_button.size.y >= 44, tag + ": the start action has a usable hit target")
 		check(not home.body.get_global_rect().intersects(home.settings_button.get_global_rect()), tag + ": settings do not overlap the title group")

@@ -10,6 +10,7 @@ const Settings = preload("res://scripts/settings.gd")
 signal navigation_requested(destination: String)
 signal pause_requested
 signal state_changed
+signal custom_completed(level: Dictionary, actions: Array)
 
 var levels: Array = []
 var session = Session.new()
@@ -40,7 +41,9 @@ var restart_button: Button
 var result_box: VBoxContainer
 var result_buttons: HBoxContainer
 var custom_run := false
-var hard_available := true
+var custom_best := 0
+var custom_player := "Player"
+var custom_new_record := false
 
 func _return_page() -> String:
 	return "editor" if custom_run else "campaign"
@@ -56,7 +59,7 @@ func _ready() -> void:
 	_build_ui()
 	resized.connect(_layout_ui)
 	_layout_ui()
-	session.hard_mode = settings.hard_mode
+	session.hard_mode = settings.hard_mode and not custom_run
 	_open_level(0, false)
 
 func apply_settings() -> void:
@@ -230,7 +233,7 @@ func _open_level(index: int, persist: bool = true) -> void:
 	_layout_ui()
 
 func _change_mode(hard: bool) -> void:
-	if hard and not hard_available: return
+	if custom_run: return
 	if hard == session.hard_mode:
 		return
 	session.hard_mode = hard
@@ -242,6 +245,7 @@ func _change_mode(hard: bool) -> void:
 func _restart() -> void:
 	board.cancel_animation()
 	session.restart()
+	custom_new_record = false
 	save_error = false
 	_save_checkpoint()
 	_sync()
@@ -290,9 +294,9 @@ func _sync() -> void:
 	count_label.tooltip_text = tr("Moves · Personal best: %s") % best
 	_accent(easy_button, not session.hard_mode)
 	_accent(hard_button, session.hard_mode)
-	hard_button.disabled = not hard_available
+	modes.visible = not custom_run
 	if custom_run:
-		hard_button.tooltip_text = "" if hard_available else tr("Verify the minimum in the editor to enable Hard.")
+		count_label.tooltip_text = tr("Best known: %d moves") % custom_best if custom_best > 0 else tr("No records yet")
 	undo_button.disabled = session.history.is_empty()
 	board.present(session.state, session.selected)
 	board.visible = not Puzzle.won(session.state) or board.animating()
@@ -312,6 +316,9 @@ func _sync() -> void:
 			result_description.text = tr("Moves: %d / %d") % [session.steps, level.optimal_moves]
 		else:
 			result_description.text = tr("Moves: %d") % session.steps
+		if custom_run:
+			result_title.text = tr("New record") if custom_new_record else tr("Complete")
+			result_description.text = tr("Moves: %d · Best known: %d") % [session.steps, custom_best]
 		next_button.tooltip_text = tr("Back to editor") if custom_run else (tr("Back to levels") if current == levels.size() - 1 else tr("Next level"))
 
 func _refresh_language() -> void:
@@ -364,6 +371,7 @@ func _try_move(direction: String) -> void:
 	board.animate(result, before)
 	if Puzzle.won(session.state):
 		save_error = progress.record_clear(session.level, session.steps, session.hard_mode) != OK
+		if custom_run: custom_completed.emit(session.level, session.actions())
 		state_changed.emit()
 	else:
 		_save_checkpoint()

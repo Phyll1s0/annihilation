@@ -27,6 +27,7 @@ var pause_actions: Dictionary = {}
 var editor
 var test_game
 var editor_directory := ""
+var editor_return := "home"
 var editor_origin_screen := "home"
 var editor_origin_paused := false
 
@@ -77,6 +78,7 @@ func _ready() -> void:
 		progress.save()
 	settings.apply_window()
 	show_screen("home")
+	if "--create" in OS.get_cmdline_user_args(): _navigate("editor")
 
 func _navigate(destination: String) -> void:
 	match destination:
@@ -94,8 +96,12 @@ func _navigate(destination: String) -> void:
 			if settings_return_paused:
 				pause_game()
 		"editor":
-			if not settings.developer_mode and screen != "editor_test": return
-			if screen == "settings" and settings_return not in ["editor", "editor_test"]:
+			if screen == "home":
+				settings.developer_mode = true
+				settings.save()
+				editor_return = "home"
+			elif screen == "settings" and settings_return not in ["editor", "editor_test"]:
+				editor_return = "settings"
 				editor_origin_screen = settings_return
 				editor_origin_paused = settings_return_paused
 			_ensure_editor()
@@ -103,8 +109,8 @@ func _navigate(destination: String) -> void:
 		"editor_back":
 			settings_return = editor_origin_screen
 			settings_return_paused = editor_origin_paused
-			show_screen("settings")
-			preferences._developer_tab()
+			show_screen(editor_return)
+			if editor_return == "settings": preferences._developer_tab()
 		_: show_screen(destination)
 
 func show_screen(destination: String) -> void:
@@ -124,6 +130,7 @@ func show_screen(destination: String) -> void:
 		"settings": preferences.refresh()
 		"game": game.apply_settings()
 		"editor_test": test_game.apply_settings()
+		"editor": editor.refresh()
 	pages[destination].enter(settings.reduce_motion)
 
 func start_level(index: int, hard: bool) -> void:
@@ -147,7 +154,7 @@ func _ensure_editor() -> void:
 	add_child(editor)
 	move_child(pause_layer, get_child_count() - 1)
 
-func _start_test(definition: Dictionary, certified: bool) -> void:
+func _start_test(definition: Dictionary) -> void:
 	if test_game == null:
 		test_game = preload("res://scenes/game_screen.tscn").instantiate()
 		test_game.custom_run = true
@@ -157,12 +164,19 @@ func _start_test(definition: Dictionary, certified: bool) -> void:
 		test_game.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		test_game.navigation_requested.connect(_navigate)
 		test_game.pause_requested.connect(pause_game)
+		test_game.custom_completed.connect(func(level: Dictionary, actions: Array):
+			var outcome: Dictionary = editor.records.submit(level, test_game.custom_player, actions)
+			test_game.custom_best = editor.records.best(level)
+			test_game.custom_new_record = outcome.get("improved", false)
+			if not outcome.get("saved", false): test_game.save_error = true)
 		pages.editor_test = test_game
 		add_child(test_game)
 		move_child(pause_layer, get_child_count() - 1)
 	test_game.levels = [definition]
 	test_game.progress.bind_catalog(test_game.levels)
-	test_game.hard_available = certified
+	test_game.custom_best = editor.records.best(definition)
+	test_game.custom_player = editor.records.player
+	test_game.custom_new_record = false
 	test_game.session.hard_mode = false
 	test_game._open_level(0)
 	show_screen("editor_test")
@@ -260,7 +274,7 @@ func _input(event: InputEvent) -> void:
 			_navigate("back")
 		elif screen == "campaign":
 			show_screen("home")
-		elif screen == "editor" and not editor.exchange_layer.visible:
+		elif screen == "editor" and not editor.exchange_layer.visible and not editor.records_layer.visible:
 			editor._persist()
 			_navigate("editor_back")
 		else:
