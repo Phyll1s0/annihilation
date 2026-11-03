@@ -141,7 +141,7 @@ Open `http://127.0.0.1:8787/` in a browser. Do not open `index.html` directly fr
 
 The Web build supports touch selection and movement, portrait and landscape layouts, high-DPI screens, and phone safe areas. On supported browsers, Start requests landscape fullscreen; otherwise, rotate the phone manually or keep playing in portrait. Orientation locking is not available in every browser. The mobile layouts and touch flow are covered by automated viewport and browser checks; physical iPhone testing is still needed.
 
-The branded loading page lives in `web/shell.html`. It shows download progress and a retry action if startup fails. The shell sizes the canvas to the available safe area; the game lays out in CSS pixels while rendering at the device's pixel density.
+The branded loading page lives in `web/shell.html`. It shows download progress and a retry action if startup fails. CSS defines the phone safe area, while Godot owns drawing-buffer resizing. Layout and input use CSS pixels; rendering is capped at 1.5× on touch devices and 2× on desktops, with additional buffer size limits. Viewport changes are debounced to avoid repeatedly reallocating graphics buffers as browser bars move. A lost WebGL context offers a full restart at 1× resolution (`?render=compat`) without clearing saved data.
 
 For mobile regression checks:
 
@@ -149,6 +149,9 @@ For mobile regression checks:
 godot --headless --path . --script tests/mobile_ui_smoke.gd -- --geometry
 # Requires Playwright and an installed browser; export Web before running.
 python3 tools/check_mobile_web.py --browser chromium
+python3 tools/check_mobile_web.py --browser webkit
+# Also check mouse input at phone sizes.
+python3 tools/check_mobile_web.py --browser webkit --input mouse
 ~~~
 
 A WeChat Mini Game needs a dedicated engine adapter and platform testing; the ordinary Web export is not a ready-to-submit Mini Game package.

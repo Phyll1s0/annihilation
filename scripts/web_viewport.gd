@@ -1,18 +1,19 @@
 extends Node
-## Lay out in CSS pixels while the canvas keeps its high-DPI rendering resolution.
-var canvas: JavaScriptObject
-var logical_size := Vector2i.ZERO
+## Keep input/layout in CSS pixels and resize the GPU buffer through Godot only.
+var viewport: JavaScriptObject
+var revision := -1
 
 func _ready() -> void:
-	canvas = JavaScriptBridge.get_interface("document").getElementById("canvas")
+	viewport = JavaScriptBridge.get_interface("window").annihilationViewport
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	get_window().disable_3d = true
 	_sync_size()
 
 func _process(_delta: float) -> void:
 	_sync_size()
 
 func _sync_size() -> void:
-	var next := Vector2i(int(canvas.clientWidth), int(canvas.clientHeight))
-	if next.x <= 0 or next.y <= 0 or next == logical_size: return
-	logical_size = next
-	get_window().content_scale_size = logical_size
+	if viewport == null or int(viewport.revision) == revision: return
+	revision = int(viewport.revision)
+	get_window().content_scale_size = Vector2i(int(viewport.width), int(viewport.height))
+	get_window().size = Vector2i(int(viewport.renderWidth), int(viewport.renderHeight))
