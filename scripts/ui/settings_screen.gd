@@ -208,7 +208,7 @@ func _ready() -> void:
 	var developer_copy := _label("Unlock every campaign level and enable level creation.", 14, MUTED)
 	developer_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	developer.add_child(developer_copy)
-	editor_button = _button("Level editor", func(): navigation_requested.emit("editor"), Vector2(180, 48))
+	editor_button = _button("Level editor", func(): navigation_requested.emit("create_level"), Vector2(180, 48))
 	developer.add_child(editor_button)
 	var remaining := Control.new()
 	remaining.size_flags_vertical = Control.SIZE_EXPAND_FILL

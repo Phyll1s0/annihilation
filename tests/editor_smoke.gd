@@ -213,7 +213,7 @@ func _run() -> void:
 			app.settings.language = language
 			app.settings.apply_language()
 			await settle()
-			for control in [editor.board, editor.play_button, editor.records_button, editor.title_input, editor.status,
+			for control in [editor.board, editor.new_button, editor.save_button, editor.play_button, editor.records_button, editor.title_input, editor.status,
 				editor.brushes.up, editor.brushes.right, editor.brushes.down, editor.brushes.left]:
 				check(screen.encloses(control.get_global_rect()), "Authoring controls fit after resizing and translating")
 			editor._show_records()

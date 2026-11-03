@@ -66,10 +66,10 @@ Optional controls and a short rules reference are available under Settings → C
 
 Open **Settings → Developer**, enable **Developer mode**, and choose **Level editor**.
 Developer mode unlocks every campaign level and reveals **Create** and **Edit** in **My levels**. Turning it off restores normal chapter progression while keeping your genuine completion records and drafts.
-Start with a blank map or copy a campaign level, paint tiles and particles, then press **F5** to playtest.
+Each **Create** or **Level editor** entry starts a fresh blank map. **New** and **Save** stay in the editor header; use **Edit** in My levels to reopen a saved map. You can also copy a campaign level, paint tiles and particles, then press **F5** to playtest.
 Maps support up to **12 × 12** tiles, portal groups **A–Z**, and four directional field brushes.
 
-Choose **Save** in the editor to add a map to **Start → My levels**. Imported maps also need to be saved to appear there.
+Choose **Save**, or press **Ctrl/Cmd S** while naming or painting, to add a map to **Start → My levels**. Starting another creation keeps unfinished work as a draft copy. Imported maps also need to be saved to appear there.
 Use **Play** or **Leaderboard** beside a saved map, or **Edit** with Developer mode enabled; unfinished maps can be edited until they are ready to play.
 
 Custom levels have no minimum-verification step. Finish a playtest to set a record, then improve it with fewer moves.

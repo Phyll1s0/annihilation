@@ -38,6 +38,8 @@ var map_properties: VBoxContainer
 var portal_row: HBoxContainer
 var undo_button: Button
 var redo_button: Button
+var new_button: Button
+var save_button: Button
 var play_button: Button
 var records_button: Button
 var status: Label
@@ -88,6 +90,11 @@ func _build_ui() -> void:
 		_persist(); navigation_requested.emit("editor_back"), 32))
 	header.add_child(_title("Level editor", 28, 1))
 	_spacer(header)
+	new_button = _button("New", _new_level, Vector2(88, 44))
+	header.add_child(new_button)
+	save_button = _button("Save", _save, Vector2(88, 44))
+	save_button.tooltip_text = "Ctrl/Cmd S"
+	header.add_child(save_button)
 	undo_button = _icon_button("arrow-undo-outline", "Undo · Ctrl/Cmd Z", func(): model.undo(); _edited(), 24)
 	header.add_child(undo_button)
 	redo_button = _button("Redo", func(): model.redo(); _edited(), Vector2(72, 42))
@@ -133,7 +140,6 @@ func _build_ui() -> void:
 	level_menu.fit_to_longest_item = false
 	level_menu.item_selected.connect(_open_selection)
 	open_row.add_child(level_menu)
-	open_row.add_child(_button("New", _new_level, Vector2(76, 44)))
 	var dimensions := HBoxContainer.new()
 	map_properties.add_child(dimensions)
 	width_input = _dimension(dimensions)
@@ -196,9 +202,10 @@ func _build_ui() -> void:
 		actions.add_child(button)
 	var files := HBoxContainer.new()
 	sidebar_shell.add_child(files)
-	for entry in [["Save", _save], ["Import", func(): _exchange(false)], ["Export", func(): _exchange(true)]]:
+	for entry in [["Import", func(): _exchange(false)], ["Export", func(): _exchange(true)]]:
 		var button := _button(entry[0], entry[1], Vector2(96, 44))
 		button.add_theme_font_size_override("font_size", 14)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		files.add_child(button)
 	best_label = _label("", 14, MUTED)
 	best_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -501,13 +508,17 @@ func _input(event: InputEvent) -> void:
 		if event.physical_keycode == KEY_ESCAPE: exchange_layer.hide(); get_viewport().set_input_as_handled()
 		return
 	if records_layer.visible: return
+	# Saving must also work while entering a name; text editing keeps its own undo.
+	if (event.ctrl_pressed or event.meta_pressed) and event.physical_keycode == KEY_S:
+		_save()
+		get_viewport().set_input_as_handled()
+		return
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus is LineEdit or focus is TextEdit: return
 	if event.physical_keycode == KEY_F5:
 		_playtest()
 	elif event.ctrl_pressed or event.meta_pressed:
 		match event.physical_keycode:
-			KEY_S: _save()
 			KEY_Z:
 				if event.shift_pressed: model.redo()
 				else: model.undo()

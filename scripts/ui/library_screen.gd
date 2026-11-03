@@ -38,7 +38,7 @@ func _ready() -> void:
 	contents.add_child(header)
 	header.add_child(_title("My levels", 28, 1))
 	_spacer(header)
-	create_button = _button("Create", func(): navigation_requested.emit("editor"), Vector2(120, 44))
+	create_button = _button("Create", func(): navigation_requested.emit("create_level"), Vector2(120, 44))
 	header.add_child(create_button)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

@@ -6,7 +6,7 @@ The editor is designed for desktop windows, including fullscreen and high-resolu
 
 ## Make a map
 
-1. Open **Map settings**, then choose **New**, or select a campaign level from **Open a level…** to make an editable copy.
+1. **Create** and the Developer **Level editor** entry start a fresh blank map. Choose **New** in the header for another map, or open **Map settings → Open a level…** to copy a campaign level.
 2. Enter a name. In **Map settings**, set the width and height, then choose **Resize**. Maps can be 1–12 tiles in each direction.
 3. Select a brush and click or drag across the board. Right-click removes a tile and its particle.
 4. Choose **Playtest**, or press **F5**, to try the map immediately.
@@ -21,7 +21,7 @@ The editor is designed for desktop windows, including fullscreen and high-resolu
 | Portal | Place the selected A–Z portal group, keeping any particle. |
 | ↑ / → / ↓ / ← | Place a one-way field; keep any particle. Departure is allowed only in the indicated direction. |
 
-Choose the labeled **One-way field** tool, then select one of the four large arrow buttons and paint the board. The last selected direction is remembered when switching brushes. **Playtest**, **Save**, and file actions stay visible below the scrollable tool panel.
+Choose the labeled **One-way field** tool, then select one of the four large arrow buttons and paint the board. The last selected direction is remembered when switching brushes. **New** and **Save** stay in the header. **Playtest** and file actions stay visible below the scrollable tool panel.
 
 Particles can enter a field from any direction and remain there until moved. Fields do not slide particles automatically. **Floor** replaces a field with an ordinary tile; **Erase piece** keeps its direction. Undo, drafts, saved maps, and JSON sharing preserve directions.
 
@@ -29,12 +29,12 @@ Each portal group has two ends. Remove an existing end before placing a third.
 Playable maps need equal, nonzero black and white counts, and complete portal pairs.
 Incomplete maps can still be saved as drafts.
 
-**Ctrl/Cmd Z** undoes a stroke; **Ctrl/Cmd Shift Z** redoes it. **Ctrl/Cmd S** saves the level.
+**Ctrl/Cmd Z** undoes a stroke; **Ctrl/Cmd Shift Z** redoes it. **Ctrl/Cmd S** saves the level, including while the name field has focus.
 Resizing preserves cells inside the new bounds and can be undone.
 
 ## Drafts and saved levels
 
-The current draft is saved automatically. Reopening the editor restores it.
+The current draft is saved automatically. Starting a new creation preserves unfinished work as a draft copy in **My levels**; use **Edit** to continue it. Returning from a playtest keeps the active workspace. Untouched blank maps do not create extra draft entries.
 **Save** updates the current entry in **Start → My levels**, where you can play it, view its leaderboard, or open it for editing. Saved incomplete maps stay available for editing, with Play disabled until particles and portal pairs are complete. Switching away from unsaved edits keeps a draft copy instead of overwriting an existing saved original.
 
 Campaign maps are copied into custom levels. Editing or playtesting them does not change the campaign, its completion records, or its current checkpoint.

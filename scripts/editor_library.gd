@@ -48,7 +48,7 @@ func load_draft():
 	if not result.has("model"): return Model.new()
 	var model = result.model
 	var saved := load_file(directory.path_join("levels").path_join(model.id + ".json"), false)
-	model.dirty = not saved.has("model") or saved.model.definition() != model.definition()
+	model.dirty = saved.model.definition() != model.definition() if saved.has("model") else model.snapshot() != Model.new().snapshot()
 	return model
 
 func list_levels() -> Array:

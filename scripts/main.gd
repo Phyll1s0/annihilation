@@ -89,7 +89,7 @@ func _ready() -> void:
 		progress.save()
 	settings.apply_window()
 	show_screen("home")
-	if "--create" in OS.get_cmdline_user_args(): _navigate("editor")
+	if "--create" in OS.get_cmdline_user_args(): _navigate("create_level")
 
 func _navigate(destination: String) -> void:
 	if music != null: music.unlock()
@@ -111,7 +111,7 @@ func _navigate(destination: String) -> void:
 			show_screen(settings_return)
 			if settings_return_paused:
 				pause_game()
-		"editor":
+		"editor", "create_level":
 			if not settings.developer_mode: return
 			if screen in ["home", "my_levels"]:
 				editor_return = screen
@@ -120,6 +120,7 @@ func _navigate(destination: String) -> void:
 				editor_origin_screen = settings_return
 				editor_origin_paused = settings_return_paused
 			_ensure_editor()
+			if destination == "create_level": editor._new_level()
 			show_screen("editor")
 		"editor_back":
 			settings_return = editor_origin_screen
