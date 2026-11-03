@@ -15,6 +15,7 @@ var create_button: Button
 var back_button: Button
 var settings_button: Button
 var tabs: HBoxContainer
+var narrow_layout := false
 
 func _ready() -> void:
 	_setup_theme()
@@ -58,9 +59,15 @@ func _ready() -> void:
 
 func _layout_library() -> void:
 	if frame == null: return
+	if narrow_layout != (size.x < 600):
+		narrow_layout = size.x < 600
+		refresh()
+		return
 	var factor := _screen_scale()
 	_apply_layout(frame, factor)
 	_apply_layout(tabs, factor)
+	if narrow_layout:
+		for button in tabs.get_children(): button.custom_minimum_size.x = 120
 	back_button.position = Vector2(24, 24) * factor
 	back_button.custom_minimum_size = Vector2(48, 48) * factor
 	back_button.add_theme_constant_override("icon_max_width", roundi(32 * factor))
@@ -71,11 +78,12 @@ func _layout_library() -> void:
 	settings_button.offset_bottom = 72 * factor
 	settings_button.custom_minimum_size = Vector2(48, 48) * factor
 	settings_button.add_theme_constant_override("icon_max_width", roundi(24 * factor))
-	tabs.position = Vector2((size.x - tabs.get_combined_minimum_size().x) / 2.0, 24 * factor)
+	tabs.position = Vector2((size.x - tabs.get_combined_minimum_size().x) / 2.0, (84 if narrow_layout else 24) * factor)
 	tabs.size = tabs.get_combined_minimum_size()
-	var width := minf(800 * factor, size.x - 80 * factor)
-	frame.position = Vector2((size.x - width) / 2.0, 112 * factor)
-	frame.size = Vector2(width, maxf(1, size.y - 156 * factor))
+	var width := minf(800 * factor, size.x - (32 if narrow_layout else 80) * factor)
+	var top := (152.0 if narrow_layout else 112.0) * factor
+	frame.position = Vector2((size.x - width) / 2.0, top)
+	frame.size = Vector2(width, maxf(1, size.y - top - 24 * factor))
 
 func refresh() -> void:
 	if list == null: return
@@ -97,7 +105,8 @@ func refresh() -> void:
 		var plate := PanelContainer.new()
 		plate.add_theme_stylebox_override("panel", _style(Color(1,1,1,0.018), LINE))
 		list.add_child(plate)
-		var row := HBoxContainer.new()
+		var row := GridContainer.new()
+		row.columns = 1 if size.x < 600 else 4
 		row.add_theme_constant_override("separation", 12)
 		plate.add_child(row)
 		var text := VBoxContainer.new()
@@ -112,16 +121,22 @@ func refresh() -> void:
 		text.add_child(title)
 		var best: int = records.best(definition)
 		text.add_child(_label(tr_n("Best known: %d move", "Best known: %d moves", best) % best if best > 0 else tr("No records yet"), 12, MUTED))
+		var actions := HBoxContainer.new()
+		row.add_child(actions)
 		var play := _button("Play", func(): level_requested.emit(definition), Vector2(88, 44))
 		play.disabled = not item.playable
 		if play.disabled: play.tooltip_text = tr("Finish this map in the editor before playing.")
-		row.add_child(play)
+		actions.add_child(play)
 		var scores := _button("Leaderboard", func(): records_dialog.show_level(definition), Vector2(120, 44))
 		scores.add_theme_font_size_override("font_size", 12)
-		row.add_child(scores)
+		actions.add_child(scores)
 		var edit := _button("Edit", func(): edit_requested.emit(path), Vector2(88, 44))
 		edit.visible = settings.developer_mode
-		row.add_child(edit)
+		actions.add_child(edit)
+		if size.x < 600:
+			play.custom_minimum_size.x = 64
+			edit.custom_minimum_size.x = 64
+			scores.custom_minimum_size.x = 112
 		_remember_layout(plate)
 		rows.append({"play": play, "edit": edit, "scores": scores, "definition": definition})
 	_layout_library()

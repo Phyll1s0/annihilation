@@ -2,7 +2,7 @@
 
 ANNIHILATION is a minimalist grid puzzle about black and white particles, disappearing paths, and finding the shortest solution. Built with Godot 4 and GDScript.
 
-[Play the Web demo](https://phyll1s0.com/annihilation/) in a desktop browser.
+[Play the Web demo](https://phyll1s0.com/annihilation/) in a desktop or mobile browser.
 
 ![ANNIHILATION title screen](docs/images/home.png)
 
@@ -52,6 +52,7 @@ Each campaign level supports both modes, with separate completion records and a 
 | Input | Action |
 | --- | --- |
 | Click a particle, then an adjacent tile | Select and move |
+| Tap a particle, then an adjacent tile | Select and move on a touchscreen |
 | Click empty space or a missing tile | Deselect the particle |
 | Arrow keys / WASD | Move the selected particle |
 | Tab / Shift+Tab | Cycle through particles |
@@ -62,7 +63,7 @@ Each campaign level supports both modes, with separate completion records and a 
 | F11 | Toggle fullscreen |
 
 Level selection is available from the back button during play or the pause menu. Switching modes restarts the current level.
-Optional controls and a short rules reference are available under Settings → Controls. Enable **Keyboard-only movement** there to use the mouse for selection only and move with the arrow keys or WASD. This preference is saved; it applies to campaign games and custom-level playtests.
+Optional controls and a short rules reference are available under Settings → Controls. Enable **Keyboard-only movement** there to use the mouse for selection only and move with the arrow keys or WASD. This preference is saved; it applies to campaign games and custom-level playtests. Touch movement remains available with this preference enabled.
 
 ## Make your own levels
 
@@ -70,6 +71,7 @@ Open **Settings → Developer**, enable **Developer mode**, and choose **Level e
 Developer mode unlocks every campaign level and reveals **Create** and **Edit** in **My levels**. Turning it off restores normal chapter progression while keeping your genuine completion records and drafts.
 Each **Create** or **Level editor** entry starts a fresh blank map. **New** and **Save** stay in the editor header; use **Edit** in My levels to reopen a saved map. You can also copy a campaign level, paint tiles and particles, then press **F5** to playtest.
 Maps support up to **12 × 12** tiles, portal groups **A–Z**, and four directional field brushes.
+On small screens, **Tools / Board** switches between the editor panels; **New** and **Save** remain in the header.
 
 Choose **Save**, or press **Ctrl/Cmd S** while naming or painting, to add a map to **Start → My levels**. Starting another creation keeps unfinished work as a draft copy. Imported maps also need to be saved to appear there.
 Use **Play** or **Leaderboard** beside a saved map, or **Edit** with Developer mode enabled; unfinished maps can be edited until they are ready to play.
@@ -135,7 +137,19 @@ python3 tools/serve_web.py
 
 Open `http://127.0.0.1:8787/` in a browser. Do not open `index.html` directly from the filesystem. Public hosting needs the complete Web export folder, with WebAssembly served as `application/wasm`; HTTPS is recommended. The current export uses a single thread and does not require cross-origin isolation headers.
 
-Desktop browsers are the current Web target. Phone menus, safe areas, and touch controls need further adaptation before a mobile release. A WeChat Mini Game needs a dedicated engine adapter and platform testing; the ordinary Web export is not a ready-to-submit Mini Game package.
+The Web build supports touch selection and movement, portrait and landscape layouts, high-DPI screens, and phone safe areas. On supported browsers, Start requests landscape fullscreen; otherwise, rotate the phone manually or keep playing in portrait. Orientation locking is not available in every browser. The mobile layouts and touch flow are covered by automated viewport and browser checks; physical iPhone testing is still needed.
+
+The branded loading page lives in `web/shell.html`. It shows download progress and a retry action if startup fails. The shell sizes the canvas to the available safe area; the game lays out in CSS pixels while rendering at the device's pixel density.
+
+For mobile regression checks:
+
+~~~bash
+godot --headless --path . --script tests/mobile_ui_smoke.gd -- --geometry
+# Requires Playwright and an installed browser; export Web before running.
+python3 tools/check_mobile_web.py --browser chromium
+~~~
+
+A WeChat Mini Game needs a dedicated engine adapter and platform testing; the ordinary Web export is not a ready-to-submit Mini Game package.
 
 Build outputs and editor caches are excluded from Git.
 

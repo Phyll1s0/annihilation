@@ -28,6 +28,9 @@ var volume_value: Label
 var volume_knob: DPITexture
 var pointer_action: Label
 var pointer_binding: Label
+var navigation: VBoxContainer
+var mobile_tabs: OptionButton
+var inside: MarginContainer
 
 func _ready() -> void:
 	settings.apply_language()
@@ -57,7 +60,7 @@ func _ready() -> void:
 	var layout := HBoxContainer.new()
 	layout.add_theme_constant_override("separation", 20)
 	margin.add_child(layout)
-	var navigation := VBoxContainer.new()
+	navigation = VBoxContainer.new()
 	navigation.custom_minimum_size.x = 160
 	layout.add_child(navigation)
 	var gap := Control.new()
@@ -79,10 +82,15 @@ func _ready() -> void:
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _style(Color(0, 0, 0, 0.06), Color(1, 1, 1, 0.40), 3))
 	layout.add_child(panel)
-	var inside := _margin(panel, 22)
+	inside = _margin(panel, 22)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	inside.add_child(scroll)
 	var page := VBoxContainer.new()
+	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	page.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	page.add_theme_constant_override("separation", 24)
-	inside.add_child(page)
+	scroll.add_child(page)
 	heading = _title("Settings", 28, 1)
 	page.add_child(heading)
 	general = VBoxContainer.new()
@@ -215,6 +223,11 @@ func _ready() -> void:
 	page.add_child(remaining)
 	status = _label("Settings are saved automatically.", 11, MUTED)
 	page.add_child(status)
+	mobile_tabs = OptionButton.new()
+	for title in ["General", "Audio", "Controls", "Developer"]: mobile_tabs.add_item(tr(title))
+	mobile_tabs.custom_minimum_size = Vector2(180, 44)
+	mobile_tabs.item_selected.connect(_mobile_tab_selected)
+	add_child(mobile_tabs)
 	_tab(false)
 	refresh()
 	_remember_layout(self)
@@ -232,22 +245,58 @@ func _layout_settings() -> void:
 	if language_arrow != null:
 		language_arrow.base_scale = language_arrow_scale * ui_scale
 	_apply_layout(self, ui_scale)
+	var mobile := size.x < 960 or size.y < 600
+	navigation.visible = not mobile
+	mobile_tabs.visible = mobile
+	if mobile:
+		for side in ["left", "right"]: frame.add_theme_constant_override("margin_" + side, 16)
+		frame.add_theme_constant_override("margin_top", 78)
+		frame.add_theme_constant_override("margin_bottom", 16)
+		for side in ["left", "right", "top", "bottom"]: inside.add_theme_constant_override("margin_" + side, 10)
+		mobile_tabs.position = Vector2(88, 20)
+		mobile_tabs.size = Vector2(minf(240, size.x - 112), 44)
+		language_selector.custom_minimum_size.x = 130
+	_mobile_text(inside, mobile)
 	theme.default_font_size = roundi(15 * ui_scale)
 	back_button.position = Vector2(24, 24) * ui_scale
 	back_button.add_theme_constant_override("icon_max_width", roundi(32 * ui_scale))
 	back_button.size = back_button.custom_minimum_size
-	var popup := language_selector.get_popup()
-	popup.add_theme_font_override("font", regular)
-	popup.add_theme_font_size_override("font_size", roundi(15 * ui_scale))
-	popup.add_theme_constant_override("v_separation", roundi(8 * ui_scale))
-	popup.add_theme_stylebox_override("panel", _style(Color("080808"), LINE, roundi(3 * ui_scale)))
+	for selector in [language_selector, mobile_tabs]:
+		var popup: PopupMenu = selector.get_popup()
+		popup.add_theme_font_override("font", regular)
+		popup.add_theme_font_size_override("font_size", roundi(15 * ui_scale))
+		popup.add_theme_constant_override("v_separation", 22 if mobile else roundi(8 * ui_scale))
+		popup.add_theme_stylebox_override("panel", _style(Color("080808"), LINE, roundi(3 * ui_scale)))
 	_fit_frame()
 
 func _fit_frame() -> void:
 	# Container minimums settle after fonts and vector icons have changed size.
 	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
+func _mobile_text(node: Node, mobile: bool) -> void:
+	if node is Label and int(node.get_meta("base_font_size", 0)) == 18:
+		node.add_theme_font_size_override("font_size", 16 if mobile else roundi(18 * ui_scale))
+		if node.get_parent() is HBoxContainer:
+			if not node.has_meta("desktop_wrap"):
+				node.set_meta("desktop_wrap", node.autowrap_mode)
+				node.set_meta("desktop_h_flags", node.size_flags_horizontal)
+			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if mobile else node.get_meta("desktop_wrap")
+			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL if mobile else node.get_meta("desktop_h_flags")
+			for sibling in node.get_parent().get_children():
+				if sibling.get_class() == "Control":
+					if not sibling.has_meta("desktop_h_flags"): sibling.set_meta("desktop_h_flags", sibling.size_flags_horizontal)
+					sibling.size_flags_horizontal = Control.SIZE_FILL if mobile else sibling.get_meta("desktop_h_flags")
+	for child in node.get_children(): _mobile_text(child, mobile)
+
+func _mobile_tab_selected(index: int) -> void:
+	match index:
+		0: _tab(false)
+		1: _audio_tab()
+		2: _tab(true)
+		3: _developer_tab()
+
 func _tab(show_controls: bool) -> void:
+	if mobile_tabs != null: mobile_tabs.select(2 if show_controls else 0)
 	general.visible = not show_controls
 	controls.visible = show_controls
 	developer.hide()
@@ -264,6 +313,7 @@ func _tab(show_controls: bool) -> void:
 	active.add_theme_stylebox_override("normal", marker)
 
 func _developer_tab() -> void:
+	if mobile_tabs != null: mobile_tabs.select(3)
 	audio.hide()
 	_accent(audio_button, false)
 	general.hide()
@@ -275,6 +325,7 @@ func _developer_tab() -> void:
 	_accent(developer_button, true)
 
 func _audio_tab() -> void:
+	if mobile_tabs != null: mobile_tabs.select(1)
 	general.hide()
 	controls.hide()
 	developer.hide()
@@ -316,6 +367,9 @@ func _set_language(index: int) -> void:
 	settings_changed.emit()
 
 func _refresh_language() -> void:
+	if mobile_tabs != null:
+		var titles := ["General", "Audio", "Controls", "Developer"]
+		for i in titles.size(): mobile_tabs.set_item_text(i, tr(titles[i]))
 	if heading != null:
 		heading.text = tr("Audio") if audio.visible else (tr("Developer") if developer.visible else (tr("Controls") if controls.visible else tr("Settings")))
 		status.text = tr(status_message)

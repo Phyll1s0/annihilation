@@ -27,6 +27,7 @@ var ui_scale := 1.0
 var tabs: HBoxContainer
 var my_levels_button: Button
 var resume_button: Button
+var scroll: ScrollContainer
 
 func _ready() -> void:
 	_setup_theme()
@@ -50,9 +51,14 @@ func _ready() -> void:
 	resume_button = _button("Continue", func(): navigation_requested.emit("continue"), Vector2(120, 44))
 	tabs.add_child(resume_button)
 	center = CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scroll = ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(scroll)
+	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(center)
+	scroll.add_child(center)
 	body = VBoxContainer.new()
 	body.custom_minimum_size.x = 600
 	body.add_theme_constant_override("separation", 24)
@@ -128,6 +134,8 @@ func _ready() -> void:
 	following_button.offset_top = -30
 	following_button.offset_bottom = 30
 	add_child(following_button)
+	# The scroll area fills the page; navigation must remain above it for hit testing.
+	for button in [back_button, settings_button, tabs]: move_child(button, get_child_count() - 1)
 	_remember_layout(self)
 	center.minimum_size_changed.connect(_fit_center)
 	body.item_rect_changed.connect(_place_chapter_arrows)
@@ -141,6 +149,39 @@ func _layout_campaign() -> void:
 		return
 	ui_scale = _screen_scale()
 	_apply_layout(self, ui_scale)
+	var mobile := size.x < 960 or size.y < 600
+	var narrow := size.x < 600
+	var short_screen := size.y < 600 and not narrow
+	chapter_number.visible = not short_screen
+	bars.easy.bar.get_parent().get_parent().visible = not short_screen
+	if mobile:
+		body.custom_minimum_size.x = minf(600, size.x - 32)
+		body.add_theme_constant_override("separation", 14 if narrow else 6)
+		var title_size := 28 if narrow else 24
+		var title_width := chapter_title.get_theme_font("font").get_string_size(chapter_title.text, HORIZONTAL_ALIGNMENT_LEFT, -1, title_size).x
+		var available_title := size.x - 162 if narrow else size.x - 64
+		chapter_title.add_theme_font_size_override("font_size", floori(title_size * minf(1, available_title / maxf(1, title_width))))
+		chapter_title.get_parent().add_theme_constant_override("separation", 20)
+		for bar in bars.values(): bar.bar.get_parent().custom_minimum_size.x = 110
+		for button in tabs.get_children():
+			button.custom_minimum_size = Vector2(88, 44)
+			button.add_theme_font_size_override("font_size", 12)
+		for button in [easy_button, hard_button]: button.custom_minimum_size.x = minf(155, (size.x - 44) / 2)
+		for card in cards:
+			var hit := minf(76, (size.x - 62) / 4) if narrow else 64.0
+			card.custom_minimum_size = Vector2.ONE * hit
+			card.add_theme_font_size_override("font_size", 28)
+		grid.add_theme_constant_override("h_separation", 10)
+		grid.add_theme_constant_override("v_separation", 10)
+		level_area.custom_minimum_size.y = 100 if narrow else 64
+		detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		detail.custom_minimum_size.x = 0
+		detail.visible = narrow
+		# Page arrows provide larger touch targets than eleven small dots.
+		chapter_buttons[0].get_parent().visible = false
+	else:
+		detail.visible = true
+		chapter_buttons[0].get_parent().visible = true
 	back_button.position = Vector2(24, 24) * ui_scale
 	settings_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	settings_button.offset_left = -72 * ui_scale
@@ -148,18 +189,33 @@ func _layout_campaign() -> void:
 	settings_button.offset_top = 24 * ui_scale
 	settings_button.offset_bottom = 72 * ui_scale
 	tabs.size = tabs.get_combined_minimum_size()
-	tabs.position = Vector2((size.x - tabs.size.x) / 2.0, 24 * ui_scale)
+	tabs.position = Vector2((size.x - tabs.size.x) / 2.0, (84 if narrow else 24) * ui_scale)
 	_fit_center()
 	call_deferred("_place_chapter_arrows")
 
 func _fit_center() -> void:
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if size.x < 960 or size.y < 600:
+		scroll.offset_top = 140 if size.x < 600 else 72
+		scroll.offset_bottom = -72 if size.x < 600 else -48
+		scroll.offset_left = 16
+		scroll.offset_right = -16
+	center.custom_minimum_size.y = maxf(1, scroll.size.y)
+	# Font shaping can briefly enlarge the minimum during a chapter change.
+	center.queue_sort()
 
 func _place_chapter_arrows() -> void:
 	if level_area == null or following_button == null:
 		return
 	var middle := level_area.get_global_rect().get_center() - global_position
 	var hit := 60.0 * ui_scale
+	if size.x < 960 or size.y < 600:
+		for button in [previous_button, following_button]:
+			button.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+			button.size = Vector2.ONE * 48
+		previous_button.position = Vector2(24, size.y - 60)
+		following_button.position = Vector2(size.x - 72, size.y - 60)
+		return
 	var gap := 40.0 * ui_scale
 	for button in [previous_button, following_button]:
 		button.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)

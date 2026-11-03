@@ -7,6 +7,8 @@ var table: VBoxContainer
 var player_input: LineEdit
 var heading: Label
 var status: Label
+var header: GridContainer
+var profile: GridContainer
 
 func _ready() -> void:
 	_setup_theme()
@@ -22,7 +24,8 @@ func _ready() -> void:
 	var contents := VBoxContainer.new()
 	contents.add_theme_constant_override("separation", 16)
 	panel.add_child(contents)
-	var header := HBoxContainer.new()
+	header = GridContainer.new()
+	header.columns = 3
 	contents.add_child(header)
 	header.add_child(_title("Local leaderboard", 24, 1))
 	_spacer(header)
@@ -31,7 +34,8 @@ func _ready() -> void:
 	heading.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	contents.add_child(heading)
-	var profile := HBoxContainer.new()
+	profile = GridContainer.new()
+	profile.columns = 2
 	profile.add_child(_label("Player name", 14, MUTED))
 	player_input = LineEdit.new()
 	player_input.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
@@ -63,9 +67,12 @@ func _layout_dialog() -> void:
 	if panel == null: return
 	var factor := _screen_scale()
 	_apply_layout(panel, factor)
+	header.columns = 1 if size.x < 600 else 3
+	profile.columns = 1 if size.x < 600 else 2
+	if size.x < 600: player_input.custom_minimum_size.x = 200
 	theme.default_font_size = roundi(14 * factor)
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var margin := 44.0 * factor
+	var margin := (16.0 if size.x < 600 or size.y < 600 else 44.0) * factor
 	panel.offset_left = margin
 	panel.offset_top = margin
 	panel.offset_right = -margin

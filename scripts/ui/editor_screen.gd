@@ -50,9 +50,17 @@ var exchange_layer: Control
 var exchange_panel: PanelContainer
 var exchange_text: TextEdit
 var exchange_status: Label
+var exchange_actions: GridContainer
 var file_dialog: FileDialog
 var file_action := ""
 var web_callback
+var header: HBoxContainer
+var editor_title: Label
+var sidebar_shell: VBoxContainer
+var drawing: VBoxContainer
+var mobile_tools: Button
+var mobile_redo: Button
+var tools_open := false
 
 func _ready() -> void:
 	_setup_theme()
@@ -84,11 +92,12 @@ func _build_ui() -> void:
 	var outer := VBoxContainer.new()
 	outer.add_theme_constant_override("separation", 18)
 	frame.add_child(outer)
-	var header := HBoxContainer.new()
+	header = HBoxContainer.new()
 	outer.add_child(header)
 	header.add_child(_icon_button("arrow-back-circle-outline", "Back", func():
 		_persist(); navigation_requested.emit("editor_back"), 32))
-	header.add_child(_title("Level editor", 28, 1))
+	editor_title = _title("Level editor", 28, 1)
+	header.add_child(editor_title)
 	_spacer(header)
 	new_button = _button("New", _new_level, Vector2(88, 44))
 	header.add_child(new_button)
@@ -99,11 +108,13 @@ func _build_ui() -> void:
 	header.add_child(undo_button)
 	redo_button = _button("Redo", func(): model.redo(); _edited(), Vector2(72, 42))
 	header.add_child(redo_button)
+	mobile_tools = _button("Tools", func(): tools_open = not tools_open; _layout_editor(), Vector2(68, 44))
+	header.add_child(mobile_tools)
 	body = HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 26)
 	outer.add_child(body)
-	var sidebar_shell := VBoxContainer.new()
+	sidebar_shell = VBoxContainer.new()
 	sidebar_shell.custom_minimum_size.x = 320
 	sidebar_shell.add_theme_constant_override("separation", 14)
 	body.add_child(sidebar_shell)
@@ -207,6 +218,9 @@ func _build_ui() -> void:
 		button.add_theme_font_size_override("font_size", 14)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		files.add_child(button)
+	mobile_redo = _button("Redo", func(): model.redo(); _edited(), Vector2(64, 44))
+	mobile_redo.add_theme_font_size_override("font_size", 12)
+	files.add_child(mobile_redo)
 	best_label = _label("", 14, MUTED)
 	best_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sidebar_shell.add_child(best_label)
@@ -214,7 +228,7 @@ func _build_ui() -> void:
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status.custom_minimum_size.y = 48
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var drawing := VBoxContainer.new()
+	drawing = VBoxContainer.new()
 	drawing.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_child(drawing)
 	board = Board.new()
@@ -248,6 +262,31 @@ func _layout_editor() -> void:
 	var factor := _screen_scale()
 	_apply_layout(frame, factor)
 	_apply_layout(exchange_panel, factor)
+	var mobile := size.x < 960 or size.y < 600
+	var narrow := size.x < 600
+	mobile_tools.visible = mobile
+	mobile_tools.text = tr("Board" if tools_open else "Tools")
+	sidebar_shell.visible = not mobile or tools_open
+	drawing.visible = not mobile or not tools_open
+	sidebar_shell.size_flags_horizontal = Control.SIZE_EXPAND_FILL if mobile else Control.SIZE_FILL
+	mobile_redo.visible = mobile and narrow
+	redo_button.visible = not narrow
+	editor_title.visible = not mobile
+	if mobile:
+		for side in ["left", "right", "top", "bottom"]: frame.add_theme_constant_override("margin_" + side, 8)
+		header.add_theme_constant_override("separation", 4)
+		for button in [new_button, save_button]:
+			button.custom_minimum_size.x = 60
+			button.add_theme_font_size_override("font_size", 12)
+		for button in [header.get_child(0), undo_button]:
+			button.custom_minimum_size = Vector2(44, 44)
+			button.size = button.custom_minimum_size
+		mobile_tools.add_theme_font_size_override("font_size", 12)
+		sidebar_shell.custom_minimum_size.x = 0
+		brushes.floor.get_parent().columns = 2 if narrow else 3
+		for button in [play_button, records_button]: button.custom_minimum_size.x = 130
+	else:
+		brushes.floor.get_parent().columns = 3
 	theme.default_font_size = roundi(16 * factor)
 	for selector in [level_menu, portal_menu]:
 		var popup: PopupMenu = selector.get_popup()
@@ -259,11 +298,12 @@ func _layout_editor() -> void:
 	board.padding = Vector2(16, 16) * factor
 	board.queue_redraw()
 	exchange_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var margin := 44.0 * factor
+	var margin := (12.0 if mobile else 44.0) * factor
 	exchange_panel.offset_left = margin
 	exchange_panel.offset_top = margin
 	exchange_panel.offset_right = -margin
 	exchange_panel.offset_bottom = -margin
+	exchange_actions.columns = 2 if narrow else 5
 
 func _fit_frame() -> void:
 	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -423,7 +463,9 @@ func _build_exchange() -> void:
 	exchange_status = _label("", 12, MUTED)
 	exchange_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	contents.add_child(exchange_status)
-	var actions := HBoxContainer.new()
+	var actions := GridContainer.new()
+	actions.columns = 5
+	exchange_actions = actions
 	contents.add_child(actions)
 	for entry in [["Import JSON", func(): import_text(exchange_text.text)], ["Copy JSON", func(): DisplayServer.clipboard_set(exchange_text.text)],
 		["Open file", _open_file], ["Save file", _export_file], ["Close", func(): exchange_layer.hide()]]:
@@ -529,6 +571,7 @@ func _input(event: InputEvent) -> void:
 
 func _refresh_language() -> void:
 	if board == null: return
+	mobile_tools.text = tr("Board" if tools_open else "Tools")
 	title_input.placeholder_text = tr("Level name")
 	_refresh_menu()
 	_sync()

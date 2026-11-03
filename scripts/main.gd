@@ -37,6 +37,8 @@ var editor_origin_paused := false
 var developer_access := false
 
 func _ready() -> void:
+	if OS.has_feature("web"):
+		add_child(preload("res://scripts/web_viewport.gd").new())
 	settings.apply_language()
 	developer_access = settings.developer_mode
 	_setup_theme()
@@ -93,6 +95,8 @@ func _ready() -> void:
 
 func _navigate(destination: String) -> void:
 	if music != null: music.unlock()
+	if screen == "home" and destination == "campaign" and OS.has_feature("web"):
+		JavaScriptBridge.eval("window.annihilationPlay && window.annihilationPlay()")
 	match destination:
 		"continue":
 			if not progress.resume.is_empty() and progress.level_unlocked(levels, game.current, settings.developer_mode):
@@ -303,11 +307,19 @@ func _layout_pause() -> void:
 		return
 	var factor := _screen_scale()
 	_apply_layout(pause_panel, factor)
+	pause_panel.custom_minimum_size.x = minf(360 * factor, size.x - 32)
+	if size.y < 440:
+		for button in pause_actions.values(): button.custom_minimum_size.y = 44
+		pause_panel.get_child(0).add_theme_constant_override("separation", 4)
+		pause_panel.get_child(0).get_child(0).add_theme_font_size_override("font_size", 22)
 	var plate := _style(Color("080808"), LINE, roundi(4 * factor))
 	plate.content_margin_left *= factor
 	plate.content_margin_right *= factor
 	plate.content_margin_top *= factor
 	plate.content_margin_bottom *= factor
+	if size.y < 440:
+		plate.content_margin_top = 6
+		plate.content_margin_bottom = 6
 	pause_panel.add_theme_stylebox_override("panel", plate)
 	_fit_pause_center()
 

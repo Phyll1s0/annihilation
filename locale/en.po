@@ -650,3 +650,9 @@ msgstr "Select particle"
 
 msgid "Click a particle"
 msgstr "Click a particle"
+
+msgid "Tools"
+msgstr "Tools"
+
+msgid "Board"
+msgstr "Board"

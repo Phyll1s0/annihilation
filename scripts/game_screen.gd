@@ -139,10 +139,14 @@ func _layout_ui() -> void:
 	var factor := maxf(1.0, minf(size.x / 1280.0, size.y / 820.0))
 	var edge := clampf(size.x * 0.025, 16.0, 40.0 * factor)
 	var compact := size.x < 600.0
+	var short_screen := size.y < 600 and not compact
 	_scale_icon(back_button, 32, 48, factor)
 	_scale_icon(pause_button, 28, 48, factor)
 	_scale_icon(undo_button, 23, 32, factor)
 	_scale_icon(restart_button, 24, 32, factor)
+	if size.x < 960 or size.y < 600:
+		_scale_icon(undo_button, 23, 44, 1)
+		_scale_icon(restart_button, 24, 44, 1)
 	back_button.position = Vector2(edge, 20 * factor)
 	chapter_label.position = Vector2(edge + 64 * factor, 34 * factor)
 	chapter_label.add_theme_font_size_override("font_size", roundi(12 * factor))
@@ -156,18 +160,31 @@ func _layout_ui() -> void:
 	modes.offset_right = 110 * factor
 	modes.offset_top = (76 if compact else 24) * factor
 	modes.offset_bottom = modes.offset_top + 44 * factor
+	chapter_label.visible = not short_screen
+	if short_screen:
+		for button in [easy_button, hard_button]: button.custom_minimum_size.x = 72
+		modes.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		modes.position = Vector2(edge + 60, 12)
+		modes.size = Vector2(156, 44)
+		back_button.position.y = 10
+		pause_button.position.y = 10
 	var toolbar_top := (132.0 if compact else 78.0) * factor
+	if short_screen: toolbar_top = 12
 	toolbar.add_theme_constant_override("separation", roundi(16 * factor))
 	count_label.add_theme_font_size_override("font_size", roundi(30 * factor))
 	goal_label.add_theme_font_size_override("font_size", roundi(16 * factor))
 	toolbar.position = Vector2((size.x - 320 * factor) / 2.0, toolbar_top)
 	toolbar.size = Vector2(320, 46) * factor
+	_fit_toolbar()
 	var clearance := minf(toolbar_top + 68.0 * factor, size.y * 0.30)
 	var rows: int = board.state.get("height", 1)
 	var columns: int = board.state.get("width", 1)
 	clearance = minf(clearance, maxf(toolbar_top + 58.0 * factor, (size.y - rows * 28.0 - 8.0) / 2.0))
+	if short_screen: clearance = 66
 	board.position = Vector2(edge, clearance)
 	board.size = Vector2(maxf(1.0, size.x - edge * 2.0), maxf(1.0, size.y - clearance * 2.0))
+	if short_screen:
+		board.size.y = maxf(1, size.y - clearance - 30)
 	board.padding = Vector2(minf(40 * factor, maxf(8, board.size.x - columns * 28.0)),
 		minf(40 * factor, maxf(8, board.size.y - rows * 28.0)))
 	board.visual_scale = factor
@@ -176,6 +193,7 @@ func _layout_ui() -> void:
 	board._layout_board()
 	board.queue_redraw()
 	status_label.position = Vector2(edge, size.y - 48 * factor)
+	if short_screen: status_label.position.y = size.y - 28
 	status_label.size = Vector2(size.x - edge * 2.0, 32 * factor)
 	status_label.add_theme_font_size_override("font_size", roundi(11 * factor))
 	var result_width := minf(480 * factor, size.x - edge * 2.0)
@@ -199,6 +217,9 @@ func _fit_toolbar() -> void:
 	# Font shaping updates container minimums after the resize notification.
 	toolbar.size = Vector2(320, 46) * board.visual_scale
 	toolbar.position.x = (size.x - toolbar.size.x) / 2.0
+	if size.y < 600 and size.x >= 600:
+		toolbar.size.x = 220
+		toolbar.position.x = size.x - 300
 
 func _build_result(canvas: Control) -> void:
 	result_panel = PanelContainer.new()
@@ -378,7 +399,7 @@ func _show_notice(message: String) -> void:
 		notice.tween_property(status_label, "modulate:a", 0.0, 0.25)
 	notice.tween_callback(func(): status_label.text = "")
 
-func _click_cell(index: int) -> void:
+func _click_cell(index: int, touch: bool = false) -> void:
 	if not input_enabled or level_intro.visible:
 		return
 	if index < 0 or index >= session.state.board.size() or session.state.board[index] < 0:
@@ -387,7 +408,7 @@ func _click_cell(index: int) -> void:
 	if board.animating() or Puzzle.won(session.state):
 		return
 	var selected: int = session.selected
-	if settings.keyboard_only_movement:
+	if settings.keyboard_only_movement and not touch:
 		session.selected = index if session.state.pieces[index] != 0 and index != selected else -1
 	elif index == selected:
 		session.selected = -1
@@ -407,7 +428,10 @@ func _deselect() -> void:
 	_sync()
 
 func _gui_input(event: InputEvent) -> void:
-	if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch and event.pressed):
+	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
+		accept_event()
+		return
+	if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch and event.pressed and event.index == 0):
 		_deselect()
 		accept_event()
 

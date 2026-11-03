@@ -1,7 +1,7 @@
 extends Control
 ## Vector-only rendering keeps the board sharp at every window size.
 
-signal cell_pressed(index: int)
+signal cell_pressed(index: int, touch: bool)
 signal animation_finished
 signal paint_started
 signal paint_finished
@@ -103,6 +103,13 @@ func _get_tooltip(at_position: Vector2) -> String:
 func _gui_input(event: InputEvent) -> void:
 	if state.is_empty():
 		return
+	# Buttons still need mouse emulation, but the board handles real touches itself.
+	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
+		accept_event()
+		return
+	if (event is InputEventScreenTouch or event is InputEventScreenDrag) and event.index != 0:
+		accept_event()
+		return
 	if edit_mode:
 		_edit_input(event)
 		return
@@ -111,11 +118,11 @@ func _gui_input(event: InputEvent) -> void:
 		queue_redraw()
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var index := _cell_at(event.position)
-		cell_pressed.emit(index)
+		cell_pressed.emit(index, false)
 		accept_event()
-	if event is InputEventScreenTouch and event.pressed:
+	if event is InputEventScreenTouch and event.pressed and event.index == 0:
 		var index := _cell_at(event.position)
-		cell_pressed.emit(index)
+		cell_pressed.emit(index, true)
 		accept_event()
 
 func _edit_input(event: InputEvent) -> void:

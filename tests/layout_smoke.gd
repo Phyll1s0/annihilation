@@ -41,7 +41,7 @@ func _run() -> void:
 	ui.settings = settings
 	ui.progress = Progress.new(save_path)
 	viewport.add_child(ui)
-	ui.board.cell_pressed.connect(func(index: int): received[0] = index)
+	ui.board.cell_pressed.connect(func(index: int, _touch: bool): received[0] = index)
 	await settle()
 	var reference_units: Dictionary = {}
 	var reference_counter: int = ui.count_label.get_theme_font_size("font_size")
@@ -72,7 +72,8 @@ func _run() -> void:
 			check(board.get_global_rect().encloses(grid), tag + ": tiles are not clipped by the board")
 			check(grid.position.y >= ui.toolbar.get_global_rect().end.y + 4, tag + ": the grid clears the toolbar (grid %.1f, toolbar %s, counter font %d)" % [grid.position.y, ui.toolbar.get_global_rect(), ui.count_label.get_theme_font_size("font_size")])
 			check(grid.end.y <= ui.status_label.position.y - 8, tag + ": feedback has separate space")
-			check(grid.get_center().distance_to(screen.get_center()) < 1.0, tag + ": the puzzle stays centered")
+			var center: Vector2 = board.get_global_rect().get_center() if dimensions.y < 600 and dimensions.x >= 600 else screen.get_center()
+			check(grid.get_center().distance_to(center) < 1.0, tag + ": the puzzle stays centered in its available area")
 			check(board.unit >= 28.0, tag + ": cells stay usable at the smallest test viewport")
 			for control in [ui.back_button, ui.pause_button, ui.easy_button, ui.hard_button, ui.toolbar]:
 				check(screen.encloses(control.get_global_rect()), tag + ": controls fit on screen")
