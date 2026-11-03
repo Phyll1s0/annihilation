@@ -27,8 +27,9 @@ func _run() -> void:
 	_test_progress()
 	_test_framework()
 	_test_user_data_migration()
+	_test_annihilation_migration()
 	_test_catalog()
-	print("NULL: %d checks, %d failures" % [checks, failures])
+	print("ANNIHILATION: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
 
 func _test_rules() -> void:
@@ -209,6 +210,40 @@ func _test_user_data_migration() -> void:
 			DirAccess.remove_absolute(base.path_join(name_value))
 		DirAccess.remove_absolute(base)
 	DirAccess.remove_absolute(directory)
+
+func _test_annihilation_migration() -> void:
+	var directory := "user://annihilation_rename_test_%d" % OS.get_process_id()
+	var legacy := directory.path_join("NULL")
+	var older := directory.path_join("GRAY")
+	var current := directory.path_join("ANNIHILATION")
+	for relative in UserData.SAVE_FILES + ["editor/levels/custom-saved.json"]:
+		_write_fixture(legacy.path_join(relative), "latest " + relative)
+	_write_fixture(older.path_join("progress.json"), "older progress")
+	_write_fixture(older.path_join("editor/levels/custom-older.json"), "older level")
+	_write_fixture(current.path_join("editor/levels/custom-saved.json"), "current level")
+	check(UserData.migrate_legacy(current) == OK, "The rename migrates all known saves and nested editor files")
+	for relative in UserData.SAVE_FILES:
+		check(FileAccess.get_file_as_string(current.path_join(relative)) == "latest " + relative,
+			"NULL saves take priority over GRAY: " + relative)
+		check(FileAccess.get_file_as_string(legacy.path_join(relative)) == "latest " + relative,
+			"Migration leaves the old save untouched: " + relative)
+	check(FileAccess.get_file_as_string(current.path_join("editor/levels/custom-saved.json")) == "current level", "Current custom levels are never overwritten")
+	check(FileAccess.get_file_as_string(current.path_join("editor/levels/custom-older.json")) == "older level", "Older custom levels are carried forward too")
+	DirAccess.remove_absolute(current.path_join("editor/levels/custom-older.json"))
+	check(UserData.migrate_legacy(current) == OK and not FileAccess.file_exists(current.path_join("editor/levels/custom-older.json")), "Completed migration does not resurrect a subsequently deleted level")
+	_remove_fixture_tree(directory)
+
+func _write_fixture(path: String, contents: String) -> void:
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(contents)
+	file.close()
+
+func _remove_fixture_tree(path: String) -> void:
+	var folder := DirAccess.open(path)
+	for name_value in folder.get_files(): DirAccess.remove_absolute(path.path_join(name_value))
+	for name_value in folder.get_directories(): _remove_fixture_tree(path.path_join(name_value))
+	DirAccess.remove_absolute(path)
 
 func _test_catalog() -> void:
 	var catalog: Array = JSON.parse_string(FileAccess.get_file_as_string("res://data/levels.json"))

@@ -1,4 +1,4 @@
-# NULL 关卡编写与认证
+# ANNIHILATION 关卡编写与认证
 
 关卡集中放在 `data/levels.json`。每关使用固定宽度的字符串数组表示地形。`title`、`chapter`、`description` 使用英文源文案，对应中文译文保存在 `locale/zh_CN.po`；游戏中不常驻显示关卡说明。
 

@@ -171,13 +171,13 @@ func document() -> Dictionary:
 
 static func parse(value, new_identity: bool = true) -> Dictionary:
 	if not value is Dictionary:
-		return {"error": "Choose a NULL level JSON file."}
+		return {"error": "Choose an ANNIHILATION level JSON file."}
 	if value.has("format"):
 		if value.format != "null-level" or value.get("version") != 1:
 			return {"error": "Unsupported level file version."}
 		value = value.get("level")
 	if not value is Dictionary or not value.get("layout") is Array:
-		return {"error": "Choose a NULL level JSON file."}
+		return {"error": "Choose an ANNIHILATION level JSON file."}
 	var rows: Array = value.layout
 	if rows.size() < 1 or rows.size() > MAX_SIZE or not rows[0] is String or rows[0].length() < 1 or rows[0].length() > MAX_SIZE:
 		return {"error": "Maps can be up to 12 by 12 tiles."}

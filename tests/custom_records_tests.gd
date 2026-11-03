@@ -67,7 +67,7 @@ func _run() -> void:
 	saved_model.paint(2,"void")
 	check(saved_model.board[2] == -1 and saved_model.pieces[2] == 0, "Void removes the entire tile")
 	remove_tree(directory)
-	print("NULL custom records: %d checks, %d failures" % [checks, failures])
+	print("ANNIHILATION custom records: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
 
 func remove_tree(path: String) -> void:

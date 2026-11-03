@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent BFS oracle. Certifies minimum move counts for the NULL campaign."""
+"""Independent BFS oracle. Certifies minimum move counts for the ANNIHILATION campaign."""
 import argparse
 from collections import deque
 import json

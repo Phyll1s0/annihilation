@@ -427,7 +427,7 @@ func _build_exchange() -> void:
 	file_dialog = FileDialog.new()
 	file_dialog.access = FileDialog.ACCESS_FILESYSTEM
 	file_dialog.use_native_dialog = true
-	file_dialog.filters = PackedStringArray(["*.json ; NULL level"])
+	file_dialog.filters = PackedStringArray(["*.json ; ANNIHILATION level"])
 	file_dialog.file_selected.connect(_file_selected)
 	add_child(file_dialog)
 
@@ -473,11 +473,11 @@ func _web_import(arguments: Array) -> void:
 
 func _export_file() -> void:
 	if OS.has_feature("web"):
-		JavaScriptBridge.download_buffer(exchange_text.text.to_utf8_buffer(), "NULL-level.json", "application/json")
+		JavaScriptBridge.download_buffer(exchange_text.text.to_utf8_buffer(), "ANNIHILATION-level.json", "application/json")
 		return
 	file_action = "export"
 	file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
-	file_dialog.current_file = "NULL-level.json"
+	file_dialog.current_file = "ANNIHILATION-level.json"
 	file_dialog.popup_centered(Vector2i(760, 480))
 
 func _file_selected(path: String) -> void:

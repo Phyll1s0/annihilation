@@ -90,7 +90,7 @@ def main():
             print(f'{level["id"]} {kind} {detail}: verified ({visited} states)')
             checks += 1
     assert checks, 'No authored design checks were found'
-    print(f'NULL design audit: {checks} verified requirements')
+    print(f'ANNIHILATION design audit: {checks} verified requirements')
 
 
 if __name__ == '__main__':

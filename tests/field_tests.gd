@@ -71,5 +71,5 @@ func _initialize() -> void:
 	var walk := [{"source":0,"direction":"right"},{"source":1,"direction":"right"},{"source":2,"direction":"right"}]
 	check(Records.replay({"layout":["w>>b"]},walk).size()==3, "JSON scores replay legal field walks")
 	check(Records.replay({"layout":["w><b"]},walk).is_empty(), "A shared score cannot bypass a changed field restriction")
-	print("NULL one-way fields: %d checks, %d failures" % [checks,failures])
+	print("ANNIHILATION one-way fields: %d checks, %d failures" % [checks,failures])
 	quit(1 if failures else 0)

@@ -299,5 +299,5 @@ func _run() -> void:
 	check(app.game.result_title.text == "Complete" and app.game.result_description.text == "Moves: 1", "Completed games also refresh when language changes")
 	DirAccess.remove_absolute(save_path)
 	DirAccess.remove_absolute(save_path + ".cfg")
-	print("NULL application: %d checks, %d failures" % [checks, failures])
+	print("ANNIHILATION application: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

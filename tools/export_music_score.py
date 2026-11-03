@@ -227,7 +227,7 @@ def main():
     doc = canvas.Canvas(document, pagesize=A4)
     title = 'Still Orbit - airy piano arrangement' if args.air else 'Still Orbit - original and revised scores'
     doc.setTitle(title)
-    doc.setAuthor('NULL')
+    doc.setAuthor('ANNIHILATION')
     placement = []
     for page in range(len(revisions)*2):
         revision = revisions[page//2]
@@ -239,7 +239,7 @@ def main():
         doc.drawRightString(width-42, height-54, 'CURRENT AIR' if args.air else ('BEFORE' if revision=='original' else 'AFTER'))
         doc.setFont('Poppins', 8)
         doc.setFillColorRGB(.38, .41, .44)
-        doc.drawString(42, height-81, 'NULL  |  Piano study score  |  4/4  |  Quarter note = 60  |  96-second loop')
+        doc.drawString(42, height-81, 'ANNIHILATION  |  Piano study score  |  4/4  |  Quarter note = 60  |  96-second loop')
         doc.drawString(42, height-97, 'Reading reduction: original onsets rounded to eighth notes; written lengths shortened.')
         doc.drawString(42, height-110, 'Piano notes shown; the current mix also has a soft organ bed.' if args.air else 'Pitch names below the melody. MIDI and the final-page timing map preserve longer gates.')
         for index in range(3):
@@ -297,7 +297,7 @@ def main():
         writer.add_page(page)
     for page_index, source, scale, x, y in placement:
         writer.pages[page_index].merge_transformed_page(source, Transformation().scale(scale).translate(x, y))
-    writer.add_metadata({'/Title': title, '/Author': 'NULL'})
+    writer.add_metadata({'/Title': title, '/Author': 'ANNIHILATION'})
     target = OUT/('still-orbit-air-score.pdf' if args.air else 'still-orbit-score.pdf')
     writer.write(target)
     result = PdfReader(target)

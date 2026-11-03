@@ -255,5 +255,5 @@ func _run() -> void:
 	viewport.queue_free()
 	await settle()
 	remove_tree(directory)
-	print("NULL editor: %d checks, %d failures" % [checks, failures])
+	print("ANNIHILATION editor: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

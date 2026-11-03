@@ -1,8 +1,8 @@
-# NULL
+# ANNIHILATION
 
-NULL is a minimalist grid puzzle about black and white particles, disappearing paths, and finding the shortest solution. Built with Godot 4 and GDScript.
+ANNIHILATION is a minimalist grid puzzle about black and white particles, disappearing paths, and finding the shortest solution. Built with Godot 4 and GDScript.
 
-![NULL title screen](docs/images/home.png)
+![ANNIHILATION title screen](docs/images/home.png)
 
 ## Gameplay
 
@@ -39,7 +39,7 @@ Each campaign level supports both modes, with separate completion records and a 
 - A My levels tab for playing, editing, and viewing the records of saved custom maps.
 - Black-and-white pieces, a pure black background with faint star trails, and an orbital zero mark.
 - Responsive chapter selection, progress indicators, pause menus, and Settings, with readable controls in fullscreen.
-- Soft original piano music with smooth looping, quieter playback during puzzles, and saved music/volume controls under Settings → Audio.
+- Soft original piano and organ music with smooth looping, quieter playback during puzzles, and saved music/volume controls under Settings → Audio.
 - Reduced-motion controls; background details fade during play.
 - English by default, with an instant, saved switch to Simplified Chinese in Settings → General → Language.
 - Centered, square-cell boards that resize with the window, without a text footer during play.
@@ -116,12 +116,12 @@ Install the export templates matching your Godot version. macOS, Windows x64, an
 
 ~~~bash
 mkdir -p builds/macos builds/windows builds/web
-godot --headless --path . --export-release macOS builds/macos/NULL.zip
-godot --headless --path . --export-release "Windows Desktop" builds/windows/NULL.exe
+godot --headless --path . --export-release macOS builds/macos/ANNIHILATION.zip
+godot --headless --path . --export-release "Windows Desktop" builds/windows/ANNIHILATION.exe
 godot --headless --path . --export-release Web builds/web/index.html
 ~~~
 
-Keep `NULL.exe` and `NULL.pck` together when distributing the Windows build. It is an unsigned portable build and still needs testing on a Windows device.
+Keep `ANNIHILATION.exe` and `ANNIHILATION.pck` together when distributing the Windows build. It is an unsigned portable build and still needs testing on a Windows device.
 
 Preview the Web build locally:
 

@@ -1,5 +1,5 @@
 msgid ""
-msgstr "Project-Id-Version: NULL\nLanguage: en\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+msgstr "Project-Id-Version: ANNIHILATION\nLanguage: en\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "Back"
 msgstr "Back"
@@ -549,8 +549,8 @@ msgstr "Black and white counts must match."
 msgid "Every portal group needs exactly two ends."
 msgstr "Every portal group needs exactly two ends."
 
-msgid "Choose a NULL level JSON file."
-msgstr "Choose a NULL level JSON file."
+msgid "Choose an ANNIHILATION level JSON file."
+msgstr "Choose an ANNIHILATION level JSON file."
 
 msgid "Unsupported level file version."
 msgstr "Unsupported level file version."

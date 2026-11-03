@@ -131,5 +131,5 @@ func _run() -> void:
 	await settle()
 	DirAccess.remove_absolute(save_path)
 	DirAccess.remove_absolute(save_path + ".cfg")
-	print("NULL layout: %d puzzle/window combinations, %d failures" % [layouts, failures])
+	print("ANNIHILATION layout: %d puzzle/window combinations, %d failures" % [layouts, failures])
 	quit(1 if failures else 0)

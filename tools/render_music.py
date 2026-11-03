@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render NULL's original 96-second piano loop. Requires numpy, scipy, and imageio-ffmpeg.
+"""Render ANNIHILATION's original 96-second piano loop. Requires numpy, scipy, and imageio-ffmpeg.
 Samples are fetched from a pinned CC0 library into builds/, never needed at runtime.
 """
 from concurrent.futures import ThreadPoolExecutor
@@ -137,8 +137,8 @@ def main():
     loop *= min(10**(-3/20)/peak,10**((-23 if original else (-25.5 if airy else -24))/20)/rms)
     args.output.parent.mkdir(parents=True,exist_ok=True)
     subprocess.run([FFMPEG,'-y','-v','error','-f','f32le','-ar',str(RATE),'-ac','2','-i','pipe:0',
-                    '-c:a','libvorbis','-q:a','6','-metadata','TITLE=Still Orbit','-metadata','ARTIST=NULL',
-                    '-metadata','COMMENT=Original NULL composition; CC0 VSCO 2 CE upright piano.',str(args.output)],
+                    '-c:a','libvorbis','-q:a','6','-metadata','TITLE=Still Orbit','-metadata','ARTIST=ANNIHILATION',
+                    '-metadata','COMMENT=Original ANNIHILATION composition; CC0 VSCO 2 CE upright piano.',str(args.output)],
                    input=loop.astype('<f4').tobytes(),check=True)
     # A convenient local listening preview, excluded from source control.
     subprocess.run([FFMPEG,'-y','-v','error','-i',str(args.output),'-t','32',str(ROOT/'builds'/f'{args.output.stem}-preview.wav')],check=True)

@@ -1,6 +1,9 @@
 extends "res://scripts/ui/screen_base.gd"
 signal navigation_requested(destination: String)
 const Mark = preload("res://scripts/ui/zero_mark.gd")
+const WORDMARK := "ANNIHILATION"
+const TITLE_SIZE := 64
+const TITLE_TRACKING := 3
 var levels: Array = []
 var progress
 var settings
@@ -20,7 +23,7 @@ func _ready() -> void:
 	center.add_child(body)
 	mark = Mark.new()
 	body.add_child(mark)
-	title = _title("NULL", 88, 5)
+	title = _title(WORDMARK, TITLE_SIZE, TITLE_TRACKING)
 	title_font = title.get_theme_font("font")
 	title_font.base_font = preload("res://assets/fonts/Poppins-Thin.ttf")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -55,12 +58,16 @@ func _layout_home() -> void:
 		return
 	# Grow with the window's shorter scale, without shrinking ordinary windows.
 	var factor := maxf(1.0, minf(size.x / 1280.0, size.y / 820.0))
-	var fit := minf((size.x - 40.0) / 320.0, (size.y - 48.0) / 310.0)
+	var fit := (size.y - 48.0) / 310.0
 	factor = maxf(0.5, minf(factor, fit))
-	body.custom_minimum_size.x = 320.0 * factor
+	body.custom_minimum_size.x = minf(620.0 * factor, size.x - 48.0)
 	body.add_theme_constant_override("separation", roundi(24.0 * factor))
-	title.add_theme_font_size_override("font_size", roundi(88.0 * factor))
-	title_font.spacing_glyph = roundi(5.0 * factor)
+	# Fit the long wordmark independently, keeping Start comfortably sized.
+	title_font.spacing_glyph = TITLE_TRACKING
+	var word_width := title_font.get_string_size(WORDMARK, HORIZONTAL_ALIGNMENT_LEFT, -1, TITLE_SIZE).x
+	var title_scale := minf(factor, (size.x - 64.0) / word_width)
+	title_font.spacing_glyph = floori(TITLE_TRACKING * title_scale)
+	title.add_theme_font_size_override("font_size", floori(TITLE_SIZE * title_scale))
 	mark.custom_minimum_size = Vector2(96, 90) * factor
 	mark.visual_scale = factor
 	continue_button.add_theme_font_size_override("font_size", roundi(22.0 * factor))

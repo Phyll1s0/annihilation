@@ -90,5 +90,5 @@ func _run() -> void:
 	viewport.queue_free()
 	await settle()
 	DirAccess.remove_absolute(save_path)
-	print("NULL settings layout: %d resize cases, both languages, %d failures" % [SIZES.size(), failures])
+	print("ANNIHILATION settings layout: %d resize cases, both languages, %d failures" % [SIZES.size(), failures])
 	quit(1 if failures else 0)

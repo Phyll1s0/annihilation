@@ -5,6 +5,9 @@ var directory: String
 
 func _init(path: String = "user://editor") -> void:
 	directory = path
+	if path == "user://editor":
+		var error := preload("res://scripts/user_data.gd").migrate_legacy()
+		if error != OK: push_warning("ANNIHILATION: could not migrate custom levels (error %d)." % error)
 	DirAccess.make_dir_recursive_absolute(directory.path_join("levels"))
 
 func _write(path: String, model) -> Error:

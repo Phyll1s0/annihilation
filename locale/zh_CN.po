@@ -1,5 +1,5 @@
 msgid ""
-msgstr "Project-Id-Version: NULL\nLanguage: zh_CN\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\n"
+msgstr "Project-Id-Version: ANNIHILATION\nLanguage: zh_CN\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\n"
 
 msgid "Back"
 msgstr "返回"
@@ -548,8 +548,8 @@ msgstr "黑子和白子的数量必须相等。"
 msgid "Every portal group needs exactly two ends."
 msgstr "每组传送阵需要两个端点。"
 
-msgid "Choose a NULL level JSON file."
-msgstr "请选择 NULL 关卡 JSON 文件。"
+msgid "Choose an ANNIHILATION level JSON file."
+msgstr "请选择「湮灭」关卡 JSON 文件。"
 
 msgid "Unsupported level file version."
 msgstr "不支持这个关卡文件版本。"

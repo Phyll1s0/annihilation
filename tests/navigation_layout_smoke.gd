@@ -145,5 +145,5 @@ func _run() -> void:
 	await settle()
 	DirAccess.remove_absolute(save_path)
 	DirAccess.remove_absolute(save_path + ".cfg")
-	print("NULL navigation layout: %d chapter/language/resize cases, pause routes, %d failures" % [cases, failures])
+	print("ANNIHILATION navigation layout: %d chapter/language/resize cases, pause routes, %d failures" % [cases, failures])
 	quit(1 if failures else 0)

@@ -45,6 +45,7 @@ func _run() -> void:
 	home.navigation_requested.connect(func(destination: String): navigation[0] = destination)
 	viewport.add_child(home)
 	await settle()
+	check(home.title.text == "ANNIHILATION", "The home screen displays the new single-line wordmark")
 	var reference_title: int = home.title.get_theme_font_size("font_size")
 	var reference_action: int = home.continue_button.get_theme_font_size("font_size")
 	for dimensions in SIZES:
@@ -78,5 +79,5 @@ func _run() -> void:
 		"Returning to the original window restores its original typography")
 	viewport.queue_free()
 	await settle()
-	print("NULL home layout: %d resize cases, %d failures" % [SIZES.size(), failures])
+	print("ANNIHILATION home layout: %d resize cases, %d failures" % [SIZES.size(), failures])
 	quit(1 if failures else 0)

@@ -46,7 +46,7 @@ def main():
         print(result.stdout, end='', flush=True)
         if result.returncode or re.search(r'(?m)^(?:SCRIPT ERROR|ERROR):', result.stdout):
             raise SystemExit(1)
-    print('All NULL checks passed.')
+    print('All ANNIHILATION checks passed.')
 
 
 if __name__ == '__main__':

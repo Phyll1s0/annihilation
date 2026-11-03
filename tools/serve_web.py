@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preview an exported NULL Web build on this computer."""
+"""Preview an exported ANNIHILATION Web build on this computer."""
 import argparse
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -29,7 +29,7 @@ def main():
                                     partial(WebHandler, directory=str(directory)))
     except OSError as error:
         parser.error(f'Could not start the preview: {error}. Try --port 8788.')
-    print(f'NULL preview: http://127.0.0.1:{server.server_port}/', flush=True)
+    print(f'ANNIHILATION preview: http://127.0.0.1:{server.server_port}/', flush=True)
     print('Local preview only. Press Ctrl+C to stop.', flush=True)
     try:
         server.serve_forever()

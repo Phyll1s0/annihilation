@@ -113,5 +113,5 @@ func _run() -> void:
 	await capture("null-960")
 	DirAccess.remove_absolute(save_path)
 	DirAccess.remove_absolute(save_path + ".cfg")
-	print("NULL UI smoke: %d failures; screenshots in builds/" % failures)
+	print("ANNIHILATION UI smoke: %d failures; screenshots in builds/" % failures)
 	quit(1 if failures else 0)

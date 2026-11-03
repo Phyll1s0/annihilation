@@ -164,7 +164,7 @@ func _run() -> void:
 	viewport.queue_free()
 	await settle()
 	remove_tree(directory)
-	print("NULL progression: %d checks, %d failures" % [checks,failures])
+	print("ANNIHILATION progression: %d checks, %d failures" % [checks,failures])
 	quit(1 if failures else 0)
 
 func remove_tree(path: String) -> void:
