@@ -6,6 +6,7 @@ const LANGUAGES := ["en", "zh_CN"]
 var path: String
 var reduce_motion := false
 var show_hints := true
+var keyboard_only_movement := false
 var fullscreen := false
 var hard_mode := false
 var developer_mode := false
@@ -22,7 +23,7 @@ func _init(config_path: String = "user://settings.cfg") -> void:
 	var config := ConfigFile.new()
 	if config.load(path) != OK:
 		return
-	for property in ["reduce_motion", "show_hints", "fullscreen", "hard_mode", "developer_mode", "music_enabled"]:
+	for property in ["reduce_motion", "show_hints", "keyboard_only_movement", "fullscreen", "hard_mode", "developer_mode", "music_enabled"]:
 		var value = config.get_value("preferences", property, get(property))
 		if value is bool:
 			set(property, value)
@@ -34,7 +35,7 @@ func _init(config_path: String = "user://settings.cfg") -> void:
 
 func save() -> Error:
 	var config := ConfigFile.new()
-	for property in ["reduce_motion", "show_hints", "fullscreen", "hard_mode", "developer_mode", "music_enabled"]:
+	for property in ["reduce_motion", "show_hints", "keyboard_only_movement", "fullscreen", "hard_mode", "developer_mode", "music_enabled"]:
 		config.set_value("preferences", property, get(property))
 	config.set_value("preferences", "language", language)
 	config.set_value("preferences", "music_volume", music_volume)

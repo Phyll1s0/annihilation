@@ -746,3 +746,15 @@ msgstr "只能向左离开这一格。"
 
 msgid "Map settings"
 msgstr "地图设置"
+
+msgid "Keyboard-only movement"
+msgstr "仅键盘移动"
+
+msgid "Mouse selects particles; use arrow keys or WASD to move."
+msgstr "鼠标只选中粒子，使用方向键或 WASD 移动。"
+
+msgid "Select particle"
+msgstr "选中粒子"
+
+msgid "Click a particle"
+msgstr "点击粒子"

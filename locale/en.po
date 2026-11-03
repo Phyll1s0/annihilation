@@ -638,3 +638,15 @@ msgstr "Leave this tile only to the left."
 
 msgid "Map settings"
 msgstr "Map settings"
+
+msgid "Keyboard-only movement"
+msgstr "Keyboard-only movement"
+
+msgid "Mouse selects particles; use arrow keys or WASD to move."
+msgstr "Mouse selects particles; use arrow keys or WASD to move."
+
+msgid "Select particle"
+msgstr "Select particle"
+
+msgid "Click a particle"
+msgstr "Click a particle"

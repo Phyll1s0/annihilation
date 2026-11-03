@@ -50,6 +50,7 @@ Each campaign level supports both modes, with separate completion records and a 
 | Input | Action |
 | --- | --- |
 | Click a particle, then an adjacent tile | Select and move |
+| Click empty space or a missing tile | Deselect the particle |
 | Arrow keys / WASD | Move the selected particle |
 | Tab / Shift+Tab | Cycle through particles |
 | Z | Undo |
@@ -59,7 +60,7 @@ Each campaign level supports both modes, with separate completion records and a 
 | F11 | Toggle fullscreen |
 
 Level selection is available from the back button during play or the pause menu. Switching modes restarts the current level.
-Optional controls and a short rules reference are available under Settings → Controls.
+Optional controls and a short rules reference are available under Settings → Controls. Enable **Keyboard-only movement** there to use the mouse for selection only and move with the arrow keys or WASD. This preference is saved; it applies to campaign games and custom-level playtests.
 
 ## Make your own levels
 

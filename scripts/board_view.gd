@@ -110,13 +110,11 @@ func _gui_input(event: InputEvent) -> void:
 		queue_redraw()
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var index := _cell_at(event.position)
-		if index >= 0:
-			cell_pressed.emit(index)
+		cell_pressed.emit(index)
 		accept_event()
 	if event is InputEventScreenTouch and event.pressed:
 		var index := _cell_at(event.position)
-		if index >= 0:
-			cell_pressed.emit(index)
+		cell_pressed.emit(index)
 		accept_event()
 
 func _edit_input(event: InputEvent) -> void:

@@ -379,10 +379,17 @@ func _show_notice(message: String) -> void:
 	notice.tween_callback(func(): status_label.text = "")
 
 func _click_cell(index: int) -> void:
-	if not input_enabled or level_intro.visible or board.animating() or Puzzle.won(session.state):
+	if not input_enabled or level_intro.visible:
+		return
+	if index < 0 or index >= session.state.board.size() or session.state.board[index] < 0:
+		_deselect()
+		return
+	if board.animating() or Puzzle.won(session.state):
 		return
 	var selected: int = session.selected
-	if index == selected:
+	if settings.keyboard_only_movement:
+		session.selected = index if session.state.pieces[index] != 0 and index != selected else -1
+	elif index == selected:
 		session.selected = -1
 	elif selected >= 0 and _adjacent(selected, index) and session.state.pieces[index] != session.state.pieces[selected]:
 		var dx: int = index % session.state.width - selected % session.state.width
@@ -392,6 +399,17 @@ func _click_cell(index: int) -> void:
 	elif session.state.pieces[index] != 0:
 		session.selected = index
 	_sync()
+
+func _deselect() -> void:
+	if not input_enabled or level_intro.visible or session.selected < 0:
+		return
+	session.selected = -1
+	_sync()
+
+func _gui_input(event: InputEvent) -> void:
+	if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch and event.pressed):
+		_deselect()
+		accept_event()
 
 func _adjacent(a: int, b: int) -> bool:
 	var width: int = session.state.width

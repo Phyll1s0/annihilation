@@ -26,6 +26,8 @@ var audio_button: Button
 var volume_slider: HSlider
 var volume_value: Label
 var volume_knob: DPITexture
+var pointer_action: Label
+var pointer_binding: Label
 
 func _ready() -> void:
 	settings.apply_language()
@@ -158,19 +160,34 @@ func _ready() -> void:
 	audio.add_child(volume_slider)
 	audio.add_child(_label("Still Orbit", 14, MUTED))
 	controls = VBoxContainer.new()
-	controls.add_theme_constant_override("separation", 16)
+	controls.add_theme_constant_override("separation", 8)
 	page.add_child(controls)
+	var movement_row := HBoxContainer.new()
+	controls.add_child(movement_row)
+	movement_row.add_child(_label("Keyboard-only movement", 18))
+	_spacer(movement_row)
+	var movement_toggle := CheckButton.new()
+	movement_toggle.custom_minimum_size = Vector2(56, 40)
+	movement_toggle.tooltip_text = tr("Mouse selects particles; use arrow keys or WASD to move.")
+	movement_toggle.set_meta("hint", "Mouse selects particles; use arrow keys or WASD to move.")
+	movement_toggle.toggled.connect(func(enabled: bool): _set_option("keyboard_only_movement", enabled))
+	movement_row.add_child(movement_toggle)
+	switches.keyboard_only_movement = movement_toggle
 	for entry in [["Select / move", "Click a particle, then a neighboring tile"], ["Move", "↑ ↓ ← →  /  WASD"], ["Cycle particles", "Tab  /  Shift Tab"],
 		["Undo", "Z"], ["Restart", "R"], ["Deselect / pause", "Esc"]]:
 		var row := HBoxContainer.new()
 		controls.add_child(row)
-		row.add_child(_label(entry[0], 16))
+		var action := _label(entry[0], 16)
+		row.add_child(action)
 		_spacer(row)
 		var binding := _label(entry[1], 14, MUTED)
 		binding.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		binding.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		binding.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		row.add_child(binding)
+		if entry[0] == "Select / move":
+			pointer_action = action
+			pointer_binding = binding
 	var rules := _label("Meet opposite colors to clear the board. The collision tile disappears.\nMatching colors block each other. Portals with the same letter are linked.\nOn an arrow tile, a particle can leave only in the arrow direction.", 12, MUTED)
 	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	controls.add_child(rules)
@@ -278,7 +295,13 @@ func _set_option(key: String, enabled: bool) -> void:
 	_save_settings()
 	if key == "fullscreen":
 		settings.apply_window()
+	if key == "keyboard_only_movement": _refresh_controls()
 	settings_changed.emit()
+
+func _refresh_controls() -> void:
+	if pointer_action == null: return
+	pointer_action.text = tr("Select particle" if settings.keyboard_only_movement else "Select / move")
+	pointer_binding.text = tr("Click a particle" if settings.keyboard_only_movement else "Click a particle, then a neighboring tile")
 
 func _save_settings() -> void:
 	status_message = "Settings saved." if settings.save() == OK else "Could not save settings. Changes still apply to this session."
@@ -296,6 +319,7 @@ func _refresh_language() -> void:
 	if heading != null:
 		heading.text = tr("Audio") if audio.visible else (tr("Developer") if developer.visible else (tr("Controls") if controls.visible else tr("Settings")))
 		status.text = tr(status_message)
+		_refresh_controls()
 
 func refresh() -> void:
 	language_selector.select(settings.LANGUAGES.find(settings.language))
@@ -303,3 +327,4 @@ func refresh() -> void:
 		switches[key].set_pressed_no_signal(settings.get(key))
 	editor_button.disabled = not settings.developer_mode
 	_refresh_audio()
+	_refresh_controls()
