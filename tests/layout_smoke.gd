@@ -72,7 +72,7 @@ func _run() -> void:
 			check(board.get_global_rect().encloses(grid), tag + ": tiles are not clipped by the board")
 			check(grid.position.y >= ui.toolbar.get_global_rect().end.y + 4, tag + ": the grid clears the toolbar (grid %.1f, toolbar %s, counter font %d)" % [grid.position.y, ui.toolbar.get_global_rect(), ui.count_label.get_theme_font_size("font_size")])
 			check(grid.end.y <= ui.status_label.position.y - 8, tag + ": feedback has separate space")
-			var center: Vector2 = board.get_global_rect().get_center() if dimensions.y < 600 and dimensions.x >= 600 else screen.get_center()
+			var center: Vector2 = board.get_global_rect().get_center() if dimensions.y < 600 or dimensions.x < 600 else screen.get_center()
 			check(grid.get_center().distance_to(center) < 1.0, tag + ": the puzzle stays centered in its available area")
 			check(board.unit >= 28.0, tag + ": cells stay usable at the smallest test viewport")
 			for control in [ui.back_button, ui.pause_button, ui.easy_button, ui.hard_button, ui.toolbar]:

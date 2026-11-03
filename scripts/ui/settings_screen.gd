@@ -268,6 +268,7 @@ func _layout_settings() -> void:
 		popup.add_theme_constant_override("v_separation", 22 if mobile else roundi(8 * ui_scale))
 		popup.add_theme_stylebox_override("panel", _style(Color("080808"), LINE, roundi(3 * ui_scale)))
 	_fit_frame()
+	_refresh_controls()
 
 func _fit_frame() -> void:
 	# Container minimums settle after fonts and vector icons have changed size.
@@ -351,6 +352,10 @@ func _set_option(key: String, enabled: bool) -> void:
 
 func _refresh_controls() -> void:
 	if pointer_action == null: return
+	if size.x < 960 or size.y < 600:
+		pointer_action.text = tr("Touch")
+		pointer_binding.text = tr("Tap a particle; tap a neighboring tile or swipe.")
+		return
 	pointer_action.text = tr("Select particle" if settings.keyboard_only_movement else "Select / move")
 	pointer_binding.text = tr("Click a particle" if settings.keyboard_only_movement else "Click a particle, then a neighboring tile")
 

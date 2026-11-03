@@ -764,3 +764,9 @@ msgstr "工具"
 
 msgid "Board"
 msgstr "棋盘"
+
+msgid "Touch"
+msgstr "触摸"
+
+msgid "Tap a particle; tap a neighboring tile or swipe."
+msgstr "点选棋子后，点相邻格或轻扫移动。"

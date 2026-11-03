@@ -656,3 +656,9 @@ msgstr "Tools"
 
 msgid "Board"
 msgstr "Board"
+
+msgid "Touch"
+msgstr "Touch"
+
+msgid "Tap a particle; tap a neighboring tile or swipe."
+msgstr "Tap a particle; tap a neighboring tile or swipe."

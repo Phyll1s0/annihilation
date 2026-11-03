@@ -2,6 +2,7 @@ extends Control
 ## Vector-only rendering keeps the board sharp at every window size.
 
 signal cell_pressed(index: int, touch: bool)
+signal swipe_requested(source: int, direction: String)
 signal animation_finished
 signal paint_started
 signal paint_finished
@@ -34,11 +35,18 @@ var visual_scale := 1.0
 var edit_mode := false
 var paint_button := 0
 var last_painted := -1
+var touch_id := -1
+var touch_start := Vector2.ZERO
+var touch_travel := 0.0
+var touch_cell := -2
+var touch_source := -1
 
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_CROSS if edit_mode else Control.CURSOR_POINTING_HAND
 	clip_contents = true
-	resized.connect(func(): _layout_board(); queue_redraw())
+	resized.connect(func(): cancel_touch(); _layout_board(); queue_redraw())
+	visibility_changed.connect(func():
+		if not is_visible_in_tree(): cancel_touch())
 	mouse_exited.connect(func(): hover = -1; queue_redraw())
 
 func present(next: Dictionary, selection: int) -> void:
@@ -48,6 +56,7 @@ func present(next: Dictionary, selection: int) -> void:
 	queue_redraw()
 
 func animate(result: Dictionary, before: Dictionary) -> void:
+	cancel_touch()
 	if reduce_motion:
 		motion = {}
 		queue_redraw()
@@ -57,6 +66,7 @@ func animate(result: Dictionary, before: Dictionary) -> void:
 	elapsed = 0.0
 
 func cancel_animation() -> void:
+	cancel_touch()
 	motion = {}
 	queue_redraw()
 
@@ -92,6 +102,79 @@ func _cell_at(point: Vector2) -> int:
 		return -1
 	return y * state.width + x
 
+func near_grid(point: Vector2) -> bool:
+	if state.is_empty(): return false
+	var grid := Rect2(origin, Vector2(state.width, state.height) * unit)
+	return grid.grow(32).has_point(point)
+
+func _touch_cell_at(point: Vector2) -> int:
+	var exact := _cell_at(point)
+	var valid: bool = exact >= 0 and state.board[exact] >= 0
+	if valid and state.pieces[exact] != 0: return exact
+	# Accurate taps on a neighboring floor tile always win over a nearby particle.
+	if valid and selected >= 0 and _neighbor(selected, exact): return exact
+	var closest := -2
+	var distance := pow(maxf(24, unit / 2 + 8), 2)
+	for index in state.pieces.size():
+		var candidate: bool = state.pieces[index] != 0 or (selected >= 0 and state.board[index] >= 0 and _neighbor(selected, index))
+		if not candidate: continue
+		var next := point.distance_squared_to(center_of(index))
+		if next < distance:
+			distance = next
+			closest = index
+	if closest >= 0: return closest
+	if valid: return exact
+	# Holes and small misses keep the selection; distant sky is an intentional clear.
+	return -2 if near_grid(point) else -1
+
+func _neighbor(a: int, b: int) -> bool:
+	var width: int = state.width
+	return absi(a % width - b % width) + absi(floori(float(a) / width) - floori(float(b) / width)) == 1
+
+func begin_touch(point: Vector2, identifier: int) -> void:
+	if touch_id >= 0 or state.is_empty(): return
+	touch_id = identifier
+	touch_start = point
+	touch_travel = 0
+	touch_cell = _touch_cell_at(point)
+	touch_source = touch_cell if touch_cell >= 0 and state.pieces[touch_cell] != 0 else selected
+
+func cancel_touch() -> void:
+	var painting := edit_mode and touch_id >= 0 and paint_button != 0
+	touch_id = -1
+	touch_cell = -2
+	touch_source = -1
+	if painting:
+		paint_button = 0
+		paint_finished.emit()
+
+func _input(event: InputEvent) -> void:
+	if touch_id < 0 or not is_visible_in_tree(): return
+	if not (event is InputEventScreenTouch or event is InputEventScreenDrag) or event.index != touch_id: return
+	var point: Vector2 = get_global_transform_with_canvas().affine_inverse() * event.position
+	if edit_mode:
+		var local := event.duplicate()
+		local.position = point
+		if event is InputEventScreenTouch and not event.pressed: touch_id = -1
+		_edit_input(local)
+	elif event is InputEventScreenDrag:
+		touch_travel = maxf(touch_travel, touch_start.distance_to(point))
+	elif not event.pressed:
+		var source := touch_source
+		var cell := touch_cell
+		var delta := point - touch_start
+		var threshold := clampf(unit * 0.45, 24, 40)
+		var traveled := maxf(touch_travel, delta.length())
+		cancel_touch()
+		if not event.canceled:
+			if traveled < threshold:
+				if cell != -2: cell_pressed.emit(cell, true)
+			elif maxf(absf(delta.x), absf(delta.y)) >= threshold and maxf(absf(delta.x), absf(delta.y)) >= minf(absf(delta.x), absf(delta.y)) * 1.25:
+				if source >= 0:
+					var direction := ("right" if delta.x > 0 else "left") if absf(delta.x) > absf(delta.y) else ("down" if delta.y > 0 else "up")
+					swipe_requested.emit(source, direction)
+	get_viewport().set_input_as_handled()
+
 func _get_tooltip(at_position: Vector2) -> String:
 	if state.is_empty(): return ""
 	var cell := _cell_at(at_position)
@@ -107,10 +190,11 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
 		accept_event()
 		return
-	if (event is InputEventScreenTouch or event is InputEventScreenDrag) and event.index != 0:
+	if (event is InputEventScreenTouch or event is InputEventScreenDrag) and touch_id >= 0 and event.index != touch_id:
 		accept_event()
 		return
 	if edit_mode:
+		if event is InputEventScreenTouch and event.pressed and touch_id < 0: touch_id = event.index
 		_edit_input(event)
 		return
 	if event is InputEventMouseMotion:
@@ -120,9 +204,8 @@ func _gui_input(event: InputEvent) -> void:
 		var index := _cell_at(event.position)
 		cell_pressed.emit(index, false)
 		accept_event()
-	if event is InputEventScreenTouch and event.pressed and event.index == 0:
-		var index := _cell_at(event.position)
-		cell_pressed.emit(index, true)
+	if event is InputEventScreenTouch and event.pressed:
+		begin_touch(event.position, event.index)
 		accept_event()
 
 func _edit_input(event: InputEvent) -> void:

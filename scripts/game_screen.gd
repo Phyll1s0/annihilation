@@ -16,7 +16,12 @@ var levels: Array = []
 var session = Session.new()
 var progress = Progress.new()
 var settings = Settings.new()
-var input_enabled := true
+var input_enabled := true:
+	set(value):
+		input_enabled = value
+		if not value:
+			pending_touch.clear()
+			if board != null: board.cancel_touch()
 var current := 0
 var board
 var chapter_label: Label
@@ -47,6 +52,7 @@ var custom_player := "Player"
 var custom_new_record := false
 var level_intro
 var intro_pending := false
+var pending_touch: Dictionary = {}
 
 func _return_page() -> String:
 	return custom_return if custom_run else "campaign"
@@ -73,6 +79,7 @@ func apply_settings() -> void:
 	board.reduce_motion = settings.reduce_motion
 	board.show_hints = settings.show_hints
 	if settings.reduce_motion:
+		pending_touch.clear()
 		board.cancel_animation()
 		_cancel_level_intro()
 	_sync()
@@ -104,7 +111,8 @@ func _build_ui() -> void:
 	board = Board.new()
 	board.font = regular
 	board.cell_pressed.connect(_click_cell)
-	board.animation_finished.connect(_sync)
+	board.swipe_requested.connect(_swipe_cell)
+	board.animation_finished.connect(_animation_finished)
 	add_child(board)
 	toolbar = HBoxContainer.new()
 	toolbar.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -187,9 +195,15 @@ func _layout_ui() -> void:
 		board.size.y = maxf(1, size.y - clearance - 30)
 	board.padding = Vector2(minf(40 * factor, maxf(8, board.size.x - columns * 28.0)),
 		minf(40 * factor, maxf(8, board.size.y - rows * 28.0)))
+	if compact:
+		board.position.y = toolbar_top + 60
+		board.size.y = maxf(1, size.y - board.position.y - 56)
+	if compact or short_screen:
+		board.padding = Vector2(16, 16)
 	board.visual_scale = factor
 	# Keep cell proportions as the viewport grows; fit the entire level to its safe area.
 	board.maximum_unit = maxf(56.0, minf(size.x, size.y) * 0.14)
+	if compact or short_screen: board.maximum_unit = maxf(72, minf(size.x, size.y) * 0.18)
 	board._layout_board()
 	board.queue_redraw()
 	status_label.position = Vector2(edge, size.y - 48 * factor)
@@ -254,6 +268,7 @@ func _build_result(canvas: Control) -> void:
 	result_panel.hide()
 
 func _open_level(index: int, persist: bool = true) -> void:
+	pending_touch.clear()
 	_cancel_level_intro()
 	current = clampi(index, 0, levels.size() - 1)
 	board.cancel_animation()
@@ -300,6 +315,7 @@ func _change_mode(hard: bool) -> void:
 	_restart()
 
 func _restart() -> void:
+	pending_touch.clear()
 	_cancel_level_intro()
 	board.cancel_animation()
 	session.restart()
@@ -309,6 +325,7 @@ func _restart() -> void:
 	_sync()
 
 func _undo() -> void:
+	pending_touch.clear()
 	board.cancel_animation()
 	session.undo()
 	_save_checkpoint()
@@ -405,13 +422,16 @@ func _click_cell(index: int, touch: bool = false) -> void:
 	if index < 0 or index >= session.state.board.size() or session.state.board[index] < 0:
 		_deselect()
 		return
-	if board.animating() or Puzzle.won(session.state):
+	if Puzzle.won(session.state):
+		return
+	if board.animating():
+		if touch: pending_touch = {"cell": index}
 		return
 	var selected: int = session.selected
 	if settings.keyboard_only_movement and not touch:
 		session.selected = index if session.state.pieces[index] != 0 and index != selected else -1
 	elif index == selected:
-		session.selected = -1
+		if not touch: session.selected = -1
 	elif selected >= 0 and _adjacent(selected, index) and session.state.pieces[index] != session.state.pieces[selected]:
 		var dx: int = index % session.state.width - selected % session.state.width
 		var dy: int = floori(float(index) / session.state.width) - floori(float(selected) / session.state.width)
@@ -421,9 +441,29 @@ func _click_cell(index: int, touch: bool = false) -> void:
 		session.selected = index
 	_sync()
 
-func _deselect() -> void:
-	if not input_enabled or level_intro.visible or session.selected < 0:
+func _swipe_cell(source: int, direction: String) -> void:
+	if not input_enabled or level_intro.visible or Puzzle.won(session.state): return
+	if source < 0 or source >= session.state.pieces.size() or session.state.pieces[source] == 0: return
+	if board.animating():
+		pending_touch = {"source": source, "direction": direction}
 		return
+	session.selected = source
+	_sync()
+	_try_move(direction)
+
+func _animation_finished() -> void:
+	var pending := pending_touch.duplicate()
+	pending_touch.clear()
+	_sync()
+	if not input_enabled or level_intro.visible: return
+	if pending.has("cell"): _click_cell(int(pending.cell), true)
+	elif pending.has("direction"): _swipe_cell(int(pending.source), str(pending.direction))
+
+func _deselect() -> void:
+	if not input_enabled or level_intro.visible:
+		return
+	pending_touch.clear()
+	if session.selected < 0: return
 	session.selected = -1
 	_sync()
 
@@ -431,7 +471,15 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
 		accept_event()
 		return
-	if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch and event.pressed and event.index == 0):
+	if event is InputEventScreenTouch and event.pressed:
+		if board.touch_id >= 0 or not input_enabled or level_intro.visible:
+			accept_event()
+			return
+		var local: Vector2 = event.position - board.position
+		if board.near_grid(local): board.begin_touch(local, event.index)
+		else: _deselect()
+		accept_event()
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_deselect()
 		accept_event()
 

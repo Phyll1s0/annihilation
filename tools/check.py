@@ -21,6 +21,7 @@ def main():
         ['godot', '--headless', '--path', '.', '--script', 'tests/run_tests.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/ui_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/pointer_controls_smoke.gd'],
+        ['godot', *headless, '--path', '.', '--script', 'tests/touch_controls_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/mobile_ui_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/level_intro_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/layout_smoke.gd'],

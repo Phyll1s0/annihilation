@@ -6,6 +6,7 @@ Then run: python tools/check_mobile_web.py [--browser webkit]
 """
 import argparse
 import json
+from itertools import count
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -75,21 +76,43 @@ try:
         page.screenshot(path=str(ROOT / f"builds/mobile-{args.browser}-loading.png"), scale="css")
         page.wait_for_function('document.querySelector("#status") === null', timeout=120000)
         page.wait_for_timeout(600)
+        page.evaluate("window.touchIdentifiers = []; canvas.addEventListener('touchstart', event => touchIdentifiers.push(event.changedTouches[0].identifier))")
+        cdp = page.context.new_cdp_session(page) if args.browser == "chromium" else None
+        finger_ids = count(41)
         dimensions = page.evaluate("[canvas.clientWidth, canvas.clientHeight, canvas.width, canvas.height]")
         assert dimensions == [390, 664, 1170, 1992], dimensions
         page.screenshot(path=str(ROOT / f"builds/mobile-{args.browser}-home.png"), scale="css")
 
-        def tap(control, size="390x664"):
+        def location(control, size="390x664", shift=(0, 0)):
             point = geometry[size][control]
             offset = page.locator("#canvas").bounding_box()
-            page.touchscreen.tap(point["x"] + offset["x"], point["y"] + offset["y"])
+            return point["x"] + offset["x"] + shift[0], point["y"] + offset["y"] + shift[1]
+
+        def gesture(control, size="390x664", shift=(0, 0), movement=(0, 0)):
+            finger_id = next(finger_ids)
+            x, y = location(control, size, shift)
+            if cdp:
+                cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [{"x": x, "y": y, "id": finger_id}]})
+                if movement != (0, 0):
+                    for step in range(1, 5):
+                        cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": x + movement[0] * step / 4, "y": y + movement[1] * step / 4, "id": finger_id}]})
+                cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
+            else:
+                page.touchscreen.tap(x, y)
+
+        def tap(control, size="390x664"):
+            gesture(control, size)
 
         tap("start")
         page.wait_for_timeout(700)
         page.screenshot(path=str(ROOT / f"builds/mobile-{args.browser}-campaign.png"), scale="css")
         tap("level")
         page.wait_for_timeout(2300)
+        # Missing the particle slightly, repeated taps, and finger jitter must not clear it.
+        gesture("source", shift=(-geometry["390x664"]["cell_size"] / 2 - 7, 0))
         tap("source")
+        tap("source")
+        gesture("source", movement=(10, 8))
         page.wait_for_timeout(200)
         page.screenshot(path=str(ROOT / f"builds/mobile-{args.browser}-selected.png"), scale="css")
         page.set_viewport_size({"width": 844, "height": 300})
@@ -98,11 +121,17 @@ try:
         page.evaluate("document.getElementById('game').style.inset = '0px 47px 21px'")
         page.wait_for_timeout(700)
         assert page.evaluate("[canvas.clientWidth, canvas.clientHeight, canvas.width, canvas.height]") == [750, 279, 2250, 837]
-        tap("target", "750x279")
+        if cdp:
+            gesture("source", "750x279", movement=(80, 3))
+        else:
+            tap("target", "750x279")
         page.wait_for_timeout(700)
         page.evaluate("window.readProgress = " + READ_PROGRESS)
         page.wait_for_function("async () => (await readProgress())?.records?.['01']?.easy === true", timeout=15000)
         assert page.evaluate("readProgress()")["records"]["01"]["best"] == 1
+        if cdp:
+            ids = page.evaluate("touchIdentifiers")
+            assert min(ids) >= 41 and len(set(ids)) >= 5, ids
         page.evaluate("document.getElementById('game').style.inset = ''")
         page.wait_for_timeout(500)
         tap("pause", "844x300")

@@ -53,6 +53,7 @@ Each campaign level supports both modes, with separate completion records and a 
 | --- | --- |
 | Click a particle, then an adjacent tile | Select and move |
 | Tap a particle, then an adjacent tile | Select and move on a touchscreen |
+| Swipe a particle, or swipe the board after selecting one | Move one tile in the swipe direction |
 | Click empty space or a missing tile | Deselect the particle |
 | Arrow keys / WASD | Move the selected particle |
 | Tab / Shift+Tab | Cycle through particles |
@@ -63,6 +64,7 @@ Each campaign level supports both modes, with separate completion records and a 
 | F11 | Toggle fullscreen |
 
 Level selection is available from the back button during play or the pause menu. Switching modes restarts the current level.
+Touch selection stays active when you tap the same particle again or miss into a nearby gap. Small finger drift is tolerated, and taps just outside a particle or neighboring tile can still reach it. Tap the sky away from the grid to deselect. Each swipe moves one tile; a quick second touch can wait for the current movement animation to finish.
 Optional controls and a short rules reference are available under Settings → Controls. Enable **Keyboard-only movement** there to use the mouse for selection only and move with the arrow keys or WASD. This preference is saved; it applies to campaign games and custom-level playtests. Touch movement remains available with this preference enabled.
 
 ## Make your own levels

@@ -105,6 +105,7 @@ func _run() -> void:
 		await settle()
 		controls.source = coords(point(0))
 		controls.target = coords(point(1))
+		controls.cell_size = app.game.board.unit
 		controls.pause = coords(app.game.pause_button.get_global_rect().get_center())
 		touch(point(0))
 		check(app.game.session.selected == 0, tag + ": a touch selects a particle")
@@ -127,8 +128,15 @@ func _run() -> void:
 		await settle()
 		touch(app.game.board.global_position + Vector2.ONE)
 		check(app.game.session.selected == -1, tag + ": tapping blank space deselects")
-		touch(point(1), 1)
-		check(app.game.session.selected == -1, tag + ": secondary fingers cannot accidentally select")
+		var primary := InputEventScreenTouch.new()
+		primary.index = 41
+		primary.position = point(1)
+		primary.pressed = true
+		viewport.push_input(primary, true)
+		touch(point(3), 42)
+		primary.pressed = false
+		viewport.push_input(primary, true)
+		check(app.game.session.selected == 1, tag + ": a nonzero primary touch works while secondary fingers are ignored")
 		app.settings.keyboard_only_movement = false
 		app.pause_game()
 		await settle()
