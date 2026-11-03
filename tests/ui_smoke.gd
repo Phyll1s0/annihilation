@@ -39,7 +39,7 @@ func settle() -> void:
 	await process_frame
 	await process_frame
 	if ui != null and ui.level_intro.visible:
-		await create_timer(0.8).timeout
+		await create_timer(1.85).timeout
 
 func capture(name: String) -> void:
 	if DisplayServer.get_name() == "headless":

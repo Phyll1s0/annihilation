@@ -1,7 +1,7 @@
 extends Control
 ## A brief title card that dissolves to reveal the live board underneath.
-const HOLD_SECONDS := 0.12
-const FADE_SECONDS := 0.63
+const HOLD_SECONDS := 0.65
+const FADE_SECONDS := 1.15
 var title_font: Font
 var number_font: Font
 var title: Label
