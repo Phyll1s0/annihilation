@@ -11,8 +11,9 @@ const Puzzle = preload("res://scripts/puzzle.gd")
 const DirectionGlyph = preload("res://scripts/ui/direction_glyph.gd")
 const INK := Color("090a0c")
 const PAPER := Color("eef1f4")
-const LINE := Color(1, 1, 1, 0.25)
+const LINE := Color(1, 1, 1, 0.50)
 const PRIMARY := Color("dce1e5")
+const BLACK_OUTLINE := Color("d1d8df")
 const PORTAL_COLORS := [Color("7bbce5"), Color("cea2df"), Color("8bcbb7"), Color("d9bd83")]
 
 var state: Dictionary = {}
@@ -171,8 +172,8 @@ func _tile(index: int, terrain: int, opacity: float = 1.0) -> void:
 	var style := StyleBoxFlat.new()
 	var portal_color := _portal_color(portal)
 	style.bg_color = Color(1, 1, 1, 0.035 * opacity) if portal == 0 else Color(portal_color, 0.12 * opacity)
-	style.border_color = Color(1, 1, 1, 0.25 * opacity) if portal == 0 else Color(portal_color, 0.70 * opacity)
-	style.set_border_width_all(maxi(1, roundi(visual_scale)))
+	style.border_color = Color(LINE, LINE.a * opacity) if portal == 0 else Color(portal_color, 0.85 * opacity)
+	style.set_border_width_all(maxi(1, roundi(1.4 * visual_scale)))
 	var corner := roundi((3.0 if portal == 0 else 10.0) * visual_scale)
 	style.set_corner_radius_all(corner)
 	style.corner_detail = clampi(ceili(corner / 2.0), 8, 32)
@@ -201,7 +202,9 @@ func _piece(point: Vector2, color: int, radius: float, opacity: float = 1.0, act
 	if radius < 0.1:
 		return
 	draw_circle(point, radius, Color(INK if color == -1 else PAPER, opacity), true, -1, true)
-	draw_arc(point, radius, 0, TAU, _arc_segments(radius), Color(PAPER, opacity * 0.85) if color == 1 else Color(Color("8d949b"), opacity), visual_scale, true)
+	var outline := Color(PAPER, opacity * 0.85) if color == 1 else Color(BLACK_OUTLINE, opacity)
+	var stroke := visual_scale if color == 1 else visual_scale * 1.65
+	draw_arc(point, radius, 0, TAU, _arc_segments(radius), outline, stroke, true)
 	if active:
 		var pulse := 1.0 if reduce_motion else 1.0 + sin(clock * 3.0) * 0.025
 		var ring := (radius + unit * 0.07) * pulse
