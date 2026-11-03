@@ -45,6 +45,8 @@ var custom_return := "editor"
 var custom_best := 0
 var custom_player := "Player"
 var custom_new_record := false
+var level_intro
+var intro_pending := false
 
 func _return_page() -> String:
 	return custom_return if custom_run else "campaign"
@@ -58,6 +60,8 @@ func _ready() -> void:
 	progress.bind_catalog(levels)
 	_setup_theme()
 	_build_ui()
+	visibility_changed.connect(func():
+		if not is_visible_in_tree(): _cancel_level_intro())
 	resized.connect(_layout_ui)
 	_layout_ui()
 	session.hard_mode = settings.hard_mode and not custom_run
@@ -70,6 +74,7 @@ func apply_settings() -> void:
 	board.show_hints = settings.show_hints
 	if settings.reduce_motion:
 		board.cancel_animation()
+		_cancel_level_intro()
 	_sync()
 
 func _build_ui() -> void:
@@ -123,6 +128,10 @@ func _build_ui() -> void:
 	status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(status_label)
 	_build_result(self)
+	level_intro = preload("res://scripts/ui/level_intro.gd").new()
+	level_intro.title_font = heavy
+	level_intro.number_font = regular
+	add_child(level_intro)
 
 func _layout_ui() -> void:
 	if board == null:
@@ -224,6 +233,7 @@ func _build_result(canvas: Control) -> void:
 	result_panel.hide()
 
 func _open_level(index: int, persist: bool = true) -> void:
+	_cancel_level_intro()
 	current = clampi(index, 0, levels.size() - 1)
 	board.cancel_animation()
 	session.start(levels[current], session.hard_mode)
@@ -232,6 +242,31 @@ func _open_level(index: int, persist: bool = true) -> void:
 		_save_checkpoint()
 	apply_settings()
 	_layout_ui()
+	show_level_intro()
+
+func show_level_intro() -> void:
+	intro_pending = not settings.reduce_motion
+	if intro_pending and is_visible_in_tree(): _play_level_intro()
+
+func _play_level_intro() -> void:
+	intro_pending = false
+	if entrance != null and entrance.is_running(): entrance.kill()
+	modulate.a = 1.0
+	var number := tr("Playtest" if custom_return == "editor" else "Custom level") if custom_run else "%02d" % [current + 1]
+	var text: String = levels[current].title if custom_run else tr(levels[current].title)
+	level_intro.play(number, text)
+
+func _cancel_level_intro() -> void:
+	intro_pending = false
+	if level_intro != null: level_intro.cancel()
+
+func enter(reduced: bool) -> void:
+	if reduced:
+		_cancel_level_intro()
+	if intro_pending:
+		_play_level_intro()
+	elif not level_intro.visible:
+		super.enter(reduced)
 
 func _change_mode(hard: bool) -> void:
 	if custom_run: return
@@ -244,6 +279,7 @@ func _change_mode(hard: bool) -> void:
 	_restart()
 
 func _restart() -> void:
+	_cancel_level_intro()
 	board.cancel_animation()
 	session.restart()
 	custom_new_record = false
@@ -343,7 +379,7 @@ func _show_notice(message: String) -> void:
 	notice.tween_callback(func(): status_label.text = "")
 
 func _click_cell(index: int) -> void:
-	if not input_enabled or board.animating() or Puzzle.won(session.state):
+	if not input_enabled or level_intro.visible or board.animating() or Puzzle.won(session.state):
 		return
 	var selected: int = session.selected
 	if index == selected:
@@ -362,7 +398,7 @@ func _adjacent(a: int, b: int) -> bool:
 	return absi(a % width - b % width) + absi(floori(float(a) / width) - floori(float(b) / width)) == 1
 
 func _try_move(direction: String) -> void:
-	if not input_enabled or board.animating() or Puzzle.won(session.state):
+	if not input_enabled or level_intro.visible or board.animating() or Puzzle.won(session.state):
 		return
 	if session.selected < 0:
 		_show_notice("Select a particle")
@@ -385,6 +421,12 @@ func _input(event: InputEvent) -> void:
 	if not input_enabled or not is_visible_in_tree() or not event is InputEventKey or not event.pressed or event.echo or levels.is_empty():
 		return
 	if event.ctrl_pressed or event.meta_pressed or event.alt_pressed:
+		return
+	if level_intro.visible and event.physical_keycode != KEY_F11:
+		if event.physical_keycode == KEY_ESCAPE:
+			_cancel_level_intro()
+			pause_requested.emit()
+		get_viewport().set_input_as_handled()
 		return
 	var handled := true
 	match event.physical_keycode:

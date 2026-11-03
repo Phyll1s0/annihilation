@@ -36,6 +36,7 @@ Each campaign level supports both modes, with separate completion records and a 
 - Campaign minimum move counts verified by independent Python and GDScript solvers.
 - Automatic saves, resumable games, and undo history restored after restarting.
 - A minimal title screen with scalable text and controls. Start opens level selection; Continue in the campaign selection restores the saved run.
+- A brief level title dissolves into the board on entry; reduced motion skips the transition.
 - A My levels tab for playing, editing, and viewing the records of saved custom maps.
 - Black-and-white pieces, a pure black background with faint star trails, and an orbital zero mark.
 - Responsive chapter selection, progress indicators, pause menus, and Settings, with readable controls in fullscreen.

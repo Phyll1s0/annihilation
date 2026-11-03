@@ -96,6 +96,7 @@ func _navigate(destination: String) -> void:
 	match destination:
 		"continue":
 			if not progress.resume.is_empty() and progress.level_unlocked(levels, game.current, settings.developer_mode):
+				game.show_level_intro()
 				show_screen("game")
 			else:
 				show_screen("campaign")
@@ -317,6 +318,7 @@ func pause_game() -> void:
 		return
 	paused = true
 	var active = _active_game()
+	active._cancel_level_intro()
 	active.input_enabled = false
 	active.board.cancel_animation()
 	active._sync()

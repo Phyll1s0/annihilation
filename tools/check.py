@@ -20,6 +20,7 @@ def main():
         ['godot', '--headless', '--path', '.', '--editor', '--import', '--quit'],
         ['godot', '--headless', '--path', '.', '--script', 'tests/run_tests.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/ui_smoke.gd'],
+        ['godot', *headless, '--path', '.', '--script', 'tests/level_intro_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/layout_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/home_layout_smoke.gd'],
         ['godot', *headless, '--path', '.', '--script', 'tests/settings_layout_smoke.gd'],

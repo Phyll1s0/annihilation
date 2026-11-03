@@ -20,6 +20,9 @@ func check(condition: bool, description: String) -> void:
 func settle() -> void:
 	await process_frame
 	await process_frame
+	if app != null and app.screen in ["game", "editor_test"]:
+		if app._active_game().level_intro.visible:
+			await create_timer(0.8).timeout
 
 func native_transition() -> void:
 	# Finish the macOS Spaces animation before sending another fullscreen toggle.
