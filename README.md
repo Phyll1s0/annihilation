@@ -2,6 +2,8 @@
 
 ANNIHILATION is a minimalist grid puzzle about black and white particles, disappearing paths, and finding the shortest solution. Built with Godot 4 and GDScript.
 
+[Play the Web demo](https://phyll1s0.com/annihilation/) in a desktop browser.
+
 ![ANNIHILATION title screen](docs/images/home.png)
 
 ## Gameplay
